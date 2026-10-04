@@ -119,7 +119,7 @@ jobs:
             docker compose logs --no-color > /tmp/compose.log 2>&1 || true
             cat /tmp/compose.log
             if [ "$status" -ne 0 ]; then
-              details=$(tail -c 12000 /tmp/turn-test.log /tmp/compose.log 2>/dev/null || true)
+              details=$(tail -c 6000 /tmp/turn-build.log /tmp/turn-test.log /tmp/compose.log 2>/dev/null || true)
               details="${details//'%'/'%25'}"
               details="${details//$'\r'/'%0D'}"
               details="${details//$'\n'/'%0A'}"
@@ -130,7 +130,7 @@ jobs:
           }
           trap cleanup EXIT
           docker compose config --quiet
-          docker compose up --detach --build
+          docker compose up --detach --build 2>&1 | tee /tmp/turn-build.log
           ready=false
           for attempt in {1..60}; do
             if curl --fail --silent "$TEST_BASE_URL/api/health"; then
