@@ -10,6 +10,18 @@ services:
       VOICE_ICE_POLICY: "${VOICE_ICE_POLICY:-all}"
       VOICE_TURN_URLS: "${VOICE_TURN_URLS:-}"
       VOICE_TURN_SECRET: "${VOICE_TURN_SECRET:-}"
+      TURN_ENABLED: "${TURN_ENABLED:-true}"
+      TURN_PUBLIC_IP: "${TURN_PUBLIC_IP:-}"
+      TURN_PUBLIC_HOST: "${TURN_PUBLIC_HOST:-}"
+      TURN_BIND_ADDR: 0.0.0.0:3478
+      TURN_RELAY_IP: 0.0.0.0
+      TURN_MIN_PORT: '49160'
+      TURN_MAX_PORT: '49200'
+      TURN_MAX_ALLOCATIONS: "${TURN_MAX_ALLOCATIONS:-32}"
+      TURN_BYTES_PER_SECOND: "${TURN_BYTES_PER_SECOND:-128000}"
+    ports:
+      - '3478:3478/udp'
+      - '49160-49200:49160-49200/udp'
     expose:
       - "3000"
     stop_grace_period: 10s

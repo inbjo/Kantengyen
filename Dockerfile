@@ -1,7 +1,8 @@
-FROM rust:1.96-bookworm AS wasm
+FROM rust:1.96.1-bookworm AS wasm
 WORKDIR /app
 COPY Cargo.toml Cargo.lock ./
 COPY crates ./crates
+COPY vendor ./vendor
 RUN rustup target add wasm32-unknown-unknown && cargo build --locked --release -p kantengyen-core --target wasm32-unknown-unknown
 
 FROM node:24-bookworm-slim AS frontend
@@ -33,4 +34,6 @@ FROM artifact AS runtime
 ENV BIND_ADDR=0.0.0.0:3000
 USER 10001:10001
 EXPOSE 3000
+EXPOSE 3478/udp
+EXPOSE 49160-49200/udp
 CMD ["/kantengyen-server"]

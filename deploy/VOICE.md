@@ -1,104 +1,85 @@
-# 房间语音部署
+# 房间语音与内置 TURN
 
-实现为 2–6 人 WebRTC 音频 mesh：麦克风必须由玩家主动开启，Rust 的独立 `/api/voice` WebSocket 仅转发同房间已开启语音成员的信令。HTTPS 下自动使用 WSS，已有 Caddy 配置无需新增路由。音频不会经过游戏服务，也没有录音功能；使用 TURN 时音频会经过中继。
+2–6 人房间语音使用 WebRTC audio mesh，每对成员独立协商。Rust 的 `/api/voice` WSS 只转发同房间、在线且主动开启语音成员的信令；浏览器使用 DTLS-SRTP 传输音频。直连时音频在浏览器间传输，使用内置 TURN 时加密媒体包经过同一个 Rust 服务进程转发。服务没有录音功能。
 
-Caddy 的 `Permissions-Policy` 已允许本站使用麦克风（`microphone=(self)`），摄像头仍禁用。已有部署需要同步更新该配置并重新加载 Caddy；其他反向代理/CDN 也不能返回 `microphone=()`，否则即使 HTTPS 和用户权限正常，浏览器仍会拒绝采集音频。
+公网 Docker 部署参见 **[Docker 公网部署页](DOCKER.md)**：只启动游戏与 Caddy，TURN 已内置，无需另外部署 coturn。
 
 ## 玩家操作
 
-牌桌顶部“语音”打开控制面板，点击“开启房间语音”并允许麦克风。支持麦克风静音、扬声器静音、退出语音；折叠面板不退出通话。只申请音频，不申请摄像头。房间结束、暂时离开、掉线、标签页关闭都会清理连接和麦克风；刷新不自动申请或恢复麦克风，需要重新开启。
+点击牌桌“房间语音”，再点击“开启房间语音”并允许麦克风。可分别静音麦克风和扬声器，折叠面板不会退出通话。退出、游戏结束、断线与页面关闭会释放麦克风及连接；刷新后需要主动重新开启，不会自动申请麦克风。
 
-HTTPS 满足麦克风安全上下文要求，本机 `http://127.0.0.1` 也可测试。普通局域网 HTTP 不支持麦克风。参考 [MDN getUserMedia](https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia)。
+麦克风需要可信 HTTPS，本机 `http://127.0.0.1` 可用于测试，普通局域网 HTTP 不满足安全上下文要求。Caddy 的 `Permissions-Policy` 允许 `microphone=(self)`；其他代理/CDN 不应返回 `microphone=()`。参考 [MDN getUserMedia](https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia)。
 
-## 公网需要 STUN/TURN
+## 内置 TURN 配置
 
-不配置时 `iceServers=[]`，仅供本机/可直连网络测试。HTTPS 不等于可以穿透 NAT，正式部署需要自建或获得授权的 STUN/TURN。不能仅凭本机联通测试保证移动网络联通。协议和协商模式参考 [MDN WebRTC signaling](https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Signaling_and_video_calling) 与 [perfect negotiation](https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Perfect_negotiation)。
-
-推荐通过 coturn 的共享密钥签发临时凭证，密钥只存在于游戏服务和 coturn，不下发前端：
+直接运行二进制时默认 `TURN_ENABLED=false`，本地开发不占用额外端口。Compose 公网部署默认启用，必须配置服务器真实公网 IPv4。
 
 ```sh
-export VOICE_TURN_URLS='turn:turn.example.com:3478?transport=udp,turn:turn.example.com:3478?transport=tcp'
-export VOICE_TURN_SECRET='与coturn的static-auth-secret一致的长随机密钥'
-# 可选配置自有 STUN
-export VOICE_ICE_SERVERS='[{"urls":"stun:turn.example.com:3478"}]'
-# all 优先直连；relay 强制中继，避免向其他玩家提供直接连接候选地址
+export TURN_ENABLED=true
+export TURN_PUBLIC_IP='你的服务器真实公网IPv4'
+export TURN_PUBLIC_HOST='turn.your-domain.com'
+# 可选：至少 32 字节随机共享密钥；留空则每次启动自动生成
+export VOICE_TURN_SECRET='你生成的长随机密钥'
 export VOICE_ICE_POLICY=all
 BIND_ADDR=127.0.0.1:3000 ./kantengyen-server
 ```
 
-Compose 部署时在根目录 `.env` 中设置同名变量即可，不能把密钥提交到仓库。浏览器仅获得一小时有效的 TURN 用户名和 HMAC-SHA1 凭证；持续通话每二十分钟刷新配置并重新协商 ICE。实现遵循 [coturn 的临时凭证机制](https://github.com/coturn/coturn/blob/master/README.turnserver)。
+域名 A 记录指向该公网 IP。`TURN_PUBLIC_HOST` 可省略，客户端会使用公网 IP。不需手写内置 STUN/TURN URL；后端自动下发 `stun:host:3478` 与 `turn:host:3478?transport=udp`。实际分配的中继候选使用 `TURN_PUBLIC_IP`。
 
-如果供应商只支持静态用户名/密码，可使用 `VOICE_ICE_SERVERS` 的 TURN 项（`urls`、`username`、`credential`），但这些凭证会交给浏览器，不能把供应商管理 API 密钥或共享密钥放进去。推荐临时凭证而非长期通用密码。
+默认放行 **3478 UDP、49160–49200 UDP**，NAT 必须按原端口映射；Caddy 只代理 HTTPS/WSS，不能代理 TURN UDP。宿主机二进制可通过 `TURN_RELAY_IP` 绑定特定本地网卡，默认 `0.0.0.0`。Docker 应保持容器内 `0.0.0.0`，不要绑定宿主机公网/内网 IP。
 
-## 自建 coturn
+| 变量 | 默认值 | 含义 |
+| --- | --- | --- |
+| `TURN_ENABLED` | 原生 `false`，Compose `true` | 是否启动内置服务 |
+| `TURN_PUBLIC_IP` | 无 | 启用时必填，服务器真实公网 IPv4 |
+| `TURN_PUBLIC_HOST` | 公网 IP | 客户端访问 TURN 的域名或 IPv4 |
+| `TURN_BIND_ADDR` | `0.0.0.0:3478` | 本地 UDP 监听地址 |
+| `TURN_RELAY_IP` | `0.0.0.0` | 分配中继 socket 的本地网卡地址 |
+| `TURN_MIN_PORT` / `TURN_MAX_PORT` | `49160` / `49200` | 包含两端的中继端口范围 |
+| `TURN_MAX_ALLOCATIONS` | `32` | 同时存在的 allocation 数量上限，最多 1024 |
+| `TURN_BYTES_PER_SECOND` | `128000` | 单个 allocation 每方向带宽上限，字节/秒 |
+| `VOICE_TURN_SECRET` | 启用内置时自动生成 | 至少 32 字节；密钥不下发浏览器 |
+| `VOICE_ICE_POLICY` | `all` | `all` 优先直连，`relay` 强制中继 |
 
-### Docker Compose 快速部署
+Compose 固定映射默认 UDP 范围。修改原生端口配置时也要同步防火墙；修改容器范围时需要一起修改 Compose 的环境变量与 `ports` 映射。相同服务的中继 allocation 在进程内映射到已分配的本地 UDP 端口，可支持云 NAT 和容器桥接网络，无需同机客户端访问服务器公网 IP 的 hairpin 功能。
 
-仓库提供独立的 [compose.turn.yaml](../compose.turn.yaml)，可以和游戏运行在同一台 Linux 服务器，也可以单独部署。使用官方 `coturn/coturn:4.18.0-r0` 固定版本和 host 网络，参见 [coturn 官方 Docker 文档](https://github.com/coturn/coturn/blob/master/docker/coturn/README.md)。host 网络直接使用宿主机端口，适用于 Linux；这里不以 Docker Desktop 作为公网部署环境。
+systemd 部署将上述变量写入 `/etc/kantengyen.env`，不加 `export`，然后重启服务。Compose 从根目录 `.env` 读取；直接运行二进制不会自动加载 `.env`。
 
-1. 设置 `turn.example.com` 的 DNS A 记录指向 TURN 服务器的公网 IPv4。这是独立域名，可以与游戏域名指向同一 IP。若没有部署 IPv6，不要设置 AAAA 记录。
-2. 在 Linux 部署机克隆仓库，用 Node.js 22+ 生成配置（替换为实际域名/IP）：
+## 认证与资源限制
+
+Rust 服务给开启房间语音的玩家签发一小时有效的 `到期时间:玩家UUID` 和 HMAC-SHA1 临时凭证，中继验证 realm、玩家 UUID、到期时间及消息完整性。持续通话每二十分钟更新 ICE 配置并重新协商。过期凭证不能继续认证，维护任务每 15 秒移除其活动 allocation；主动退出后的 allocation 也会通过客户端关闭/协议生命周期回收。
+
+全局 allocation 上限和有限 UDP 端口限制并发；单个 allocation 双向分别限制带宽。拒绝向内网、回环、共享地址、组播、云元数据及非 IPv4 目标转发；同机特殊路由只允许已分配的中继端口，不能访问其他本机服务。监听入口限制来源 IP 控制请求/数据包速率与总入站字节数，认证 nonce 缓存限制为 4096 并清理过期项。
+
+目前没有按账号计费或强账号认证，公网运营仍应监控服务器带宽、CPU、内存和请求量。UDP 泛洪超出进程能处理的范围时，需要云平台/网络层防护；房间与语音仍面向小规模部署。
+
+## 网络能力与外部 TURN
+
+内置 [`turn` 0.17.2](https://docs.rs/turn/0.17.2/turn/server/index.html) 本版支持 **IPv4/UDP**。未实现 TURN/TCP、TURN/TLS 或 IPv6；客户端网络完全禁止 UDP 时，可接入外部 TURN/TCP/TLS 服务作补充。
+
+使用支持临时凭证的外部服务时配置：
 
 ```sh
-npm run setup:turn -- --domain turn.example.com --public-ip 203.0.113.10
-# 云主机网卡只有内网 IP 时，改用下面的命令（两者选一）：
-# npm run setup:turn -- --domain turn.example.com --public-ip 203.0.113.10 --private-ip 10.0.0.10
+# 仅用外部服务时禁用内置 TURN；同时使用时保留 TURN_ENABLED=true
+export TURN_ENABLED=false
+export VOICE_TURN_URLS='turn:turn.your-domain.com:3478?transport=tcp,turns:turn.your-domain.com:5349?transport=tcp'
+export VOICE_TURN_SECRET='与外部TURN服务配置一致的至少32字节共享密钥'
 ```
 
-脚本生成 256 位随机共享密钥，写入 `deploy/turnserver.conf` 与 `.env`，不输出密钥；同步设置 STUN/TURN URL 和 coturn 运行 UID/GID。文件在 Linux 下为 `0600`，已在 Git/Docker 忽略列表中。现有 `.env` 的游戏域名及其他变量保留，ICE server 列表和 TURN URL/密钥更新为这台 coturn；已有 coturn 配置时拒绝覆盖，避免误轮换密钥。配置使用实际网卡用户的 UID/GID，容器才能读取私有配置；如果之后变更文件所属用户，更新 `.env` 中的 `COTURN_UID`、`COTURN_GID`。在 Windows 生成后复制到 Linux 时，也需按文件实际所有者设置这两个值。
-
-3. 放行云安全组和主机防火墙的 **3478 UDP/TCP、49160–49200 UDP**，允许中继出站。Ubuntu/UFW 示例（已启用 UFW 时执行）：
-
-```sh
-sudo ufw allow 3478/udp
-sudo ufw allow 3478/tcp
-sudo ufw allow 49160:49200/udp
-```
-
-`203.0.113.10` 是文档示例地址，不能直接使用。host 网络不需要 Compose `ports` 映射；NAT/云公网 IP 映射必须覆盖这些端口。
-
-4. 在仓库根目录启动并查看日志：
-
-```sh
-docker compose -f compose.turn.yaml config --quiet
-docker compose -f compose.turn.yaml up -d
-docker compose -f compose.turn.yaml ps
-docker compose -f compose.turn.yaml logs -f --tail=100 coturn
-# 游戏使用同一仓库的 Compose 时，重新创建游戏容器以加载 .env
-docker compose up -d game
-```
-
-游戏容器重建会清空房间，请在无对局时操作。coturn 使用 stdout 日志，无需数据库持久化；配置由宿主机提供。游戏服务与 coturn 可以独立更新。
-
-游戏若使用 systemd 二进制部署，将 `.env` 中 `VOICE_ICE_SERVERS`、`VOICE_TURN_URLS`、`VOICE_TURN_SECRET` 的值写入 `/etc/kantengyen.env`。JSON 值应使用 systemd 的单引号包围，例如 `VOICE_ICE_SERVERS='[{"urls":"stun:turn.example.com:3478"}]'`，避免双引号被移除；其他变量按部署指南设置。执行 `sudo systemctl restart kantengyen`。
-
-如果 coturn 在另一台服务器，只将游戏需要的 `VOICE_*` 配置通过安全方式同步到游戏机，不要向浏览器或仓库公开共享密钥。
-
-5. 按下文“验证”执行跨网络设备测试。可以临时将游戏配置 `VOICE_ICE_POLICY=relay` 并重启游戏，确认 TURN 中继成功后恢复 `all`。生成脚本保留已有策略，不会自动改变这个值。
-
-### 手动配置与 TLS
-
-`turnserver.conf.example` 是配置模板，必须替换域名、密钥、公网 IP。建议独立域名，TURN 和 Caddy 可在不同服务器，不能把普通 HTTP 反向代理当作 TURN 代理。
-
-需要放行 3478 UDP/TCP 与配置的 UDP relay 端口（模板为 49160–49200）。限制较多的网络可额外配置 `turns:域名:5349?transport=tcp`，需要 coturn 使用有效 TLS 证书并开放 5349；若使用 TCP 443，需要独立 IP/部署规划，不能和同 IP 的 Caddy HTTPS 监听直接冲突。
-
-coturn 若位于 NAT 后，需要正确配置 `external-ip=公网IP/内网IP` 并映射 relay 端口。检查防火墙、云安全组与 egress。请设置分配数量和带宽限制，避免临时凭证被滥用；本游戏匿名身份不等同于强账号认证，公网长期运行还需按 IP 的入口限流与监控。
-
-默认模板只启用 `turn:` UDP/TCP，未启用 `turns:` TLS；网页的 HTTPS 与 TURN TLS 是不同配置。需要 TLS 时移除 `no-tls`，设置 `tls-listening-port=5349`、`cert`、`pkey`，给 coturn 容器增加只读证书挂载，确保运行 UID/GID 能读证书，再开放 5349 TCP，添加 `turns:turn.example.com:5349?transport=tcp` 到游戏 URL。证书续期后重启 coturn；它不会自动读取 Caddy 数据卷中的证书。
-
-### Rust 内嵌方案
-
-Rust 有可嵌入的 [`turn` crate](https://docs.rs/turn/latest/turn/server/index.html)，提供 TURN `Server`，可以与 Tokio 游戏服务集成；另有独立的 [`turn-rs`](https://github.com/mycrl/turn-rs) 服务。纯 Rust 不会消除公网地址、NAT 映射、中继端口或带宽需求。
-
-当前项目的 Rust 服务已经实现 coturn 临时凭证签发与房间信令，尚未内嵌 TURN 转发。选择独立 coturn 是当前工程取舍：凭证机制可以直接使用现有实现，中继带宽和游戏逻辑可独立管理，重启游戏服务不必同时重启 TURN。若后续内嵌 Rust TURN，还需实现认证回调、临时凭证过期校验、内部网段访问限制、配额、TLS、生命周期及真实设备兼容性验证，不能仅添加一个依赖就替代这些工作。
+同时使用内外 TURN 时共用 `VOICE_TURN_SECRET`，必须与外部服务相同。外部 URL 不为空时必须显式配置共享密钥，不能使用内置自动生成的密钥。只有供应商静态账号时，改用 `VOICE_ICE_SERVERS` JSON，其中 `urls`、`username`、`credential` 会交给浏览器；不要放入供应商管理 API 密钥。
 
 ## 验证
 
 ```sh
+cargo test --workspace --locked
+# 需要另一个终端启动游戏服务
 npm run test:voice
+npx playwright install chromium
 npm run test:ui -- --grep 'WebRTC|microphone permission'
 ```
 
-浏览器测试使用模拟麦克风（不采集机器真实麦克风），检查多人 mesh 和实际 inbound RTP 音频包、静音、重新加入、结束后 track.stop/连接清理，以及权限拒绝。
+Rust 测试运行实际 UDP STUN/TURN：验证错误密码被拒绝、凭证过期检查、分配与双向转发、地址/端口范围、并发限额、内网地址限制、带宽预算与关闭释放。浏览器测试使用模拟麦克风，验证实际 inbound RTP、静音、重入及结束清理，不采集机器真实麦克风。
 
-上线前必须用两台真实设备，在 Wi-Fi 与移动网络之间验证；临时设置 `VOICE_ICE_POLICY=relay`，通过浏览器 WebRTC 诊断确认 candidate-pair 为 relay，证明 TURN 确实工作，再恢复所需策略。当前仓库没有公网 TURN 地址/凭证，测试不能验证你的中继线路或手机听感。
+以 `VOICE_ICE_POLICY=relay` 启动配置好的内置服务，再设置 `EXPECT_TURN_RELAY=1` 运行三人语音测试，会额外检查每个已选 candidate-pair 的本地与远端候选均为 relay。
+
+本机自动测试不能证明公网防火墙或运营商路径可达。上线时仍需两台设备在 Wi-Fi 与移动网络之间强制 relay，确认实际双向声音与 RTP 数据后恢复 `all`。部署步骤和排障见 [Docker 公网部署页](DOCKER.md)。

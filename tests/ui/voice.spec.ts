@@ -2,8 +2,8 @@ import { test, expect, type Page } from "@playwright/test";
 
 async function observe(page: Page) {
   await page.addInitScript(() => {
-    const state = window as typeof window & { voiceStreams: MediaStream[]; voicePeers: RTCPeerConnection[]; mediaRequests: number };
-    state.voiceStreams = []; state.voicePeers = []; state.mediaRequests = 0;
+    const state = window as typeof window & { voiceStreams: MediaStream[]; voicePeers: RTCPeerConnection[]; mediaRequests: number; voiceIceErrors: unknown[] };
+    state.voiceStreams = []; state.voicePeers = []; state.mediaRequests = 0; state.voiceIceErrors = [];
     const getUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
     navigator.mediaDevices.getUserMedia = async constraints => {
       state.mediaRequests++;
@@ -13,7 +13,10 @@ async function observe(page: Page) {
     };
     const Original = window.RTCPeerConnection;
     window.RTCPeerConnection = class extends Original {
-      constructor(config?: RTCConfiguration) { super(config); state.voicePeers.push(this); }
+      constructor(config?: RTCConfiguration) {
+        super(config); state.voicePeers.push(this);
+        this.addEventListener("icecandidateerror", event => state.voiceIceErrors.push({ url: event.url, code: event.errorCode, error: event.errorText }));
+      }
     };
   });
 }
@@ -55,6 +58,18 @@ test("real three-way WebRTC audio, mute, rejoin and game-end cleanup", async ({ 
         }));
         return counts.length === 2 && counts.every(Boolean);
       }), { timeout: 20_000 }).toBe(true);
+      if (process.env.EXPECT_TURN_RELAY === "1") {
+        await expect.poll(() => page.evaluate(async () => {
+          const peers = (window as typeof window & { voicePeers: RTCPeerConnection[] }).voicePeers.filter(peer => peer.connectionState === "connected");
+          return peers.length === 2 && (await Promise.all(peers.map(async peer => {
+            const stats = await peer.getStats();
+            const transport = [...stats.values()].find(report => report.type === "transport" && report.selectedCandidatePairId);
+            const pair = transport && stats.get(transport.selectedCandidatePairId);
+            return pair && stats.get(pair.localCandidateId)?.candidateType === "relay"
+              && stats.get(pair.remoteCandidateId)?.candidateType === "relay";
+          }))).every(Boolean);
+        }), { timeout: 20_000 }).toBe(true);
+      }
     }
     for (const [width, height] of [[390, 844], [667, 375], [1024, 768], [844, 390]]) {
       await host.setViewportSize({ width, height });
@@ -101,10 +116,12 @@ test("real three-way WebRTC audio, mute, rejoin and game-end cleanup", async ({ 
   } catch (error) {
     for (let i = 0; i < pages.length; i++) {
       console.log("voice diagnostic", i, JSON.stringify(await pages[i].evaluate(async () => {
-        const state = window as typeof window & { voicePeers: RTCPeerConnection[] };
+        const state = window as typeof window & { voicePeers: RTCPeerConnection[]; voiceIceErrors: unknown[] };
         return Promise.all(state.voicePeers.map(async pc => {
           const stats = await pc.getStats();
-          return { state: pc.connectionState, ice: pc.iceConnectionState, signaling: pc.signalingState, local: pc.localDescription?.type, remote: pc.remoteDescription?.type,
+          return { iceErrors: state.voiceIceErrors, gathering: pc.iceGatheringState,
+            config: { policy: pc.getConfiguration().iceTransportPolicy, urls: pc.getConfiguration().iceServers?.map(server => server.urls) },
+            state: pc.connectionState, ice: pc.iceConnectionState, signaling: pc.signalingState, local: pc.localDescription?.type, remote: pc.remoteDescription?.type,
             transceivers: pc.getTransceivers().map(t => ({ direction: t.direction, current: t.currentDirection, sender: t.sender.track?.readyState, receiver: t.receiver.track?.readyState })),
             localMedia: pc.localDescription?.sdp.split("\r\n").filter(line => line.startsWith("m=") || /a=(sendrecv|sendonly|recvonly|inactive)/.test(line)),
             remoteMedia: pc.remoteDescription?.sdp.split("\r\n").filter(line => line.startsWith("m=") || /a=(sendrecv|sendonly|recvonly|inactive)/.test(line)),

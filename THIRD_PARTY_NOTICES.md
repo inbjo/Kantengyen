@@ -13,3 +13,8 @@ The bundled frontend's React, React DOM, Scheduler and Lucide license texts are 
 Multiavatar also embeds CryptoJS v3.1.2 by Jeff Mott (2009–2013). Its New BSD license is retained in `licenses/CryptoJS-3.1.2-LICENSE.txt`; this notice applies to that embedded version, independently of newer CryptoJS releases.
 
 Game rules were informed by the public README at https://github.com/erizhang/Kantengyen. No source code, test code, images or other assets from that repository have been copied into this project.
+
+The embedded TURN implementation uses `turn` 0.17.2 from webrtc-rs under
+MIT/Apache-2.0. Its source is retained in `vendor/turn`, with local changes
+documented in `vendor/turn/PATCHES.md`; license texts are also distributed in
+`licenses/turn-LICENSE-MIT.txt` and `licenses/turn-LICENSE-APACHE.txt`.

@@ -18,8 +18,8 @@ pub struct VoiceConfig {
     relay_only: bool,
 }
 impl VoiceConfig {
-    pub fn from_env() -> Result<Self, String> {
-        let servers: Vec<Value> = serde_json::from_str(
+    pub fn from_env(embedded: Option<&crate::embedded_turn::Config>) -> Result<Self, String> {
+        let mut servers: Vec<Value> = serde_json::from_str(
             &std::env::var("VOICE_ICE_SERVERS").unwrap_or_else(|_| "[]".into()),
         )
         .map_err(|_| "VOICE_ICE_SERVERS 必须是 ICE server JSON 数组")?;
@@ -50,7 +50,7 @@ impl VoiceConfig {
                 return Err("静态 TURN 配置必须提供 username 和 credential".into());
             }
         }
-        let turn_urls: Vec<String> = std::env::var("VOICE_TURN_URLS")
+        let mut turn_urls: Vec<String> = std::env::var("VOICE_TURN_URLS")
             .unwrap_or_default()
             .split(',')
             .map(str::trim)
@@ -63,9 +63,17 @@ impl VoiceConfig {
         {
             return Err("VOICE_TURN_URLS 仅支持 turn/turns URL".into());
         }
-        let secret = std::env::var("VOICE_TURN_SECRET")
+        let mut secret = std::env::var("VOICE_TURN_SECRET")
             .ok()
             .filter(|s| !s.is_empty());
+        if !turn_urls.is_empty() && secret.is_none() {
+            return Err("外部 VOICE_TURN_URLS 必须同时配置 VOICE_TURN_SECRET".into());
+        }
+        if let Some(config) = embedded {
+            servers.push(json!({"urls": config.stun_url()}));
+            turn_urls.push(config.turn_url());
+            secret = Some(config.secret.clone());
+        }
         if secret.is_some() == turn_urls.is_empty() {
             return Err("VOICE_TURN_URLS 与 VOICE_TURN_SECRET 必须同时配置".into());
         }
@@ -98,15 +106,19 @@ impl VoiceConfig {
         let mut servers = self.servers.clone();
         if let Some(secret) = &self.secret {
             let username = format!("{}:{id}", now + 3600);
-            let mut mac = Hmac::<Sha1>::new_from_slice(secret.as_bytes())
-                .expect("HMAC accepts any key length");
-            mac.update(username.as_bytes());
-            let credential = STANDARD.encode(mac.finalize().into_bytes());
+            let credential = turn_password(secret, &username);
             servers
                 .push(json!({"urls":self.turn_urls,"username":username,"credential":credential}));
         }
         json!({"iceServers":servers,"iceTransportPolicy":if self.relay_only {"relay"} else {"all"}})
     }
+}
+
+pub(crate) fn turn_password(secret: &str, username: &str) -> String {
+    let mut mac =
+        Hmac::<Sha1>::new_from_slice(secret.as_bytes()).expect("HMAC accepts any key length");
+    mac.update(username.as_bytes());
+    STANDARD.encode(mac.finalize().into_bytes())
 }
 
 #[derive(Deserialize)]

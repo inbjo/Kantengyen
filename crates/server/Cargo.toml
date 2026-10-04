@@ -18,3 +18,6 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 hmac = "0.12"
 sha1 = "0.10"
 base64 = "0.22"
+turn = "0.17.2"
+webrtc-util = { version = "0.17.2", default-features = false, features = ["conn"] }
+async-trait = "0.1"

@@ -20,6 +20,7 @@ use std::{
 };
 use tokio::sync::{Mutex, RwLock, broadcast};
 mod assets;
+mod embedded_turn;
 mod voice;
 use uuid::Uuid;
 
@@ -804,8 +805,10 @@ async fn main() {
                 .unwrap_or_else(|_| "kantengyen_server=info,tower_http=info".into()),
         )
         .init();
+    let turn_config = embedded_turn::Config::from_env().expect("内置 TURN 配置无效");
     let state = Arc::new(AppState {
-        voice_config: voice::VoiceConfig::from_env().expect("语音 ICE/TURN 配置无效"),
+        voice_config: voice::VoiceConfig::from_env(turn_config.as_ref())
+            .expect("语音 ICE/TURN 配置无效"),
         ..AppState::default()
     });
     tokio::spawn(tick(state.clone()));
@@ -826,13 +829,34 @@ async fn main() {
     let listener = tokio::net::TcpListener::bind(&bind)
         .await
         .expect("无法绑定服务地址");
+    let turn_server = match turn_config {
+        Some(config) => Some(config.start().await.expect("无法启动内置 TURN")),
+        None => None,
+    };
     tracing::info!("干瞪眼服务已启动：http://{bind}");
     axum::serve(listener, router)
         .with_graceful_shutdown(async {
-            let _ = tokio::signal::ctrl_c().await;
+            shutdown_signal().await;
         })
         .await
         .unwrap();
+    if let Some(server) = turn_server {
+        let _ = server.close().await;
+    }
+}
+
+async fn shutdown_signal() {
+    #[cfg(unix)]
+    {
+        let mut terminate =
+            tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
+                .expect("无法注册 SIGTERM");
+        tokio::select! { _ = tokio::signal::ctrl_c() => {}, _ = terminate.recv() => {} }
+    }
+    #[cfg(not(unix))]
+    {
+        let _ = tokio::signal::ctrl_c().await;
+    }
 }
 
 #[cfg(test)]

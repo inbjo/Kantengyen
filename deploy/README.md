@@ -73,11 +73,11 @@ Caddy 自动申请和续期证书并代理 WebSocket。两台设备访问 HTTPS 
 
 ## 方式二：Docker Compose
 
-服务器需要 Docker Engine 和 Compose 插件，支持 Linux amd64 容器；首次构建会下载 Rust、Node.js 和依赖。克隆仓库后，在仓库根目录执行：
+服务器需要 Docker Engine 和 Compose 插件，支持 Linux amd64 容器；首次构建会下载 Rust、Node.js 和依赖。**完整操作步骤见 [Docker 公网部署页](DOCKER.md)**，包含游戏与内置 TURN、域名、端口和强制中继验证。克隆仓库后，在仓库根目录执行：
 
 ```sh
 cp .env.example .env
-# 编辑 .env，将 SITE_ADDRESS 改成真实域名；按需配置语音
+# 编辑 .env，设置真实 SITE_ADDRESS 和服务器 TURN_PUBLIC_IP
 docker compose config --quiet
 docker compose up -d --build
 docker compose ps
@@ -85,7 +85,7 @@ docker compose logs -f --tail=100 game caddy
 curl -fsS https://你的域名/api/health
 ```
 
-域名和端口要求与上面相同。Compose 的 `deploy/Caddyfile` 代理到容器服务名 `game:3000`，不要替换成宿主机模板。游戏容器以非 root 用户运行，3000 不映射到宿主机；Caddy 的证书保存在 `caddy_data`、`caddy_config` 卷中。
+HTTPS 域名和端口要求与上面相同，还需放行 3478 UDP 和 49160–49200 UDP；TURN 由同一个游戏容器内的 Rust 服务运行，直接发布 UDP 端口。Compose 的 `deploy/Caddyfile` 代理到容器服务名 `game:3000`，不要替换成宿主机模板。游戏容器以非 root 用户运行，3000 不映射到宿主机；Caddy 的证书保存在 `caddy_data`、`caddy_config` 卷中。
 
 `.env` 仅用于 Compose 变量替换，直接运行二进制不会自动读取它。不要提交真实 `.env` 或 TURN 密钥。使用 `SITE_ADDRESS=localhost` 时 Caddy 使用本地证书，其他设备通常不信任它；公网部署应使用真实域名。
 
@@ -124,13 +124,18 @@ npm run verify:static
 | `VOICE_ICE_SERVERS` | `[]` | ICE server JSON 数组 |
 | `VOICE_ICE_POLICY` | `all` | `all` 优先直连；`relay` 强制 TURN 中继 |
 | `VOICE_TURN_URLS` | 空 | 逗号分隔的 `turn:` / `turns:` URL |
-| `VOICE_TURN_SECRET` | 空 | 与 coturn 相同的共享密钥，必须和 TURN URL 同时配置 |
+| `VOICE_TURN_SECRET` | 空 | 内置 TURN 自动生成，可指定至少 32 字节密钥；外部 TURN 需与其共享密钥一致 |
+| `TURN_ENABLED` | 原生 `false`，Compose `true` | 内置 IPv4/UDP STUN/TURN |
+| `TURN_PUBLIC_IP` | 无 | 启用内置 TURN 时必填，真实公网 IPv4 |
+| `TURN_PUBLIC_HOST` | 公网 IP | 内置 TURN 对外域名或 IPv4 |
+| `TURN_MAX_ALLOCATIONS` | `32` | 同时存在的中继 allocation 上限 |
+| `TURN_BYTES_PER_SECOND` | `128000` | 每个 allocation 每方向带宽上限 |
 
 ## 房间语音
 
-HTTPS 是麦克风使用条件，跨运营商或移动网络通话还需 STUN/TURN。默认没有公共中继。按 [语音部署指南](VOICE.md) 配置 coturn、临时凭证、网络端口及真实设备验证。模板见 [turnserver.conf.example](turnserver.conf.example)。TURN 不通过 Caddy 的 HTTP 代理转发。
+HTTPS 是麦克风使用条件，跨运营商或移动网络通话还需中继。Rust 服务已内置 TURN；Compose 默认启用，原生二进制需设置 `TURN_ENABLED=true` 和 `TURN_PUBLIC_IP`。ICE URL 自动生成，空的 `VOICE_TURN_SECRET` 会在启动时生成随机密钥。更多配置与限制见 [语音部署指南](VOICE.md)。TURN 不通过 Caddy 的 HTTP 代理转发。
 
-独立的 `compose.turn.yaml` 支持 coturn 与游戏同机部署，也可单独放在另一台 Linux 主机。通过 `npm run setup:turn -- --domain turn.example.com --public-ip 公网IPv4` 生成配置和共享密钥，再运行 `docker compose -f compose.turn.yaml up -d`。该命令需要 Node.js 22+，只在配置阶段使用；运行 coturn 本身不需要 Node.js。
+`npm run setup:turn -- --domain turn.example.com --public-ip 公网IPv4` 可写入私有 `.env` 并保留/生成固定密钥，此辅助命令需要 Node.js 22+；没有 Node.js 时手动编辑配置即可。原生/systemd 启动不会读取 `.env`，应将对应变量写入 `/etc/kantengyen.env`。内置中继与游戏同进程，服务重启会同时关闭中继。
 
 ## 升级、回滚和运维
 
@@ -150,5 +155,5 @@ HTTPS 是麦克风使用条件，跨运营商或移动网络通话还需 STUN/TU
 | 证书申请失败 | 检查域名 A/AAAA、80/443 安全组和防火墙、端口占用、Caddy 日志 |
 | 页面能打开但无法加入房间 | 检查反向代理/CDN 是否支持 WebSocket，查看浏览器网络面板和服务日志 |
 | 手机麦克风不可用 | 使用可信 HTTPS，允许麦克风，检查 `Permissions-Policy` |
-| 语音在同一 Wi-Fi 可用，移动网络不可用 | 检查 TURN URL、共享密钥、公网 IP、3478 和 relay 端口；强制 `relay` 验证 |
+| 语音在同一 Wi-Fi 可用，移动网络不可用 | 检查内置 TURN 启用状态、公网 IP、3478 UDP 和中继端口；强制 `relay` 验证；完全禁 UDP 时使用外部 TCP/TLS TURN |
 | 更新后房间消失 | 当前内存存储的预期行为，需要重新创建房间 |
