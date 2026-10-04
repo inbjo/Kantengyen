@@ -1,0 +1,20 @@
+{
+  "name": "kantengyen",
+  "private": true,
+  "license": "MIT",
+  "engines": { "node": ">=22" },
+  "workspaces": ["web"],
+  "scripts": {
+    "dev": "npm run dev --workspace web",
+    "build": "npm run build:wasm && npm run build --workspace web",
+    "server": "cargo run -p kantengyen-server",
+    "test:e2e": "node --test tests/smoke.mjs",
+    "test:ui": "playwright test",
+    "build:wasm": "node scripts/build-wasm.mjs",
+    "build:release": "node scripts/build-release.mjs",
+    "verify:static": "node scripts/verify-static.mjs",
+    "test:build": "node --test tests/build.mjs",
+    "test:voice": "node --test tests/voice.mjs"
+  },
+  "devDependencies": { "@playwright/test": "^1.56.0" }
+}

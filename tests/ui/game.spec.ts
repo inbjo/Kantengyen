@@ -1,0 +1,267 @@
+import { test, expect } from "@playwright/test";
+import { mkdir } from "node:fs/promises";
+
+test("automatic pass defaults on, can be disabled, and never skips a playable or leading turn", async ({ page }) => {
+  let automatic = 0;
+  let manual = 0;
+  let publish: (available: boolean, leading?: boolean) => void = () => {};
+  await page.routeWebSocket("**/api/ws", (socket) => {
+    let version = 0;
+    let code = "1234";
+    const snapshot = (available: boolean, leading = false, turn = 0) => socket.send(JSON.stringify({
+      type: "snapshot", code, practice: true, host: "human", seat: 0, round: 1,
+      version: ++version, phase: "playing", deadline_ms: 0,
+      players: ["human", "bot"].map(id => ({ id, name: id, avatar_seed: id, bot: id === "bot", ready: true, online: true, score: 0, count: 2 })),
+      hand: [2, 8], turn, auto_pass_available: available,
+      last: leading ? null : { seat: 1, cards: [0], pattern: { kind: "single", rank: 3, len: 1 } },
+      deck_count: 8, multiplier: 1, winner: null, result: [], message: "自动过牌测试", history: [],
+    }));
+    publish = (available, leading) => snapshot(available, leading);
+    socket.onMessage(raw => {
+      const message = JSON.parse(String(raw));
+      if (message.token) { code = message.code; snapshot(true); }
+      if (message.action === "auto_pass" || message.action === "pass") {
+        if (message.action === "auto_pass") automatic++; else manual++;
+        snapshot(false, false, 1);
+      }
+    });
+  });
+  await page.goto("/");
+  await page.getByRole("button", { name: "我会玩了，直接去大厅" }).click();
+  await page.getByRole("button", { name: /先练三把/ }).click();
+  const toggle = page.getByRole("checkbox", { name: "自动过牌", exact: true });
+  await expect(toggle).toBeChecked();
+  await expect.poll(() => automatic).toBe(1);
+  await toggle.uncheck();
+  publish(true);
+  await page.waitForTimeout(1100);
+  expect(automatic).toBe(1);
+  await page.getByRole("button", { name: "过牌", exact: true }).click();
+  await expect.poll(() => manual).toBe(1);
+  await toggle.check();
+  publish(false); // a playable response is not skipped
+  await page.waitForTimeout(1100);
+  expect(automatic).toBe(1);
+  publish(false, true); // the leader must play
+  await page.waitForTimeout(1100);
+  expect(automatic).toBe(1);
+  publish(true);
+  await expect.poll(() => automatic).toBe(2);
+  await toggle.uncheck();
+  await page.reload();
+  await page.getByRole("button", { name: /返回上次的房间/ }).click();
+  await expect(toggle).not.toBeChecked();
+});
+
+test("first visit can skip or learn, profiles randomize, all three practice rounds complete", async ({
+  page,
+}) => {
+  test.setTimeout(240_000);
+  await mkdir("test-results", { recursive: true });
+  await page.setViewportSize({ width: 844, height: 390 });
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto("/");
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await page.getByRole("button", { name: "我会玩了，直接去大厅" }).click();
+  await page.screenshot({ path: "test-results/lobby-phone.png" });
+  await page.getByRole("button", { name: "修改名字与头像" }).click();
+  await page.getByLabel("你的名字").fill("认真练习的小鹿");
+  await page.getByRole("button", { name: "换个头像", exact: true }).click();
+  await page.getByRole("button", { name: "就用这个名字" }).click();
+  await page.getByRole("button", { name: /先练三把/ }).click();
+  await expect(page.getByText("练习 1 / 3", { exact: true })).toBeVisible();
+  await page.screenshot({ path: "test-results/practice-phone.png" });
+  for (let round = 1; round <= 3; round++) {
+    for (let turn = 0; turn < 500; turn++) {
+      if (await page.locator(".result-card").isVisible()) break;
+      const hint = page.getByRole("button", { name: "提示", exact: true });
+      if (await hint.isEnabled()) {
+        await hint.click();
+        await page.waitForTimeout(80);
+        const play = page.getByRole("button", { name: /^出牌/ });
+        if (await play.isEnabled()) await play.click();
+        else if (
+          await page
+            .getByRole("button", { name: "过牌", exact: true })
+            .isEnabled()
+        )
+          await page.getByRole("button", { name: "过牌", exact: true }).click();
+      }
+      await page.waitForTimeout(200);
+    }
+    await expect(page.locator(".result-card")).toBeVisible({ timeout: 10000 });
+    if (round < 3) {
+      await page.getByRole("button", { name: "进入下一课" }).click();
+      await expect(
+        page.getByText(`练习 ${round + 1} / 3`, { exact: true }),
+      ).toBeVisible();
+    }
+  }
+  await page.getByRole("button", { name: "练习完成，去和朋友玩" }).click();
+  await expect(page.getByRole("button", { name: /创建房间/ })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole("dialog")).not.toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test("two browsers create, join, ready, play and reload into the same seat", async ({
+  browser,
+}) => {
+  const a = await browser.newContext({
+    viewport: { width: 1280, height: 800 },
+  });
+  const b = await browser.newContext({ viewport: { width: 844, height: 390 } });
+  const host = await a.newPage();
+  const friend = await b.newPage();
+  for (const page of [host, friend]) {
+    await page.goto("/");
+    await page.getByRole("button", { name: "我会玩了，直接去大厅" }).click();
+  }
+  await host.getByRole("button", { name: /创建房间/ }).click();
+  await expect(host.locator(".waiting-center h2")).toBeVisible();
+  const code = await host.locator(".waiting-center h2 span").innerText();
+  await friend.getByRole("button", { name: /加入房间/ }).click();
+  await friend.getByLabel("四位房间号").fill(code);
+  await friend.getByRole("button", { name: "加入房间", exact: true }).click();
+  await friend.getByRole("button", { name: "我准备好了" }).click();
+  await expect(host.getByRole("button", { name: "开始游戏" })).toBeEnabled();
+  await host.getByRole("button", { name: "开始游戏" }).click();
+  await expect(host.locator(".hand-cards .playing-card")).toHaveCount(6);
+  await expect(friend.locator(".hand-cards .playing-card")).toHaveCount(5);
+  await host.screenshot({ path: "test-results/table-desktop.png" });
+  await host.getByRole("button", { name: "提示", exact: true }).click();
+  await expect(host.locator(".playing-card.selected").first()).toBeVisible();
+  await host.getByRole("button", { name: /^出牌/ }).click();
+  await expect(
+    friend.getByRole("button", { name: "提示", exact: true }),
+  ).toBeEnabled();
+  await friend.reload();
+  await friend.getByRole("button", { name: /返回上次的房间/ }).click();
+  await expect(friend.locator(".hand-cards .playing-card")).toHaveCount(5);
+  await expect(
+    friend.getByRole("button", { name: "提示", exact: true }),
+  ).toBeEnabled();
+  await friend.screenshot({ path: "test-results/table-phone.png" });
+  await a.close();
+  await b.close();
+});
+
+test("invite in a new tab uses an independent seat and refreshing preserves it", async ({ page: host, context }) => {
+  await host.goto("/");
+  await host.getByRole("button", { name: "我会玩了，直接去大厅" }).click();
+  await host.getByRole("button", { name: /创建房间/ }).click();
+  const code = await host.locator(".waiting-center h2 span").innerText();
+  const friend = await context.newPage();
+  await friend.goto(`/?room=${code}`);
+  await friend.getByRole("button", { name: "加入房间", exact: true }).click();
+  await expect(friend.getByRole("button", { name: "我准备好了" })).toBeVisible();
+  const identity = (page: typeof host) => page.evaluate(() => JSON.parse(sessionStorage.getItem("kantengyen.session")!).token);
+  const original = await identity(friend);
+  expect(original).not.toBe(await identity(host));
+  await friend.getByRole("button", { name: "我准备好了" }).click();
+  await expect(host.getByRole("button", { name: "开始游戏" })).toBeEnabled();
+  await host.getByRole("button", { name: "开始游戏" }).click();
+  await expect(host.locator(".hand-cards .playing-card")).toHaveCount(6);
+  await expect(friend.locator(".hand-cards .playing-card")).toHaveCount(5);
+  await friend.reload();
+  await friend.getByRole("button", { name: "加入房间", exact: true }).click();
+  await expect(friend.locator(".hand-cards .playing-card")).toHaveCount(5);
+  expect(await identity(friend)).toBe(original);
+  await friend.waitForTimeout(1500);
+  await expect(host.locator(".connection-banner")).toHaveCount(0);
+  await expect(friend.locator(".connection-banner")).toHaveCount(0);
+});
+
+test("host can end mid-round; everyone sees frozen totals and can leave", async ({ page: host, context }) => {
+  await host.setViewportSize({ width: 667, height: 375 });
+  await host.goto("/");
+  await host.getByRole("button", { name: "我会玩了，直接去大厅" }).click();
+  await host.getByRole("button", { name: /创建房间/ }).click();
+  const code = await host.locator(".waiting-center h2 span").innerText();
+  const friend = await context.newPage();
+  await friend.setViewportSize({ width: 844, height: 390 });
+  await friend.goto(`/?room=${code}`);
+  await friend.getByRole("button", { name: "加入房间", exact: true }).click();
+  await expect(friend.getByRole("button", { name: "结束游戏", exact: true })).toHaveCount(0);
+  await friend.getByRole("button", { name: "我准备好了" }).click();
+  await host.getByRole("button", { name: "开始游戏" }).click();
+  await expect(host.locator(".hand-cards .playing-card")).toHaveCount(6);
+  for (const [width, height] of [[390, 844], [1024, 768], [667, 375]]) {
+    await host.setViewportSize({ width, height });
+    const end = await host.getByRole("button", { name: "结束游戏", exact: true }).boundingBox();
+    expect(end!.x).toBeGreaterThanOrEqual(0);
+    expect(end!.x + end!.width).toBeLessThanOrEqual(width);
+    expect(await host.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  }
+  await host.getByRole("button", { name: "结束游戏", exact: true }).click();
+  await expect(host.getByRole("dialog")).toContainText("当前这一局尚未完成，不计分");
+  await host.getByRole("button", { name: "继续玩", exact: true }).click();
+  await expect(host.locator(".hand-cards .playing-card")).toHaveCount(6);
+  await host.getByRole("button", { name: "结束游戏", exact: true }).click();
+  await host.getByRole("button", { name: "确认结束游戏" }).click();
+  for (const page of [host, friend]) {
+    await expect(page.getByRole("heading", { name: "总计分" })).toBeVisible();
+    await expect(page.getByText("已完成 0 局 · 未完成的本局不计分")).toBeVisible();
+    await expect(page.locator(".score-list > div")).toHaveCount(2);
+    await expect(page.locator(".score-list b")).toHaveText(["0", "0"]);
+    await expect(page.getByRole("button", { name: "再来一把" })).toHaveCount(0);
+  }
+  await host.screenshot({ path: "test-results/final-scores-phone.png" });
+  await friend.reload();
+  await friend.getByRole("button", { name: "加入房间", exact: true }).click();
+  await expect(friend.getByRole("heading", { name: "总计分" })).toBeVisible();
+  await host.getByRole("button", { name: "返回大厅", exact: true }).click();
+  await expect(host.getByRole("button", { name: /创建房间/ })).toBeVisible();
+  await expect(friend.locator(".score-list > div")).toHaveCount(2);
+  await expect(friend.getByRole("heading", { name: "总计分" })).toBeVisible();
+  await friend.getByRole("button", { name: "返回大厅", exact: true }).click();
+  await expect(friend.getByRole("button", { name: /创建房间/ })).toBeVisible();
+});
+
+test("portrait and tablet layouts fit the viewport and retain usable actions", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(Crypto.prototype, "randomUUID", { value: undefined, configurable: true });
+  });
+  await page.goto("/");
+  await page.getByRole("button", { name: "我会玩了，直接去大厅" }).click();
+  for (const [width, height] of [
+    [390, 844],
+    [1024, 768],
+    [667, 375],
+  ]) {
+    await page.setViewportSize({ width, height });
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+    await expect(page.getByRole("button", { name: /创建房间/ })).toBeVisible();
+  }
+  await page.getByRole("button", { name: /先练三把/ }).click();
+  for (const [width, height] of [
+    [390, 844],
+    [1024, 768],
+    [667, 375],
+  ]) {
+    await page.setViewportSize({ width, height });
+    await expect(
+      page.getByRole("button", { name: "提示", exact: true }),
+    ).toBeVisible();
+    const box = await page
+      .getByRole("button", { name: "提示", exact: true })
+      .boundingBox();
+    expect(box!.x).toBeGreaterThanOrEqual(0);
+    expect(box!.y + box!.height).toBeLessThanOrEqual(height);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+    await page.screenshot({
+      path: `test-results/table-${width}x${height}.png`,
+    });
+  }
+});

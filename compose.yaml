@@ -1,0 +1,33 @@
+services:
+  game:
+    build: .
+    platform: linux/amd64
+    restart: unless-stopped
+    environment:
+      BIND_ADDR: 0.0.0.0:3000
+      RUST_LOG: kantengyen_server=info
+      VOICE_ICE_SERVERS: "${VOICE_ICE_SERVERS:-[]}"
+      VOICE_ICE_POLICY: "${VOICE_ICE_POLICY:-all}"
+      VOICE_TURN_URLS: "${VOICE_TURN_URLS:-}"
+      VOICE_TURN_SECRET: "${VOICE_TURN_SECRET:-}"
+    expose:
+      - "3000"
+    stop_grace_period: 10s
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-localhost}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - game
+volumes:
+  caddy_data:
+  caddy_config:

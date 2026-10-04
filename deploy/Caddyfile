@@ -1,0 +1,9 @@
+{$SITE_ADDRESS:localhost} {
+    encode zstd gzip
+    header {
+        X-Content-Type-Options nosniff
+        Referrer-Policy strict-origin-when-cross-origin
+        Permissions-Policy "microphone=(self), camera=()"
+    }
+    reverse_proxy game:3000
+}

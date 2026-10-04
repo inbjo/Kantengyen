@@ -1,0 +1,31 @@
+# Replace placeholders before running. This file is NOT activated automatically.
+listening-port=3478
+realm=turn.example.com
+server-name=turn.example.com
+fingerprint
+use-auth-secret
+static-auth-secret=REPLACE_WITH_A_LONG_RANDOM_SHARED_SECRET
+# Set this correctly when behind NAT; omit when directly bound to a public address.
+# external-ip=PUBLIC_IP/PRIVATE_IP
+min-port=49160
+max-port=49200
+no-tls
+no-dtls
+no-tcp-relay
+no-multicast-peers
+no-cli
+user-quota=12
+total-quota=200
+max-bps=128000
+bps-capacity=10000000
+# Do not allow allocations targeting internal/cloud-metadata networks.
+denied-peer-ip=0.0.0.0-0.255.255.255
+denied-peer-ip=10.0.0.0-10.255.255.255
+denied-peer-ip=127.0.0.0-127.255.255.255
+denied-peer-ip=169.254.0.0-169.254.255.255
+denied-peer-ip=172.16.0.0-172.31.255.255
+denied-peer-ip=192.168.0.0-192.168.255.255
+denied-peer-ip=::1
+denied-peer-ip=fc00::-fdff:ffff:ffff:ffff:ffff:ffff:ffff:ffff
+denied-peer-ip=fe80::-febf:ffff:ffff:ffff:ffff:ffff:ffff:ffff
+# For TLS TURN, remove no-tls and configure tls-listening-port, cert and pkey.

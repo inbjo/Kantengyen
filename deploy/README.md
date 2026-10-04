@@ -1,0 +1,142 @@
+# 部署指南
+
+服务端内嵌前端和规则 WASM，不需要数据库或 Node.js 运行环境。发布构建目前仅支持 **Linux x86_64（amd64）**，ARM64 机器不能直接运行。房间、身份、手牌和积分全部存放在内存中；每次重启、升级或回滚都会清空，建议在无对局时维护。部署一个游戏服务实例即可。
+
+## 方式一：下载 CI 二进制
+
+1. 将仓库推送到 GitHub 并启用 Actions。在 **Actions → Build server → 成功的运行 → Artifacts** 下载 `kantengyen-server-linux-x64`。构建会随 push、pull request 和手动触发运行，产物保留 30 天。它是 Actions 产物，不会自动发布到 Releases。
+2. 解压下载的 ZIP，得到 `.tar.gz` 和它的 `.sha256` 文件，将两者复制到 Linux x64 服务器的临时目录。
+3. 校验并解包（校验失败时不要继续安装）：
+
+```sh
+sha256sum -c kantengyen-server-linux-x64.tar.gz.sha256
+mkdir -p kantengyen-release
+tar -xzf kantengyen-server-linux-x64.tar.gz -C kantengyen-release
+cd kantengyen-release
+sha256sum -c SHA256SUMS
+chmod +x kantengyen-server
+BIND_ADDR=127.0.0.1:3000 ./kantengyen-server
+```
+
+另开终端执行 `curl -fsS http://127.0.0.1:3000/api/health`，应返回成功响应。程序默认监听 `127.0.0.1:3000`。临时局域网测试可设置 `BIND_ADDR=0.0.0.0:3000` 并放行 3000；公网建议通过 HTTPS 代理访问。
+
+### systemd 常驻运行
+
+以下适用于使用 systemd 的 Linux。先停止上面的前台测试进程，并从仓库取得 `deploy/kantengyen.service`：
+
+```sh
+# 创建专用用户（只在首次部署执行）
+sudo useradd --system --user-group --home-dir /opt/kantengyen --shell /usr/sbin/nologin kantengyen
+sudo install -d -m 755 /opt/kantengyen
+sudo install -m 755 kantengyen-server /opt/kantengyen/kantengyen-server
+sudo cp -r LICENSE THIRD_PARTY_NOTICES.md licenses /opt/kantengyen/
+# 在仓库根目录执行下面的 unit 安装命令
+sudo install -m 644 deploy/kantengyen.service /etc/systemd/system/kantengyen.service
+sudo install -m 600 /dev/null /etc/kantengyen.env
+sudoedit /etc/kantengyen.env
+sudo systemctl daemon-reload
+sudo systemctl enable --now kantengyen
+sudo systemctl status kantengyen --no-pager
+curl -fsS http://127.0.0.1:3000/api/health
+```
+
+`/etc/kantengyen.env` 每行写 `变量=值`，不要加 `export`。没有语音中继时可以留空；已有文件不要再次执行创建空文件的命令，以免覆盖配置。日志和重启：
+
+```sh
+sudo journalctl -u kantengyen -f
+sudo systemctl restart kantengyen
+```
+
+### 配置 HTTPS
+
+把域名的 A 记录指向服务器公网 IPv4；如果有 AAAA 记录，IPv6 也必须能访问这台服务器。放行防火墙和云安全组的 TCP 80、443；UDP 443 可用于 HTTP/3。游戏服务的 3000 保持仅监听本机。
+
+按 [Caddy 官方安装文档](https://caddyserver.com/docs/install) 安装 Caddy，将仓库的 `deploy/Caddyfile.binary` 复制为 `/etc/caddy/Caddyfile`，把 `{$SITE_ADDRESS:play.example.com}` 改成实际域名，例如 `play.your-domain.com`。此模板用于宿主机二进制部署，代理到 `127.0.0.1:3000`。
+
+```sh
+sudo caddy validate --config /etc/caddy/Caddyfile
+sudo systemctl reload caddy
+curl -fsS https://play.your-domain.com/api/health
+```
+
+Caddy 自动申请和续期证书并代理 WebSocket。两台设备访问 HTTPS 地址，创建房间、打开邀请链接、完成一局并刷新，确认对局及重连正常。麦克风还需要下文的 TURN 配置。
+
+## 方式二：Docker Compose
+
+服务器需要 Docker Engine 和 Compose 插件，支持 Linux amd64 容器；首次构建会下载 Rust、Node.js 和依赖。克隆仓库后，在仓库根目录执行：
+
+```sh
+cp .env.example .env
+# 编辑 .env，将 SITE_ADDRESS 改成真实域名；按需配置语音
+docker compose config --quiet
+docker compose up -d --build
+docker compose ps
+docker compose logs -f --tail=100 game caddy
+curl -fsS https://你的域名/api/health
+```
+
+域名和端口要求与上面相同。Compose 的 `deploy/Caddyfile` 代理到容器服务名 `game:3000`，不要替换成宿主机模板。游戏容器以非 root 用户运行，3000 不映射到宿主机；Caddy 的证书保存在 `caddy_data`、`caddy_config` 卷中。
+
+`.env` 仅用于 Compose 变量替换，直接运行二进制不会自动读取它。不要提交真实 `.env` 或 TURN 密钥。使用 `SITE_ADDRESS=localhost` 时 Caddy 使用本地证书，其他设备通常不信任它；公网部署应使用真实域名。
+
+```sh
+# 停止服务，保留证书卷
+docker compose down
+# 拉取新源码后重新构建并启动
+docker compose up -d --build
+```
+
+不要在正常维护时使用 `docker compose down -v`，它会删除证书卷。
+
+## 自行构建发布产物
+
+在仓库根目录执行，需要 Node.js 22+：
+
+```sh
+# 使用 Docker 构建；Windows 需 Docker Desktop 的 Linux 容器
+npm run build:release
+
+# Linux x64 本机构建，需要 Rust/rustup 和 musl-tools
+# Debian/Ubuntu: sudo apt-get install musl-tools
+npm run build:release -- --native
+npm run verify:static
+```
+
+本机构建脚本会执行 `npm ci`、安装 WASM/musl 目标、构建前端和服务端。Docker 模式在构建阶段安装依赖。输出位于 `dist/`，包括服务端、`SHA256SUMS`、MIT 许可证、第三方说明与头像许可证。脚本验证 ELF 架构，拒绝包含动态链接器或共享库依赖的产物。CI 使用 Rust 1.96.1、Node.js 24，压缩包保留二进制执行权限。
+
+## 环境变量
+
+| 变量 | 默认值 | 说明 |
+| --- | --- | --- |
+| `BIND_ADDR` | `127.0.0.1:3000` | 服务监听地址；容器设置为 `0.0.0.0:3000` |
+| `RUST_LOG` | `kantengyen_server=info,tower_http=info` | 日志过滤，例如 `kantengyen_server=debug` |
+| `SITE_ADDRESS` | Compose 为 `localhost` | Caddy 域名，游戏进程不读取 |
+| `VOICE_ICE_SERVERS` | `[]` | ICE server JSON 数组 |
+| `VOICE_ICE_POLICY` | `all` | `all` 优先直连；`relay` 强制 TURN 中继 |
+| `VOICE_TURN_URLS` | 空 | 逗号分隔的 `turn:` / `turns:` URL |
+| `VOICE_TURN_SECRET` | 空 | 与 coturn 相同的共享密钥，必须和 TURN URL 同时配置 |
+
+## 房间语音
+
+HTTPS 是麦克风使用条件，跨运营商或移动网络通话还需 STUN/TURN。默认没有公共中继。按 [语音部署指南](VOICE.md) 配置 coturn、临时凭证、网络端口及真实设备验证。模板见 [turnserver.conf.example](turnserver.conf.example)。TURN 不通过 Caddy 的 HTTP 代理转发。
+
+## 升级、回滚和运维
+
+- 二进制升级：校验新产物，备份旧二进制，`sudo systemctl stop kantengyen` 后安装新文件及许可证，再启动服务并检查 `/api/health`。回滚同样先停止服务再恢复旧文件。保留 `/etc/kantengyen.env`。
+- Compose 升级：保存当前源码版本，更新源码后执行 `docker compose up -d --build`；回滚到旧版本后重新构建。每次重新创建游戏容器都会丢失内存房间。
+- 备份配置、TURN 密钥及 Caddy 数据卷；本项目没有可备份的对局数据库。使用外部监控定期检查 HTTPS `/api/health`，并监控进程退出、内存、CPU 和 TURN 带宽。
+- 公网长期运营前，需要按实际规模补齐持久化、入口限流和监控。四位房间号方便邀请，不能当作密码；目前也没有账号鉴权或多实例房间路由。
+
+## 常见问题
+
+| 现象 | 检查与处理 |
+| --- | --- |
+| `Exec format error` | 服务器必须是 Linux x64，不能直接用于 ARM64 或 Windows |
+| `Permission denied` | 执行 `chmod +x`，并确认安装目录所在文件系统没有 `noexec` |
+| 编译提示“前端未构建” | 先 `npm ci && npm run build`，再执行 Cargo 构建 |
+| Caddy 返回 502 | 检查游戏服务是否启动、监听地址，以及所用 Caddy 模板的代理目标 |
+| 证书申请失败 | 检查域名 A/AAAA、80/443 安全组和防火墙、端口占用、Caddy 日志 |
+| 页面能打开但无法加入房间 | 检查反向代理/CDN 是否支持 WebSocket，查看浏览器网络面板和服务日志 |
+| 手机麦克风不可用 | 使用可信 HTTPS，允许麦克风，检查 `Permissions-Policy` |
+| 语音在同一 Wi-Fi 可用，移动网络不可用 | 检查 TURN URL、共享密钥、公网 IP、3478 和 relay 端口；强制 `relay` 验证 |
+| 更新后房间消失 | 当前内存存储的预期行为，需要重新创建房间 |
