@@ -43,6 +43,7 @@ test("real three-way WebRTC audio, mute, rejoin and game-end cleanup", async ({ 
     await host.goto("/");
     await host.getByRole("button", { name: "我会玩了，直接去大厅" }).click();
     await host.getByRole("button", { name: /创建房间/ }).click();
+    await host.getByRole("button", { name: "确认开桌" }).click();
     const code = await host.locator(".waiting-center h2 span").innerText();
     for (const page of [friend, third]) {
       await page.goto(`/?room=${code}`);
@@ -105,7 +106,6 @@ test("real three-way WebRTC audio, mute, rejoin and game-end cleanup", async ({ 
     expect(await host.evaluate(() => [...document.querySelectorAll<HTMLAudioElement>("audio[data-voice-peer]")].every(audio => audio.muted))).toBe(true);
     await host.getByRole("button", { name: "取消扬声器静音", exact: true }).click();
     await friend.reload();
-    await friend.getByRole("button", { name: "加入房间", exact: true }).click();
     await expect(host.locator(".voice-members > div")).toHaveCount(1);
     expect(await friend.evaluate(() => (window as typeof window & { mediaRequests: number }).mediaRequests)).toBe(0);
     await friend.getByRole("button", { name: "房间语音", exact: true }).click();
@@ -116,7 +116,12 @@ test("real three-way WebRTC audio, mute, rejoin and game-end cleanup", async ({ 
     await expect(host.locator(".voice-members > div")).toHaveCount(1);
     await third.getByRole("button", { name: "开启房间语音" }).click();
     await expect(host.locator('.voice-members [data-state="connected"]')).toHaveCount(2, { timeout: 20_000 });
-    for (const page of [friend, third]) await page.getByRole("button", { name: "我准备好了" }).click();
+    await friend.getByRole("button", { name: "我准备好了" }).click();
+    await expect(friend.getByRole("button", { name: "取消准备" })).toBeVisible();
+    // Wait for the other browser to receive the new room version before acting.
+    await expect(third.locator(".opponent-info small").filter({ hasText: "已准备" })).toHaveCount(1);
+    await third.getByRole("button", { name: "我准备好了" }).click();
+    await expect(third.getByRole("button", { name: "取消准备" })).toBeVisible();
     await host.getByRole("button", { name: "开始游戏" }).click();
     await expect(host.locator(".hand-cards .playing-card")).toHaveCount(6);
     await expect(host.locator('.voice-members [data-state="connected"]')).toHaveCount(2);
@@ -127,8 +132,8 @@ test("real three-way WebRTC audio, mute, rejoin and game-end cleanup", async ({ 
       await stopped(page);
     }
     await friend.reload();
-    await friend.getByRole("button", { name: "加入房间", exact: true }).click();
-    await expect(friend.getByRole("heading", { name: "总计分" })).toBeVisible();
+    await expect(friend.getByRole("dialog")).toHaveCount(0);
+    await expect(friend).toHaveURL(/\/$/);
     expect(await friend.evaluate(() => (window as typeof window & { mediaRequests: number }).mediaRequests)).toBe(0);
   } catch (error) {
     for (let i = 0; i < pages.length; i++) {
@@ -165,6 +170,7 @@ test("denied microphone permission leaves no active voice resources", async ({ p
   await page.goto("/");
   await page.getByRole("button", { name: "我会玩了，直接去大厅" }).click();
   await page.getByRole("button", { name: /创建房间/ }).click();
+  await page.getByRole("button", { name: "确认开桌" }).click();
   await page.getByRole("button", { name: "房间语音", exact: true }).click();
   await page.getByRole("button", { name: "开启房间语音" }).click();
   await expect(page.getByRole("status")).toContainText("未获得麦克风权限");
@@ -188,6 +194,7 @@ test("canceling pending microphone permission stops a stream granted afterwards"
     await page.goto("/");
     await page.getByRole("button", { name: "我会玩了，直接去大厅" }).click();
     await page.getByRole("button", { name: /创建房间/ }).click();
+    await page.getByRole("button", { name: "确认开桌" }).click();
     await page.getByRole("button", { name: "房间语音", exact: true }).click();
     await page.getByRole("button", { name: "开启房间语音" }).click();
     await expect.poll(() => page.evaluate(() => !!(window as typeof window & { grantLater?: () => void }).grantLater)).toBe(true);

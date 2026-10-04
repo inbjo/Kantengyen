@@ -73,6 +73,11 @@ export function useRoom(
           pending.current = false;
           setBusy(false);
           setHint(null);
+          if (message.phase === "ended") {
+            fatal = true;
+            setStatus("closed");
+            socket.close();
+          }
         } else if (message.type === "hint") {
           if (message.version === current.current?.version)
             setHint(message.cards);

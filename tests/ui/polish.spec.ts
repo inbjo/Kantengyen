@@ -110,7 +110,6 @@ test("card effects are distinct, do not repeat on pass, and sound toggle persist
   expect(await page.evaluate(() => (window as typeof window & { audioNotes: number }).audioNotes)).toBe(notes);
   await page.reload();
   await expect(page.getByRole("button", { name: "开启音效" })).toBeVisible();
-  await page.getByRole("button", { name: /返回上次的房间/ }).click();
   await expect(page.locator(".hand-cards .playing-card")).toHaveCount(6);
   await expect(page.locator(".play-effect")).toHaveCount(0);
   await page.emulateMedia({ reducedMotion: "reduce" });

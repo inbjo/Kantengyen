@@ -137,8 +137,8 @@ impl Config {
             .parse()
             .map_err(|_| "TURN_RELAY_IP 必须是本机 IPv4")?;
         let min_port = number("TURN_MIN_PORT", 49160)?;
-        let max_port = number("TURN_MAX_PORT", 49200)?;
-        let max_allocations = number("TURN_MAX_ALLOCATIONS", 32)?;
+        let max_port = number("TURN_MAX_PORT", 49223)?;
+        let max_allocations = number("TURN_MAX_ALLOCATIONS", 64)?;
         let bytes_per_second = number("TURN_BYTES_PER_SECOND", 128000)?;
         if bind.port() == 0
             || min_port < 1024

@@ -11,6 +11,7 @@ export interface Player extends Profile {
   bot: boolean;
   ready: boolean;
   online: boolean;
+  auto_play?: boolean;
   score: number;
   count: number;
 }
@@ -29,6 +30,7 @@ export interface Snapshot {
   version: number;
   phase: "waiting" | "playing" | "finished" | "ended";
   completed_rounds: number;
+  round_limit: number | null;
   abandoned_round: boolean;
   final_scores: { id: string; name: string; avatar_seed: string; score: number; rank: number }[];
   deadline_ms: number;

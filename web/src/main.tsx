@@ -33,6 +33,7 @@ import type { Profile, Session, Player } from "./types";
 import { randomName, randomSeed, read, write } from "./storage";
 import { useRoom } from "./useRoom";
 import { useVoice } from "./useVoice";
+import { useScreenWakeLock } from "./useScreenWakeLock";
 import { loadRules, inspectSelection } from "./rules";
 import { unlockAudio, playCardSound } from "./audio";
 import { announceCard, stopAnnouncement, unlockSpeech } from "./speech";
@@ -179,37 +180,57 @@ function App() {
       },
   );
   const [session, setSession] = useState<Session | null>(saved);
-  const [room, setRoom] = useState("");
+  const [initialRoom] = useState(() => {
+    const code = new URLSearchParams(location.search).get("room") ?? "";
+    return /^[1-9]\d{3}$/.test(code) ? code : "";
+  });
+  const [room, setRoom] = useState(() =>
+    saved?.token && initialRoom === read("kantengyen.room", "") ? initialRoom : "",
+  );
   const [roomInput, setRoomInput] = useState(
-    () =>
-      new URLSearchParams(location.search)
-        .get("room")
-        ?.replace(/\D/g, "")
-        .slice(0, 4) ?? "",
+    () => initialRoom,
   );
   const [dialog, setDialog] = useState<
-    "welcome" | "join" | "profile" | "rules" | "leave" | "end" | null
+    "welcome" | "create" | "join" | "profile" | "rules" | "leave" | "end" | "orientation" | null
   >(() =>
-    roomInput
+    room
+      ? null
+      : roomInput
       ? "join"
       : read("kantengyen.intro_seen", false)
         ? null
         : "welcome",
   );
   const [loading, setLoading] = useState(false);
+  const [roundChoice, setRoundChoice] = useState("8");
+  const [customRounds, setCustomRounds] = useState("8");
   const [toast, setToast] = useState("");
+  useEffect(() => {
+    if (dialog === "welcome") write("kantengyen.intro_seen", true);
+  }, [dialog]);
   const [playEffect, setPlayEffect] = useState<{ key: string; kind: string; label: string } | null>(null);
   const previousPlay = useRef<string | undefined>(undefined);
   const [selected, setSelected] = useState<number[]>([]);
-  const [lessonOpen, setLessonOpen] = useState(true);
+  const [lessonOpen, setLessonOpen] = useState(() => read("kantengyen.lesson_open", true));
   const [showLog, setShowLog] = useState(false);
   const [showVoice, setShowVoice] = useState(false);
   const [autoPass, setAutoPass] = useState(() => read("kantengyen.auto_pass", true));
   const [soundEnabled, setSoundEnabled] = useState(() => read("kantengyen.sound_enabled", true));
   const [speechEnabled, setSpeechEnabled] = useState(() => read("kantengyen.speech_enabled", true));
+  const [keepScreenOn, setKeepScreenOn] = useState(() => read("kantengyen.keep_screen_on", true));
   const [now, setNow] = useState(Date.now());
   const [rulesLoaded, setRulesLoaded] = useState(false);
   const notify = useCallback((text: string) => setToast(text), []);
+  const previousRoom = useRef(room);
+  useEffect(() => {
+    if (room || previousRoom.current) {
+      const url = new URL(location.href);
+      if (room) url.searchParams.set("room", room);
+      else url.searchParams.delete("room");
+      history.replaceState(history.state, "", url);
+    }
+    previousRoom.current = room;
+  }, [room]);
   const {
     snapshot: table,
     status,
@@ -218,6 +239,26 @@ function App() {
     hint,
     send,
   } = useRoom(room, session?.token ?? "", notify);
+  const orientationChecked = useRef("");
+  useEffect(() => {
+    if (!room) { orientationChecked.current = ""; return; }
+    if (!table) return;
+    if (table.phase === "ended") {
+      setDialog(current => current === "orientation" ? null : current);
+      return;
+    }
+    if (orientationChecked.current === room) return;
+    orientationChecked.current = room;
+    if (window.matchMedia("(orientation: portrait)").matches) setDialog("orientation");
+  }, [room, table?.code, table?.phase]);
+  useEffect(() => {
+    if (dialog !== "orientation") return;
+    const portrait = window.matchMedia("(orientation: portrait)");
+    const changed = () => { if (!portrait.matches) setDialog(null); };
+    portrait.addEventListener("change", changed);
+    return () => portrait.removeEventListener("change", changed);
+  }, [dialog]);
+  const screenWakeLock = useScreenWakeLock(keepScreenOn && !!room && !!table && table.phase !== "ended");
   const voiceAllowed = !!table && !table.practice && table.phase !== "ended" && status === "online";
   const voice = useVoice(room, session?.token ?? "", voiceAllowed, notify);
   useEffect(() => { if (!voiceAllowed) setShowVoice(false); }, [voiceAllowed]);
@@ -297,9 +338,6 @@ function App() {
       if (!hint.length) notify("没有可以接上的牌，可以过牌");
     }
   }, [hint, notify]);
-  useEffect(() => {
-    setLessonOpen(true);
-  }, [table?.round]);
 
   async function api(path: string, body: unknown, token = session?.token) {
     const controller = new AbortController();
@@ -335,6 +373,11 @@ function App() {
   }
   async function enter(mode: "practice" | "create" | "join" | "resume") {
     if (loading) return;
+    const roundLimit = roundChoice === "unlimited" ? null : Number(roundChoice === "custom" ? customRounds : roundChoice);
+    if (mode === "create" && roundLimit !== null && (!Number.isInteger(roundLimit) || roundLimit < 1 || roundLimit > 4294967295)) {
+      notify("请输入有效的正整数局数");
+      return;
+    }
     if (mode === "join" && !/^[1-9]\d{3}$/.test(roomInput)) {
       notify("请输入 1000–9999 的四位房间号");
       return;
@@ -346,7 +389,7 @@ function App() {
         mode === "create" || mode === "practice"
           ? await api(
               "/api/rooms",
-              { practice: mode === "practice" },
+              { practice: mode === "practice", round_limit: roundLimit },
               next.token,
             )
           : await api(
@@ -365,12 +408,19 @@ function App() {
     }
   }
   async function leave() {
-    setLoading(true);
-    try {
-      await api(`/api/rooms/${room}/leave`, {});
+    if (table?.phase === "ended") {
       setRoom("");
       setDialog(null);
       write("kantengyen.room", "");
+      return;
+    }
+    setLoading(true);
+    try {
+      const result = await api(`/api/rooms/${room}/leave`, {});
+      setRoom("");
+      setDialog(null);
+      write("kantengyen.room", result.seat_retained ? room : "");
+      if (result.seat_retained) notify("已暂时离桌，座位和累计分数保留，可返回原房间");
     } catch (e) {
       notify(e instanceof Error ? e.message : "退出失败");
     } finally {
@@ -404,9 +454,17 @@ function App() {
     const timer = setTimeout(() => {
       send("auto_pass");
       notify("要不起，已自动过牌");
-    }, 800);
+    }, 2000);
     return () => clearTimeout(timer);
   }, [autoPass, table?.version, table?.auto_pass_available, status, busy, send, notify]);
+  useEffect(() => {
+    if (table?.phase === "ended") {
+      write("kantengyen.room", "");
+      const url = new URL(location.href);
+      url.searchParams.delete("room");
+      history.replaceState(history.state, "", url);
+    }
+  }, [table?.phase]);
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
       if (
@@ -455,7 +513,7 @@ function App() {
             <>
               <span className="connection">
                 <i className={status} />
-                {status === "online"
+                {table?.phase === "ended" ? "房间已解散" : status === "online"
                   ? "已连接"
                   : status === "connecting"
                     ? "连接中"
@@ -548,8 +606,8 @@ function App() {
               <span className="handwritten">只大一级，才接得上 ↗</span>
             </div>
             <div className="lobby-footnote">
-              <span>2–6 人同桌</span>
-              <i /> <span>横屏打牌更舒服</span>
+              <span>2–8 人同桌</span>
+              <i /> <span>和朋友围坐一桌</span>
             </div>
           </section>
           <section className="lobby-actions">
@@ -584,7 +642,7 @@ function App() {
             <button
               className="entry create-entry"
               disabled={loading}
-              onClick={() => enter("create")}
+              onClick={() => setDialog("create")}
             >
               <span className="entry-icon">
                 <Plus size={27} />
@@ -634,6 +692,7 @@ function App() {
           <button
             className="secondary"
             onClick={() => {
+              if (status === "closed") write("kantengyen.room", "");
               setRoom("");
               setDialog(null);
             }}
@@ -642,12 +701,12 @@ function App() {
           </button>
         </main>
       ) : (
-        <main className="game-area">
+        <main className={`game-area ${table.players.length >= 7 ? "large-table" : ""}`}>
           <div className="table-meta">
             <span>
               {table.practice
                 ? `练习 ${Math.min(table.round, 3)} / 3`
-                : `第 ${table.round || 1} 局`}
+                : `第 ${table.round || 1} 局${table.round_limit ? ` / ${table.round_limit}` : " · 血战到底"}`}
             </span>
             <span>
               {table.practice ? '练习牌堆' : '牌堆'} <b>{table.deck_count}</b>
@@ -656,6 +715,17 @@ function App() {
               倍率 <b>×{table.multiplier}</b>
             </span>
             <button onClick={() => setShowLog(!showLog)}>牌局记录</button>
+            <button disabled={!screenWakeLock.supported}
+              aria-label={keepScreenOn ? "关闭屏幕常亮" : "开启屏幕常亮"}
+              aria-pressed={keepScreenOn}
+              title={!screenWakeLock.supported ? "当前浏览器不支持屏幕常亮" : screenWakeLock.active ? "屏幕常亮已生效，点击关闭" : keepScreenOn ? "已请求常亮，浏览器尚未允许；切回网页或点击后会重试" : "点击开启屏幕常亮"}
+              onClick={() => {
+                const enabled = !keepScreenOn;
+                setKeepScreenOn(enabled);
+                write("kantengyen.keep_screen_on", enabled);
+              }}>
+              {!screenWakeLock.supported ? "常亮不支持" : screenWakeLock.active ? "常亮开" : keepScreenOn ? "常亮待开启" : "常亮关"}
+            </button>
             <button className="speech-entry" aria-label={speechEnabled ? "关闭出牌播报" : "开启出牌播报"} aria-pressed={speechEnabled} title="使用设备中文声音播报；无中文声音时保留普通音效" onClick={() => {
               const enabled = !speechEnabled;
               setSpeechEnabled(enabled);
@@ -723,12 +793,12 @@ function App() {
               <h2>
                 房间 <span>{table.code}</span>
               </h2>
-              <p>已入座 {table.players.length} / 6 人 · 至少两人即可开始</p>
+              <p>已入座 {table.players.length} / 8 人 · {table.round_limit ? `${table.round_limit} 局` : "血战到底"} · 至少两人即可开始</p>
               <button className="secondary invite-button" onClick={copyInvite}>
                 <Copy size={17} /> 复制邀请链接
               </button>
               <div className="empty-chairs">
-                {Array.from({ length: 6 - table.players.length }, (_, i) => (
+                {Array.from({ length: 8 - table.players.length }, (_, i) => (
                   <span key={i}>
                     <Plus size={20} />
                     <small>等朋友</small>
@@ -786,7 +856,11 @@ function App() {
             <aside className={`lesson-card ${lessonOpen ? "" : "collapsed"}`}>
               <button
                 className="lesson-heading"
-                onClick={() => setLessonOpen(!lessonOpen)}
+                onClick={() => {
+                  const open = !lessonOpen;
+                  setLessonOpen(open);
+                  write("kantengyen.lesson_open", open);
+                }}
               >
                 <GraduationCap size={18} />
                 <span>{lesson.title}</span>
@@ -809,7 +883,7 @@ function App() {
               <div>
                 <strong>{profile.name}</strong>
                 <small>
-                  {table.players[table.seat].score} 分 ·{" "}
+                  累计 {table.players[table.seat].score} 分 ·{" "}
                   {table.players[table.seat].id === table.host ? "房主" : "你"}
                 </small>
                 <label className="auto-pass-toggle">
@@ -821,7 +895,7 @@ function App() {
                       write("kantengyen.auto_pass", e.target.checked);
                     }}
                   />
-                  自动过牌
+                  要不起过牌
                 </label>
               </div>
             </div>
@@ -932,12 +1006,12 @@ function App() {
               )}
             </div>
           </section>
-          {status !== "online" && (
+          {status !== "online" && table.phase !== "ended" && (
             <div className="connection-banner">
               <WifiOff size={17} /> {status === "closed" ? connectionError : "连接中断，正在恢复牌桌…"}
             </div>
           )}
-          <div className="rotate-hint">横置手机，牌桌更宽敞 ↻</div>
+          <div className="rotate-hint">建议手机用户使用横屏，体验更佳 ↻</div>
           {(table.phase === "finished" || table.phase === "ended") && (
             <div className="result-overlay">
               <section className="result-card">
@@ -952,7 +1026,7 @@ function App() {
                 <p>
                   {table.phase === "ended" ? `已完成 ${table.completed_rounds} 局${table.abandoned_round ? " · 未完成的本局不计分" : ""}` : table.practice
                     ? "练习不怕输，学会就算赢。"
-                    : "再来一把，下一手也许就轮到你。"}
+                    : `本局得分 · 炸弹倍率 ×${table.multiplier} · 全桌合计 ${(table.result ?? []).reduce((sum, score) => sum + score, 0)} 分`}
                 </p>
                 <div className="score-list">
                   {table.phase === "ended" ? table.final_scores.map(p => (
@@ -966,6 +1040,7 @@ function App() {
                     <div key={p.id}>
                       <Avatar seed={p.avatar_seed} name={p.name} />
                       <span>{p.name}</span>
+                      <small className="cumulative-score">累计 {p.score}</small>
                       <b
                         className={
                           (table.result?.[i] ?? 0) > 0 ? "positive" : ""
@@ -1051,6 +1126,31 @@ function App() {
           <button className="text-button wide" onClick={skipIntro}>
             我会玩了，直接去大厅
           </button>
+        </Modal>
+      )}
+      {dialog === "orientation" && (
+        <Modal title="横屏打牌更舒服" close={() => setDialog(null)}>
+          <p className="modal-copy">建议手机用户使用横屏，体验更佳。横屏能看清更多手牌，也更方便选牌。转为横屏后此提示会自动关闭。</p>
+          <button className="primary wide" onClick={() => setDialog(null)}>知道了，继续玩</button>
+        </Modal>
+      )}
+      {dialog === "create" && (
+        <Modal title="开一桌，玩几局？" close={() => setDialog(null)} feedback={toast}>
+          <p className="modal-copy">最多 8 人同桌。打满约定局数后结算总分并解散房间，房主也可提前结束。</p>
+          <fieldset className="round-options">
+            <legend>对局局数</legend>
+            {[["8", "8 局"], ["16", "16 局"], ["20", "20 局"], ["unlimited", "血战到底"], ["custom", "自定义"]].map(([value, label]) => (
+              <label key={value} className={roundChoice === value ? "selected" : ""}>
+                <input type="radio" name="round-limit" value={value} checked={roundChoice === value} onChange={() => setRoundChoice(value)} />
+                <span>{label}</span>
+              </label>
+            ))}
+          </fieldset>
+          {roundChoice === "custom" && <label className="custom-rounds">自定义局数
+            <input type="number" min="1" max="4294967295" step="1" inputMode="numeric" value={customRounds} onChange={e => setCustomRounds(e.target.value)} />
+          </label>}
+          {roundChoice === "unlimited" && <p className="modal-copy">不限制局数，玩到房主结束游戏为止。</p>}
+          <button className="primary wide" disabled={loading} onClick={() => enter("create")}>确认开桌 <ArrowRight size={18} /></button>
         </Modal>
       )}
       {dialog === "join" && (
@@ -1161,8 +1261,7 @@ function App() {
                 <p>
                   54 张牌，只有大小王是万能牌；庄家 6 张，其他人 5
                   张。按座位依次出牌；一圈没人接，最后出牌的人摸一张再领出。剩余牌计负分，三张炸弹
-                  ×2、深水炸弹 ×4，关死和天胡另计
-                  ×2。牌堆耗尽且领出者只剩万能牌时，本局和局。
+                  ×2、深水炸弹 ×4，倍率累乘。每张剩余牌计 1 分，赢家获得其他玩家扣分之和，全桌得分合计为 0。牌堆耗尽且领出者只剩万能牌时，本局和局。
                 </p>
               </div>
             </section>
@@ -1175,7 +1274,7 @@ function App() {
       {dialog === "end" && (
         <Modal title="结束这一桌游戏？" close={() => setDialog(null)} feedback={toast}>
           <p className="modal-copy">
-            所有玩家都会进入总计分页面，结束后不能继续开局。
+            房间将立即解散，所有玩家会看到总计分，并可创建或加入新房间。
             {table?.phase === "playing" ? "当前这一局尚未完成，不计分；此前已完成局的累计成绩保留。" : "已完成局的累计成绩保留。"}
           </p>
           <button className="primary wide" disabled={busy || status !== "online"} onClick={() => {
@@ -1189,8 +1288,10 @@ function App() {
         <Modal title="先离开这一桌？" close={() => setDialog(null)} feedback={toast}>
           <p className="modal-copy">
             {table?.phase === "playing" && !table.practice
-              ? "本局进行中，座位会保留。你可以返回首页，稍后回到这间房；超时后系统会代你过牌或领出。"
-              : "退出后可以重新开桌，或加入朋友的房间。"}
+              ? "本局进行中，座位和累计分数会保留到整桌结束。离线后机器接管，有牌就接、要不起就过；回来后可继续自己出牌。"
+              : table && !table.practice && table.round > 0 && table.phase !== "ended"
+                ? "这一桌尚未结束，返回大厅后座位和累计分数仍保留，下一局离线时由机器代打。房主结束游戏后才能加入新桌。"
+                : "退出后可以重新开桌，或加入朋友的房间。"}
           </p>
           <button
             className="primary wide"
@@ -1247,7 +1348,11 @@ function Seat({
         ? ["", "left", "top", "right"]
         : count === 5
           ? ["", "left", "upper-left", "upper-right", "right"]
-          : ["", "left", "upper-left", "top", "upper-right", "right"];
+          : count === 6
+            ? ["", "left", "upper-left", "top", "upper-right", "right"]
+            : count === 7
+              ? ["", "lower-left", "left", "upper-left", "upper-right", "right", "lower-right"]
+              : ["", "lower-left", "left", "upper-left", "top", "upper-right", "right", "lower-right"];
   return (
     <div
       className={`opponent ${positions[index]} ${active ? "active" : ""} ${!player.online ? "disconnected" : ""}`}
@@ -1262,14 +1367,16 @@ function Seat({
         <small>
           {player.bot
             ? "练习伙伴"
-            : !player.online
+            : player.auto_play
+              ? "离线 · 机器代打"
+              : !player.online
               ? "离线 · 座位保留"
               : host
                 ? "房主"
                 : player.ready
                   ? "已准备"
                   : "未准备"}{" "}
-          · {player.score} 分
+          · 累计 {player.score} 分
         </small>
       </div>
       {player.count > 0 && (

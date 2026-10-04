@@ -17,6 +17,7 @@ test("confirmed plays are narrated once, independently muted and never replayed 
     publish = (kind, rank, cards, phase = "playing") => socket.send(JSON.stringify({
       type: "snapshot", code: "1234", practice: true, host: "host", seat: 0, round: 1,
       version: ++version, phase, deadline_ms: 0, auto_pass_available: false,
+      round_limit: null, completed_rounds: 0, abandoned_round: false, final_scores: [],
       players: ["host", "friend"].map(id => ({ id, name: id, avatar_seed: id, bot: false, ready: true, online: true, score: 0, count: 5 })),
       hand: [0, 1, 2, 12, 52, 53], turn: 1,
       last: { seat: 1, cards, pattern: { kind, rank, len: cards.length } },
@@ -64,7 +65,6 @@ test("confirmed plays are narrated once, independently muted and never replayed 
   expect((await spoken()).length).toBe(count);
   await page.getByRole("button", { name: "关闭出牌播报" }).click();
   await page.reload();
-  await page.getByRole("button", { name: /返回上次的房间/ }).click();
   await expect(page.getByRole("button", { name: "开启出牌播报" })).toHaveAttribute("aria-pressed", "false");
   expect(await spoken()).toEqual([]);
   await page.getByRole("button", { name: "开启出牌播报" }).click();
@@ -75,7 +75,7 @@ test("confirmed plays are narrated once, independently muted and never replayed 
   await expect.poll(() => page.evaluate(() => (window as typeof window & { speechCancels: number }).speechCancels)).toBeGreaterThan(cancels);
   expect(await spoken()).toEqual(["四"]);
   await page.reload();
-  await page.getByRole("button", { name: /返回上次的房间/ }).click();
-  await expect(page.getByRole("button", { name: "关闭出牌播报" })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: /返回上次的房间/ })).toHaveCount(0);
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("kantengyen.speech_enabled")!))).toBe(true);
   expect(await spoken()).toEqual([]);
 });

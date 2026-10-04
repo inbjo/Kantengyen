@@ -341,21 +341,15 @@ impl Game {
 
     fn finish(&mut self, winner: usize) {
         self.winner = Some(winner);
-        let heavenly =
-            winner == self.dealer && self.played[winner] == 6 && self.discarded.len() == 6;
         for seat in 0..self.hands.len() {
             if seat == winner {
                 continue;
             }
-            let shutout = self.played[seat] == 0 || (seat == self.dealer && self.played[seat] == 1);
-            let loss = self.hands[seat].len() as i64
-                * self.multiplier
-                * if shutout { 2 } else { 1 }
-                * if heavenly { 2 } else { 1 };
+            let loss = self.hands[seat].len() as i64 * self.multiplier;
             self.result[seat] = -loss;
             self.result[winner] += loss;
         }
-        self.message = "本局结束，积分按剩余手牌、炸弹和关死倍率结算".into();
+        self.message = "本局结束，每张剩余牌计 1 分，乘以炸弹倍率，赢家获得其余玩家扣分之和".into();
     }
 }
 
@@ -428,7 +422,29 @@ mod tests {
         g.play(0, vec![0]).unwrap();
         assert_eq!(g.winner, Some(0));
         assert_eq!(g.result.iter().sum::<i64>(), 0);
-        assert_eq!(g.result[1], -10);
+        assert_eq!(g.result, vec![5, -5]);
+    }
+    #[test]
+    fn losses_are_remaining_cards_times_bombs_without_extra_multipliers() {
+        for (winning_cards, other_hands, expected, multiplier) in [
+            (vec![0], vec![vec![1, 8]], vec![2, -2], 1),
+            (vec![0, 1, 2, 3, 4, 5], vec![vec![7, 8]], vec![2, -2], 1),
+            (vec![0, 13, 26], vec![vec![1, 8]], vec![4, -4], 2),
+            (vec![0, 13, 26, 39], vec![vec![1, 8]], vec![8, -8], 4),
+            (
+                vec![0, 13, 26],
+                vec![vec![1, 8], vec![2, 9, 10]],
+                vec![10, -4, -6],
+                2,
+            ),
+        ] {
+            let mut game = Game::deal((0..DECK_SIZE).collect(), other_hands.len() + 1, 0);
+            game.hands = [vec![winning_cards.clone()], other_hands].concat();
+            game.play(0, winning_cards).unwrap();
+            assert_eq!(game.multiplier, multiplier);
+            assert_eq!(game.result, expected);
+            assert_eq!(game.result.iter().sum::<i64>(), 0);
+        }
     }
     #[test]
     fn simulated_games_preserve_cards_and_finish() {
@@ -439,7 +455,7 @@ mod tests {
                 rng = rng.wrapping_mul(6364136223846793005).wrapping_add(1);
                 deck.swap(i, (rng as usize) % (i + 1));
             }
-            let mut g = Game::deal(deck, 2 + seed % 5, 0);
+            let mut g = Game::deal(deck, 2 + seed % 7, 0);
             for _ in 0..1000 {
                 if g.winner.is_some() {
                     break;

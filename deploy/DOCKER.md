@@ -19,7 +19,7 @@
 | 443 | UDP | 可选 HTTP/3 |
 | 3478 | UDP/TCP | 内置 STUN/TURN 客户端入口 |
 | 5349 | TCP | 可选内置 TURN/TLS，启用 TLS overlay 后开放 |
-| 49160–49200 | UDP | TURN 媒体中继，必须整个范围可达 |
+| 49160–49223 | UDP | TURN 媒体中继，必须整个范围可达 |
 
 3000 只在 Compose 网络内供 Caddy 访问，不映射到公网。3478、5349 和中继端口直接映射到游戏容器，不能经过 Caddy、HTTP CDN 或普通 HTTP 反向代理。域名若使用 CDN，应为 TURN 域名关闭 HTTP 代理，使用 DNS-only 解析。
 
@@ -118,7 +118,7 @@ Rust 每 60 秒检查文件变化，成功解析并验证密钥匹配后替换 T
 
 ## 6. 容量与网络限制
 
-默认最多 32 个同时存在的 TURN allocation，每个 allocation 的收发方向各限制为 128000 字节/秒；超额媒体包丢弃，不积压。49160–49200 共有 41 个中继端口，实际并发受可用端口及 allocation 上限共同限制。每个浏览器到其他成员的 PeerConnection 可能需要单独 allocation，6 人 mesh 大约需要 30 个，默认容量面向小规模部署。
+默认最多 64 个同时存在的 TURN allocation，每个 allocation 的收发方向各限制为 128000 字节/秒；超额媒体包丢弃，不积压。49160–49223 共有 64 个中继端口，实际并发受可用端口及 allocation 上限共同限制。每个浏览器到其他成员的 PeerConnection 可能需要单独 allocation，8 人 mesh 大约需要 56 个，默认容量面向小规模部署。
 
 `.env` 中可调整 `TURN_MAX_ALLOCATIONS`、`TURN_BYTES_PER_SECOND`。增加中继端口范围时，同时修改 Compose 中 `TURN_MIN_PORT`、`TURN_MAX_PORT`、`ports` 映射、Dockerfile 声明及防火墙，保持容器与公网端口一致。UDP/TCP/TLS 共用 allocation 上限和全局入站配额；TCP/TLS 共用 `TURN_MAX_CONNECTIONS`（默认 128），含未认证与握手中的连接，每个来源 IP 每个流入口最多 64 个。帧头空闲限时 120 秒、帧体读取与 TLS 握手限时 10 秒、发送限时 5 秒。内置服务还限制每个来源 IP 的控制请求与包速率、总入站速率；多个玩家共享同一 NAT 时共用来源 IP 配额。
 

@@ -1,6 +1,6 @@
 # 房间语音与内置 TURN
 
-2–6 人房间语音使用 WebRTC audio mesh，每对成员独立协商。Rust 的 `/api/voice` WSS 只转发同房间、在线且主动开启语音成员的信令；浏览器使用 DTLS-SRTP 传输音频。直连时音频在浏览器间传输，使用内置 TURN 时加密媒体包经过同一个 Rust 服务进程转发。服务没有录音功能。
+2–8 人房间语音使用 WebRTC audio mesh，每对成员独立协商。Rust 的 `/api/voice` WSS 只转发同房间、在线且主动开启语音成员的信令；浏览器使用 DTLS-SRTP 传输音频。直连时音频在浏览器间传输，使用内置 TURN 时加密媒体包经过同一个 Rust 服务进程转发。服务没有录音功能。
 
 公网 Docker 部署参见 **[Docker 公网部署页](DOCKER.md)**：只启动游戏与 Caddy，TURN 已内置，无需另外部署 coturn。
 
@@ -26,7 +26,7 @@ BIND_ADDR=127.0.0.1:3000 ./kantengyen-server
 
 域名 A 记录指向该公网 IP。`TURN_PUBLIC_HOST` 可省略，客户端会使用公网 IP。不需手写内置 STUN/TURN URL；后端自动下发 `stun:host:3478`、`turn:host:3478?transport=udp`、`turn:host:3478?transport=tcp`；TLS 启用后增加 `turns:host:5349?transport=tcp`。实际分配的中继候选使用 `TURN_PUBLIC_IP`。
 
-默认放行 **3478 UDP/TCP、49160–49200 UDP**，启用 TLS 时再开放 **5349 TCP**，NAT 必须按原端口映射；Caddy 只代理 HTTPS/WSS，不能代理 TURN UDP。宿主机二进制可通过 `TURN_RELAY_IP` 绑定特定本地网卡，默认 `0.0.0.0`。Docker 应保持容器内 `0.0.0.0`，不要绑定宿主机公网/内网 IP。
+默认放行 **3478 UDP/TCP、49160–49223 UDP**，启用 TLS 时再开放 **5349 TCP**，NAT 必须按原端口映射；Caddy 只代理 HTTPS/WSS，不能代理 TURN UDP。宿主机二进制可通过 `TURN_RELAY_IP` 绑定特定本地网卡，默认 `0.0.0.0`。Docker 应保持容器内 `0.0.0.0`，不要绑定宿主机公网/内网 IP。
 
 | 变量 | 默认值 | 含义 |
 | --- | --- | --- |
@@ -43,8 +43,8 @@ BIND_ADDR=127.0.0.1:3000 ./kantengyen-server
 | `TURN_TRANSPORT` | `all` | 自动发布所有已启用入口；`udp/tcp/tls` 只发布指定入口，用于验证 |
 | `TURN_MAX_CONNECTIONS` | `128` | TCP/TLS 共用连接上限，含未认证与握手连接 |
 | `TURN_RELAY_IP` | `0.0.0.0` | 分配中继 socket 的本地网卡地址 |
-| `TURN_MIN_PORT` / `TURN_MAX_PORT` | `49160` / `49200` | 包含两端的中继端口范围 |
-| `TURN_MAX_ALLOCATIONS` | `32` | 同时存在的 allocation 数量上限，最多 1024 |
+| `TURN_MIN_PORT` / `TURN_MAX_PORT` | `49160` / `49223` | 包含两端的中继端口范围 |
+| `TURN_MAX_ALLOCATIONS` | `64` | 同时存在的 allocation 数量上限，最多 1024 |
 | `TURN_BYTES_PER_SECOND` | `128000` | 单个 allocation 每方向带宽上限，字节/秒 |
 | `VOICE_TURN_SECRET` | 启用内置时自动生成 | 至少 32 字节；密钥不下发浏览器 |
 | `VOICE_ICE_POLICY` | `all` | `all` 优先直连，`relay` 强制中继 |

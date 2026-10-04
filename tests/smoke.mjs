@@ -214,19 +214,16 @@ test("host ends a live room, freezes totals, rejects new seats and permits leavi
     assert.deepEqual(scores.map(p => p.score), [0, 0]);
     assert.deepEqual(scores.map(p => p.rank), [1, 1]);
     assert.deepEqual(b.snapshot.final_scores, scores);
-    const before = a.snapshots.length;
-    a.send("end", [], { request_id: id });
-    await a.wait(() => a.snapshots.length > before);
-    a.send("next");
-    await a.wait(() => a.messages.some(m => m.type === "error" && /游戏已结束/.test(m.error)));
-    assert.equal((await api(`/api/rooms/${code}/join`, {}, outsider.token)).status, 409);
-    assert.equal((await api(`/api/rooms/${code}/join`, {}, host.token)).status, 200);
-    const version = a.snapshot.version;
-    assert.equal((await api(`/api/rooms/${code}/leave`, {}, friend.token)).status, 200);
-    await a.wait(() => a.snapshot.version > version);
-    assert.equal(a.snapshot.phase, "ended");
-    assert.deepEqual(a.snapshot.final_scores, scores);
-    assert.equal((await api(`/api/rooms/${code}/leave`, {}, host.token)).status, 200);
+    assert.equal((await api(`/api/rooms/${code}/join`, {}, outsider.token)).status, 404);
+    assert.equal((await api(`/api/rooms/${code}/join`, {}, host.token)).status, 404);
+    // Both identities can immediately create a fresh room without leaving the dissolved one.
+    for (const session of [host, friend]) {
+      const fresh = await api("/api/rooms", {}, session.token);
+      assert.equal(fresh.status, 200);
+      await api(`/api/rooms/${code}/leave`, {}, session.token);
+      assert.equal((await api("/api/rooms", {}, session.token)).status, 409);
+      await api(`/api/rooms/${fresh.body.code}/leave`, {}, session.token);
+    }
   } finally {
     a?.close(); b.close();
   }
@@ -249,6 +246,109 @@ test("private three-round practice cannot be joined by another guest", async () 
   } finally {
     client.close();
     await api(`/api/rooms/${created.body.code}/leave`, {}, a.token);
+  }
+});
+
+test("eight seats can start, ninth seat is rejected, and disconnected players are taken over", async () => {
+  const sessions = await Promise.all(Array.from({ length: 9 }, (_, i) => guest(`八人玩家${i}`)));
+  const { body: { code } } = await api("/api/rooms", { round_limit: 16 }, sessions[0].token);
+  for (const session of sessions.slice(1, 8)) assert.equal((await api(`/api/rooms/${code}/join`, {}, session.token)).status, 200);
+  assert.equal((await api(`/api/rooms/${code}/join`, {}, sessions[8].token)).status, 409);
+  const clients = sessions.slice(0, 8).map(session => new Client(session, code));
+  try {
+    await Promise.all(clients.map(client => client.wait(() => client.snapshot?.players.every(p => p.online))));
+    assert.equal(clients[0].snapshot.round_limit, 16);
+    assert.equal(clients[0].snapshot.players.length, 8);
+    for (const client of clients.slice(1)) {
+      await client.wait(() => client.snapshot.version === clients[0].snapshot.version);
+      client.send("ready");
+      await clients[0].wait(() => clients[0].snapshot.players[clients.indexOf(client)].ready);
+    }
+    clients[0].send("start");
+    await Promise.all(clients.map(client => client.wait(() => client.snapshot.phase === "playing")));
+    assert.equal(clients[0].snapshot.deck_count, 13);
+    assert.deepEqual(clients.map(client => client.snapshot.hand.length), [6,5,5,5,5,5,5,5]);
+    clients[0].close();
+    await clients[1].wait(() => clients[1].snapshot.players[0].auto_play);
+    await clients[1].wait(() => clients[1].snapshot.last?.seat === 0);
+    const replacement = new Client(sessions[0], code);
+    clients.push(replacement);
+    await replacement.wait(() => replacement.snapshot?.players[0].online);
+    assert.equal(replacement.snapshot.players[0].auto_play, false);
+    replacement.send("end");
+    await clients[1].wait(() => clients[1].snapshot.phase === "ended");
+  } finally {
+    clients.forEach(client => client.close());
+  }
+});
+
+test("room creation validates round counts and exposes the default, custom, and unlimited options", async () => {
+  for (const [options, limit] of [[{}, 8], [{ round_limit: 20 }, 20], [{ round_limit: 3 }, 3], [{ round_limit: null }, null]]) {
+    const session = await guest("局数玩家");
+    const created = await api("/api/rooms", options, session.token);
+    assert.equal(created.status, 200);
+    const client = new Client(session, created.body.code);
+    try {
+      await client.wait(() => !!client.snapshot);
+      assert.equal(client.snapshot.round_limit, limit);
+    } finally {
+      client.close();
+      await api(`/api/rooms/${created.body.code}/leave`, {}, session.token);
+    }
+  }
+  const session = await guest("无效局数");
+  for (const round_limit of [0, -1, 1.5, "8"]) {
+    const response = await fetch(`${base}/api/rooms`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.token}` }, body: JSON.stringify({ round_limit }) });
+    assert.ok(response.status >= 400);
+  }
+});
+
+test("two-player settlement uses remaining cards and bombs, balances totals, and retains a departing seat", async () => {
+  const sessions = await Promise.all([guest("计分房主"), guest("计分朋友"), guest("替补玩家")]);
+  const { body: { code } } = await api("/api/rooms", { round_limit: 8 }, sessions[0].token);
+  await api(`/api/rooms/${code}/join`, {}, sessions[1].token);
+  const clients = sessions.slice(0, 2).map(session => new Client(session, code));
+  try {
+    await Promise.all(clients.map(c => c.wait(() => c.snapshot?.players.every(p => p.online))));
+    assert.deepEqual(clients[0].snapshot.players.map(p => p.score), [0,0]);
+    clients[1].send("ready");
+    await clients[0].wait(() => clients[0].snapshot.players.every(p => p.ready));
+    clients[0].send("start");
+    await Promise.all(clients.map(c => c.wait(() => c.snapshot.phase === "playing")));
+    for (let turn=0; turn<500 && clients[0].snapshot.phase === "playing"; turn++) {
+      // Keep the automated test below the server's per-connection input rate limit.
+      await new Promise(resolve => setTimeout(resolve, 200));
+      const actor = clients[clients[0].snapshot.turn];
+      await actor.wait(() => actor.snapshot.version === clients[0].snapshot.version);
+      const count = actor.messages.length;
+      actor.send("hint");
+      await actor.wait(() => actor.messages.slice(count).some(m => m.type === "hint"));
+      const cards = actor.messages.slice(count).find(m => m.type === "hint").cards;
+      const version = actor.snapshot.version;
+      actor.send(cards.length ? "play" : "pass", cards);
+      await Promise.all(clients.map(c => c.wait(() => c.snapshot.version > version)));
+    }
+    const result = clients[0].snapshot;
+    assert.equal(result.phase, "finished");
+    assert.equal(result.result.reduce((sum,score) => sum+score,0), 0);
+    assert.equal(result.players.reduce((sum,p) => sum+p.score,0), 0);
+    if (result.winner !== -1) {
+      const loser = 1-result.winner;
+      const loss = result.players[loser].count * result.multiplier;
+      assert.equal(result.result[loser], -loss);
+      assert.equal(result.result[result.winner], loss);
+    }
+    const scores = result.players.map(p => p.score);
+    await api(`/api/rooms/${code}/leave`, {}, sessions[1].token);
+    await clients[0].wait(() => !clients[0].snapshot.players[1].online);
+    assert.equal(clients[0].snapshot.players.length, 2);
+    assert.deepEqual(clients[0].snapshot.players.map(p => p.score), scores);
+    assert.equal((await api(`/api/rooms/${code}/join`, {}, sessions[2].token)).status, 409);
+    clients[0].send("end");
+    await clients[0].wait(() => clients[0].snapshot.phase === "ended");
+    assert.equal(clients[0].snapshot.final_scores.reduce((sum,p) => sum+p.score,0), 0);
+  } finally {
+    clients.forEach(c => c.close());
   }
 });
 

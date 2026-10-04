@@ -85,7 +85,7 @@ docker compose logs -f --tail=100 game caddy
 curl -fsS https://你的域名/api/health
 ```
 
-HTTPS 域名和端口要求与上面相同，还需放行 3478 UDP/TCP 和 49160–49200 UDP；启用 TLS 时另放行 5349 TCP；TURN 由同一个游戏容器内的 Rust 服务运行，直接发布 TURN TCP/TLS 入口与 UDP 中继端口。Compose 的 `deploy/Caddyfile` 代理到容器服务名 `game:3000`，不要替换成宿主机模板。游戏容器以非 root 用户运行，3000 不映射到宿主机；Caddy 的证书保存在 `caddy_data`、`caddy_config` 卷中。
+HTTPS 域名和端口要求与上面相同，还需放行 3478 UDP/TCP 和 49160–49223 UDP；启用 TLS 时另放行 5349 TCP；TURN 由同一个游戏容器内的 Rust 服务运行，直接发布 TURN TCP/TLS 入口与 UDP 中继端口。Compose 的 `deploy/Caddyfile` 代理到容器服务名 `game:3000`，不要替换成宿主机模板。游戏容器以非 root 用户运行，3000 不映射到宿主机；Caddy 的证书保存在 `caddy_data`、`caddy_config` 卷中。
 
 `.env` 仅用于 Compose 变量替换，直接运行二进制不会自动读取它。不要提交真实 `.env` 或 TURN 密钥。使用 `SITE_ADDRESS=localhost` 时 Caddy 使用本地证书，其他设备通常不信任它；公网部署应使用真实域名。
 
@@ -128,7 +128,7 @@ npm run verify:static
 | `TURN_ENABLED` | 原生 `false`，Compose `true` | 内置 IPv4 STUN/TURN，支持 UDP/TCP/TLS |
 | `TURN_PUBLIC_IP` | 无 | 启用内置 TURN 时必填，真实公网 IPv4 |
 | `TURN_PUBLIC_HOST` | 公网 IP | 内置 TURN 对外域名或 IPv4 |
-| `TURN_MAX_ALLOCATIONS` | `32` | 同时存在的中继 allocation 上限 |
+| `TURN_MAX_ALLOCATIONS` | `64` | 同时存在的中继 allocation 上限 |
 | `TURN_BYTES_PER_SECOND` | `128000` | 每个 allocation 每方向带宽上限 |
 
 ## 房间语音

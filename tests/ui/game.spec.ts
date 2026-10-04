@@ -1,6 +1,117 @@
 import { test, expect } from "@playwright/test";
 import { mkdir } from "node:fs/promises";
 
+test("welcome is remembered as soon as shown, including refresh and another tab", async ({ page, context }) => {
+  await page.goto("/");
+  await expect(page.getByRole("dialog", { name: "第一把？我们陪你。" })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  const other = await context.newPage();
+  await other.goto("/");
+  await expect(other.getByRole("dialog")).toHaveCount(0);
+  await expect(other.getByRole("button", { name: /先练三把/ })).toBeVisible();
+  await other.close();
+  await page.getByRole("button", { name: /先练三把/ }).click();
+  await expect(page.locator(".lesson-card")).toBeVisible();
+  await page.locator(".lesson-heading").click();
+  await expect(page.locator(".lesson-card")).toHaveClass(/collapsed/);
+  await page.reload();
+  await expect(page.locator(".lesson-card")).toHaveClass(/collapsed/);
+});
+
+test("selected cards leave every adjacent rank visible and clickable in portrait and landscape", async ({ page }) => {
+  await page.routeWebSocket("**/api/ws", socket => {
+    socket.onMessage(raw => {
+      const auth = JSON.parse(String(raw));
+      if (!auth.token) return;
+      socket.send(JSON.stringify({
+        type:"snapshot",code:auth.code,practice:true,host:"host",seat:0,round:1,version:1,phase:"playing",deadline_ms:0,
+        round_limit:null,completed_rounds:0,abandoned_round:false,final_scores:[],
+        players:["host","other"].map(id=>({id,name:id,avatar_seed:id,bot:false,online:true,ready:true,score:0,count:5})),
+        hand:[2,6,9,10,11],turn:0,auto_pass_available:false,last:null,deck_count:43,multiplier:1,winner:null,result:[],message:"自由领出",history:[],
+      }));
+    });
+  });
+  await page.goto("/");
+  await page.getByRole("button", { name:"我会玩了，直接去大厅" }).click();
+  await page.getByRole("button", { name:/先练三把/ }).click();
+  const cards = page.locator(".hand-cards .playing-card");
+  await expect(cards).toHaveCount(5);
+  for (const [width,height] of [[390,844],[844,390],[667,375]]) {
+    await page.setViewportSize({width,height});
+    const reset = page.locator(".clear-button");
+    if (await reset.isEnabled()) await reset.click();
+    await cards.nth(1).locator(".card-corner").click();
+    await expect(cards.nth(1)).toHaveAttribute("aria-pressed","true");
+    for (let i=0;i<5;i++) {
+      await expect.poll(() => cards.nth(i).locator(".card-corner").evaluate(el=>{
+        const r=el.getBoundingClientRect();
+        return document.elementFromPoint(r.x+3,r.y+5)?.closest(".playing-card")===el.closest(".playing-card");
+      })).toBe(true);
+    }
+    await cards.nth(2).locator(".card-corner").click();
+    await expect(cards.nth(2)).toHaveAttribute("aria-pressed","true");
+    await cards.nth(1).locator(".card-corner").click();
+    await expect(cards.nth(1)).toHaveAttribute("aria-pressed","false");
+    await page.screenshot({path:`test-results/card-selection-${width}.png`});
+    if (height>width) await expect(page.getByText("建议手机用户使用横屏，体验更佳 ↻")).toBeVisible();
+  }
+});
+
+test("creation offers default eight, presets, unlimited and validated custom rounds", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "我会玩了，直接去大厅" }).click();
+  for (const [label, text] of [["8 局", "8 局"], ["16 局", "16 局"], ["20 局", "20 局"], ["血战到底", "血战到底"], ["自定义", "3 局"]]) {
+    await page.getByRole("button", { name: /创建房间/ }).click();
+    if (label === "8 局") await expect(page.getByRole("radio", { name: "8 局", exact: true })).toBeChecked();
+    await page.getByRole("radio", { name: label, exact: true }).check();
+    if (label === "自定义") {
+      await page.getByLabel("自定义局数", { exact: true }).fill("0");
+      await page.getByRole("button", { name: "确认开桌" }).click();
+      await expect(page.getByRole("dialog")).toContainText("正整数");
+      await page.getByLabel("自定义局数", { exact: true }).fill("3");
+    }
+    await page.getByRole("button", { name: "确认开桌" }).click();
+    await expect(page.locator(".waiting-center p")).toContainText(text);
+    await page.getByRole("button", { name: "结束游戏", exact: true }).click();
+    await page.getByRole("button", { name: "确认结束游戏" }).click();
+    await expect(page.getByRole("heading", { name: "总计分" })).toBeVisible();
+    await expect(page).toHaveURL(/\/$/);
+    expect(await page.evaluate(() => sessionStorage.getItem("kantengyen.room"))).toBe('""');
+    await page.getByRole("button", { name: "返回大厅", exact: true }).click();
+  }
+});
+
+test("eight seats occupy distinct visible positions on desktop, tablet and phones", async ({ page }) => {
+  await page.routeWebSocket("**/api/ws", socket => {
+    socket.onMessage(raw => {
+      const auth = JSON.parse(String(raw));
+      if (!auth.token) return;
+      socket.send(JSON.stringify({
+        type: "snapshot", code: auth.code, practice: false, host: "p0", seat: 0, round: 1, round_limit: 8,
+        version: 1, phase: "playing", deadline_ms: Date.now() + 30000, completed_rounds: 0, abandoned_round: false, final_scores: [],
+        players: Array.from({ length: 8 }, (_, i) => ({ id: `p${i}`, name: `八人玩家${i}`, avatar_seed: `p${i}`, bot: false, ready: true, online: true, score: 0, count: 5 })),
+        hand: [0,1,2,3,4,5], turn: 0, auto_pass_available: false, last: null, deck_count: 13, multiplier: 1, winner: null, result: [], message: "请出牌", history: [],
+      }));
+    });
+  });
+  await page.goto("/");
+  await page.getByRole("button", { name: "我会玩了，直接去大厅" }).click();
+  await page.getByRole("button", { name: /先练三把/ }).click();
+  await expect(page.locator(".opponent")).toHaveCount(7);
+  for (const [width, height] of [[1280,800], [1024,768], [844,390], [667,375], [390,844]]) {
+    await page.setViewportSize({ width, height });
+    const boxes = await page.locator(".opponent").evaluateAll(elements => elements.map(el => { const r = el.getBoundingClientRect(); return { x:r.x,y:r.y,right:r.right,bottom:r.bottom }; }));
+    for (const box of boxes) { expect(box.x).toBeGreaterThanOrEqual(0); expect(box.right).toBeLessThanOrEqual(width); expect(box.y).toBeGreaterThanOrEqual(0); expect(box.bottom).toBeLessThanOrEqual(height); }
+    for (let i=0; i<boxes.length; i++) for (let j=i+1; j<boxes.length; j++) {
+      const a=boxes[i], b=boxes[j];
+      expect(a.right <= b.x || b.right <= a.x || a.bottom <= b.y || b.bottom <= a.y).toBe(true);
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await page.screenshot({ path: `test-results/eight-seats-${width}.png` });
+  }
+});
+
 test("automatic pass defaults on, can be disabled, and never skips a playable or leading turn", async ({ page }) => {
   let automatic = 0;
   let manual = 0;
@@ -29,27 +140,28 @@ test("automatic pass defaults on, can be disabled, and never skips a playable or
   await page.goto("/");
   await page.getByRole("button", { name: "我会玩了，直接去大厅" }).click();
   await page.getByRole("button", { name: /先练三把/ }).click();
-  const toggle = page.getByRole("checkbox", { name: "自动过牌", exact: true });
+  const toggle = page.getByRole("checkbox", { name: "要不起过牌", exact: true });
   await expect(toggle).toBeChecked();
+  await page.waitForTimeout(1000);
+  expect(automatic).toBe(0);
   await expect.poll(() => automatic).toBe(1);
   await toggle.uncheck();
   publish(true);
-  await page.waitForTimeout(1100);
+  await page.waitForTimeout(2300);
   expect(automatic).toBe(1);
   await page.getByRole("button", { name: "过牌", exact: true }).click();
   await expect.poll(() => manual).toBe(1);
   await toggle.check();
   publish(false); // a playable response is not skipped
-  await page.waitForTimeout(1100);
+  await page.waitForTimeout(2300);
   expect(automatic).toBe(1);
   publish(false, true); // the leader must play
-  await page.waitForTimeout(1100);
+  await page.waitForTimeout(2300);
   expect(automatic).toBe(1);
   publish(true);
   await expect.poll(() => automatic).toBe(2);
   await toggle.uncheck();
   await page.reload();
-  await page.getByRole("button", { name: /返回上次的房间/ }).click();
   await expect(toggle).not.toBeChecked();
 });
 
@@ -119,6 +231,7 @@ test("two browsers create, join, ready, play and reload into the same seat", asy
     await page.getByRole("button", { name: "我会玩了，直接去大厅" }).click();
   }
   await host.getByRole("button", { name: /创建房间/ }).click();
+  await host.getByRole("button", { name: "确认开桌" }).click();
   await expect(host.locator(".waiting-center h2")).toBeVisible();
   const code = await host.locator(".waiting-center h2 span").innerText();
   await friend.getByRole("button", { name: /加入房间/ }).click();
@@ -137,7 +250,6 @@ test("two browsers create, join, ready, play and reload into the same seat", asy
     friend.getByRole("button", { name: "提示", exact: true }),
   ).toBeEnabled();
   await friend.reload();
-  await friend.getByRole("button", { name: /返回上次的房间/ }).click();
   await expect(friend.locator(".hand-cards .playing-card")).toHaveCount(5);
   await expect(
     friend.getByRole("button", { name: "提示", exact: true }),
@@ -151,9 +263,12 @@ test("invite in a new tab uses an independent seat and refreshing preserves it",
   await host.goto("/");
   await host.getByRole("button", { name: "我会玩了，直接去大厅" }).click();
   await host.getByRole("button", { name: /创建房间/ }).click();
+  await host.getByRole("button", { name: "确认开桌" }).click();
   const code = await host.locator(".waiting-center h2 span").innerText();
   const friend = await context.newPage();
+  await expect(host).toHaveURL(new RegExp(`\\/\\?room=${code}$`));
   await friend.goto(`/?room=${code}`);
+  await expect(friend.getByLabel("四位房间号")).toHaveValue(code);
   await friend.getByRole("button", { name: "加入房间", exact: true }).click();
   await expect(friend.getByRole("button", { name: "我准备好了" })).toBeVisible();
   const identity = (page: typeof host) => page.evaluate(() => JSON.parse(sessionStorage.getItem("kantengyen.session")!).token);
@@ -165,8 +280,8 @@ test("invite in a new tab uses an independent seat and refreshing preserves it",
   await expect(host.locator(".hand-cards .playing-card")).toHaveCount(6);
   await expect(friend.locator(".hand-cards .playing-card")).toHaveCount(5);
   await friend.reload();
-  await friend.getByRole("button", { name: "加入房间", exact: true }).click();
   await expect(friend.locator(".hand-cards .playing-card")).toHaveCount(5);
+  await expect(friend.getByRole("dialog")).toHaveCount(0);
   expect(await identity(friend)).toBe(original);
   await friend.waitForTimeout(1500);
   await expect(host.locator(".connection-banner")).toHaveCount(0);
@@ -178,6 +293,7 @@ test("host can end mid-round; everyone sees frozen totals and can leave", async 
   await host.goto("/");
   await host.getByRole("button", { name: "我会玩了，直接去大厅" }).click();
   await host.getByRole("button", { name: /创建房间/ }).click();
+  await host.getByRole("button", { name: "确认开桌" }).click();
   const code = await host.locator(".waiting-center h2 span").innerText();
   const friend = await context.newPage();
   await friend.setViewportSize({ width: 844, height: 390 });
@@ -208,9 +324,6 @@ test("host can end mid-round; everyone sees frozen totals and can leave", async 
     await expect(page.getByRole("button", { name: "再来一把" })).toHaveCount(0);
   }
   await host.screenshot({ path: "test-results/final-scores-phone.png" });
-  await friend.reload();
-  await friend.getByRole("button", { name: "加入房间", exact: true }).click();
-  await expect(friend.getByRole("heading", { name: "总计分" })).toBeVisible();
   await host.getByRole("button", { name: "返回大厅", exact: true }).click();
   await expect(host.getByRole("button", { name: /创建房间/ })).toBeVisible();
   await expect(friend.locator(".score-list > div")).toHaveCount(2);
