@@ -186,11 +186,15 @@ test("host ends a live room, freezes totals, rejects new seats and permits leavi
   const outsider = await guest("新玩家");
   const { body: { code } } = await api("/api/rooms", {}, host.token);
   await api(`/api/rooms/${code}/join`, {}, friend.token);
-  const a = new Client(host, code);
   const b = new Client(friend, code);
+  let a;
   try {
-    await a.wait(() => a.snapshot?.players.every(p => p.online));
+    // Connect the guest first to cover either WebSocket connection order.
+    // Its initial snapshot predates the host's connection and has an old version.
     await b.wait(() => !!b.snapshot);
+    a = new Client(host, code);
+    await a.wait(() => a.snapshot?.players.every(p => p.online));
+    await b.wait(() => b.snapshot?.players.every(p => p.online));
     b.send("ready");
     await a.wait(() => a.snapshot.players.every(p => p.ready));
     a.send("start");
@@ -224,7 +228,7 @@ test("host ends a live room, freezes totals, rejects new seats and permits leavi
     assert.deepEqual(a.snapshot.final_scores, scores);
     assert.equal((await api(`/api/rooms/${code}/leave`, {}, host.token)).status, 200);
   } finally {
-    a.close(); b.close();
+    a?.close(); b.close();
   }
 });
 
