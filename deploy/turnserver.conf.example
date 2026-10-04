@@ -10,10 +10,11 @@ static-auth-secret=REPLACE_WITH_A_LONG_RANDOM_SHARED_SECRET
 min-port=49160
 max-port=49200
 no-tls
-no-dtls
+# DTLS is disabled by default in coturn 4.18; leave it disabled.
 no-tcp-relay
 no-multicast-peers
 no-cli
+pidfile=/var/lib/coturn/turnserver.pid
 user-quota=12
 total-quota=200
 max-bps=128000

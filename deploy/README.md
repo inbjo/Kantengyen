@@ -2,10 +2,10 @@
 
 服务端内嵌前端和规则 WASM，不需要数据库或 Node.js 运行环境。发布构建目前仅支持 **Linux x86_64（amd64）**，ARM64 机器不能直接运行。房间、身份、手牌和积分全部存放在内存中；每次重启、升级或回滚都会清空，建议在无对局时维护。部署一个游戏服务实例即可。
 
-## 方式一：下载 CI 二进制
+## 方式一：下载每夜版或 CI 二进制
 
-1. 将仓库推送到 GitHub 并启用 Actions。在 **Actions → Build server → 成功的运行 → Artifacts** 下载 `kantengyen-server-linux-x64`。构建会随 push、pull request 和手动触发运行，产物保留 30 天。它是 Actions 产物，不会自动发布到 Releases。
-2. 解压下载的 ZIP，得到 `.tar.gz` 和它的 `.sha256` 文件，将两者复制到 Linux x64 服务器的临时目录。
+1. 在 [nightly Release](https://github.com/inbjo/Kantengyen/releases/tag/nightly) 下载 `.tar.gz` 和 `.sha256` 两个附件。每次推送默认分支并通过验证后覆盖同名附件；发布说明记录源码提交与构建链接。该 Release 是预发行，历史每夜版不会保留，需回滚时请自行备份旧包。
+2. 也可在 **Actions → Build server → 成功的运行 → Artifacts** 下载 `kantengyen-server-linux-x64`，解压 ZIP 得到上述两文件。各次构建的 Actions 产物保留 30 天，包括其他分支和 PR 的构建。将两文件复制到 Linux x64 服务器临时目录。
 3. 校验并解包（校验失败时不要继续安装）：
 
 ```sh
@@ -17,6 +17,16 @@ sha256sum -c SHA256SUMS
 chmod +x kantengyen-server
 BIND_ADDR=127.0.0.1:3000 ./kantengyen-server
 ```
+
+也可以直接下载固定 URL：
+
+```sh
+curl -fLO https://github.com/inbjo/Kantengyen/releases/download/nightly/kantengyen-server-linux-x64.tar.gz
+curl -fLO https://github.com/inbjo/Kantengyen/releases/download/nightly/kantengyen-server-linux-x64.tar.gz.sha256
+sha256sum -c kantengyen-server-linux-x64.tar.gz.sha256
+```
+
+如果下载过程中发生覆盖更新导致校验失败，重新下载两个文件。`nightly` 发布 job 使用内置 `GITHUB_TOKEN` 的 `contents: write` 权限，无需新增 PAT；仓库规则若禁止更新该标签，需要为滚动 `nightly` 标签配置允许的规则。
 
 另开终端执行 `curl -fsS http://127.0.0.1:3000/api/health`，应返回成功响应。程序默认监听 `127.0.0.1:3000`。临时局域网测试可设置 `BIND_ADDR=0.0.0.0:3000` 并放行 3000；公网建议通过 HTTPS 代理访问。
 
@@ -119,6 +129,8 @@ npm run verify:static
 ## 房间语音
 
 HTTPS 是麦克风使用条件，跨运营商或移动网络通话还需 STUN/TURN。默认没有公共中继。按 [语音部署指南](VOICE.md) 配置 coturn、临时凭证、网络端口及真实设备验证。模板见 [turnserver.conf.example](turnserver.conf.example)。TURN 不通过 Caddy 的 HTTP 代理转发。
+
+独立的 `compose.turn.yaml` 支持 coturn 与游戏同机部署，也可单独放在另一台 Linux 主机。通过 `npm run setup:turn -- --domain turn.example.com --public-ip 公网IPv4` 生成配置和共享密钥，再运行 `docker compose -f compose.turn.yaml up -d`。该命令需要 Node.js 22+，只在配置阶段使用；运行 coturn 本身不需要 Node.js。
 
 ## 升级、回滚和运维
 

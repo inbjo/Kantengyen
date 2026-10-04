@@ -2,6 +2,7 @@ name: Build server
 
 on:
   push:
+    branches: ['**']
   pull_request:
   workflow_dispatch:
 
@@ -9,8 +10,9 @@ permissions:
   contents: read
 
 concurrency:
-  group: build-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # Build every pushed commit; only superseded PR checks are cancelled.
+  group: build-${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   linux-x64:
@@ -69,3 +71,60 @@ jobs:
             kantengyen-server-linux-x64.tar.gz.sha256
           if-no-files-found: error
           retention-days: 30
+
+  nightly:
+    needs: linux-x64
+    if: >-
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    concurrency:
+      group: publish-nightly
+      cancel-in-progress: false
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: kantengyen-server-linux-x64
+          path: release
+      - name: Update rolling nightly release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          BUILD_SHA: ${{ github.sha }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          cd release
+          sha256sum -c kantengyen-server-linux-x64.tar.gz.sha256
+          # A slower old build must not overwrite the latest branch's nightly.
+          head_sha=$(gh api "repos/${GH_REPO}/branches/${DEFAULT_BRANCH}" --jq .commit.sha)
+          if [ "$head_sha" != "$BUILD_SHA" ]; then
+            echo 'Newer commits exist; keeping this build as an Actions artifact.'
+            exit 0
+          fi
+          title="Nightly (${BUILD_SHA:0:7})"
+          cat > notes.md <<EOF
+          默认分支每次推送构建并验证后，更新此每夜版与同名附件。
+
+          - 源码提交：${BUILD_SHA}
+          - 构建记录：${RUN_URL}
+          - 平台：Linux x64，前端与 WASM 已内嵌。
+          - 校验：下载两个附件，执行 sha256sum -c kantengyen-server-linux-x64.tar.gz.sha256。
+          - 升级会清空内存房间和对局，请在无对局时维护。
+
+          部署说明：https://github.com/${GH_REPO}/blob/${BUILD_SHA}/deploy/README.md
+          EOF
+          if gh release view nightly >/dev/null 2>&1; then
+            gh release upload nightly kantengyen-server-linux-x64.tar.gz kantengyen-server-linux-x64.tar.gz.sha256 --clobber
+            # Keep the rolling tag aligned with the binary's actual source commit.
+            gh api --method PATCH "repos/${GH_REPO}/git/refs/tags/nightly" -f sha="$BUILD_SHA" -F force=true
+          else
+            gh release create nightly kantengyen-server-linux-x64.tar.gz kantengyen-server-linux-x64.tar.gz.sha256 \
+              --target "$BUILD_SHA" --title "$title" --notes-file notes.md --prerelease --draft --latest=false
+          fi
+          gh release edit nightly --title "$title" --notes-file notes.md --prerelease --draft=false --latest=false

@@ -16,3 +16,4 @@ playwright-report
 blob-report
 .idea
 .vscode
+deploy/turnserver.conf

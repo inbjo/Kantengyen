@@ -52,7 +52,14 @@ npm run verify:static
 
 输出位于 `dist/`，包含服务端、SHA-256 校验及许可证。
 
-[GitHub Actions 构建任务](.github/workflows/build.yml) 在 push、pull request 和手动触发时执行：构建前端/WASM/静态服务端，检查 Rust 格式与测试、内嵌资源、游戏和语音信令，再上传 `kantengyen-server-linux-x64` 压缩包。产物在 Actions 运行详情页下载，保留 30 天，不自动发布 Releases。压缩包内保留可执行权限；Artifact 的下载与保留规则见 [GitHub 官方说明](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/download-workflow-artifacts)。
+[GitHub Actions 构建任务](.github/workflows/build.yml) 在每次 push、pull request 和手动触发时执行：构建前端/WASM/静态服务端，检查 Rust 格式与测试、内嵌资源、游戏和语音信令，再上传 `kantengyen-server-linux-x64` 压缩包。Actions 产物保留 30 天。
+
+**每夜版使用滚动发布：每次推送默认分支（当前为 `master`），构建和测试通过后自动更新固定的 [nightly Release](https://github.com/inbjo/Kantengyen/releases/tag/nightly)，覆盖同名压缩包及 SHA-256 文件，`nightly` 标签同步到对应提交。** 默认分支也支持手动触发发布；PR 和其他分支只验证构建。较旧提交的构建不会覆盖新提交的每夜版，构建失败保留之前的产物。下载地址固定：
+
+- [Linux x64 服务端](https://github.com/inbjo/Kantengyen/releases/download/nightly/kantengyen-server-linux-x64.tar.gz)
+- [SHA-256 校验文件](https://github.com/inbjo/Kantengyen/releases/download/nightly/kantengyen-server-linux-x64.tar.gz.sha256)
+
+压缩包内保留执行权限、MIT 与第三方许可证。每夜版标记为预发行，不替代正式版；校验文件和程序应成对下载，若恰逢更新导致校验失败，请重新下载两个文件。
 
 完整步骤见 **[部署指南](deploy/README.md)**，涵盖二进制安装、校验、systemd、Caddy HTTPS、Docker Compose、配置、升级回滚和排障。跨网络语音见 **[TURN / 语音部署](deploy/VOICE.md)**。
 
@@ -116,6 +123,8 @@ npm run test:ui
 已实现 WebRTC 音频 mesh，独立语音信令连接不改变牌桌版本、不打断选牌，只有同房间且在线、主动开启语音的玩家能互相协商。结束游戏或离开会释放麦克风，刷新不自动开启。
 
 正式 HTTPS 部署仍需要配置自建或授权使用的 STUN/TURN；默认不使用任何第三方公共服务，仅支持可直连网络测试。支持 `VOICE_TURN_URLS` + `VOICE_TURN_SECRET` 生成 coturn 临时凭证，或 `VOICE_ICE_SERVERS` JSON；可用 `VOICE_ICE_POLICY=relay` 强制中继。部署步骤、配置模板、网络端口和验证方法见 [deploy/VOICE.md](deploy/VOICE.md)。扩到更大房间时再考虑 SFU。
+
+提供独立 [coturn Compose](compose.turn.yaml)，可与游戏部署在同一台 Linux 服务器：`npm run setup:turn -- --domain turn.example.com --public-ip 你的公网IPv4` 生成密钥和配置，再执行 `docker compose -f compose.turn.yaml up -d`。完整网络与配置步骤见语音部署指南。
 
 ## 许可证与第三方
 

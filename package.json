@@ -13,6 +13,7 @@
     "build:wasm": "node scripts/build-wasm.mjs",
     "build:release": "node scripts/build-release.mjs",
     "verify:static": "node scripts/verify-static.mjs",
+    "setup:turn": "node scripts/setup-turn.mjs",
     "test:build": "node --test tests/build.mjs",
     "test:voice": "node --test tests/voice.mjs"
   },
