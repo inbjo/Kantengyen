@@ -1,6 +1,5 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
 
 const base = process.env.TEST_BASE_URL ?? "http://127.0.0.1:3000";
 async function api(path, body, token) {
@@ -72,9 +71,10 @@ class Client {
 }
 
 test("browser WASM validates exactly the same rules", async () => {
-  const { instance } = await WebAssembly.instantiate(
-    await readFile("web/public/rules.wasm"),
-  );
+  const response = await fetch(`${base}/rules.wasm`);
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type"), /application\/wasm/);
+  const { instance } = await WebAssembly.instantiate(await response.arrayBuffer());
   const check = instance.exports.check_play;
   assert.equal(check(1, 0, 0, 0, 0), 65536 + 3 * 256 + 1);
   assert.equal(check(0, 1 << 20, 0, 0, 0), 0); // wildcard alone
