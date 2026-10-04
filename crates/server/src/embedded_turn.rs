@@ -1,4 +1,6 @@
-//! Embedded IPv4/UDP TURN, with bounded public-facing resource use.
+//! Embedded TURN over UDP, TCP and TLS, with bounded public-facing resource use.
+#[path = "turn_stream.rs"]
+mod stream;
 use async_trait::async_trait;
 use std::{
     any::Any,
@@ -28,6 +30,11 @@ pub struct Config {
     pub public_ip: Ipv4Addr,
     pub public_host: String,
     pub bind: SocketAddrV4,
+    pub tcp_bind: Option<SocketAddrV4>,
+    pub tcp_public_port: u16,
+    pub tls: Option<stream::TlsConfig>,
+    pub max_connections: usize,
+    pub transport: String,
     pub relay_ip: Ipv4Addr,
     pub min_port: u16,
     pub max_port: u16,
@@ -74,6 +81,57 @@ impl Config {
             .unwrap_or_else(|_| "0.0.0.0:3478".into())
             .parse::<SocketAddrV4>()
             .map_err(|_| "TURN_BIND_ADDR 必须是 IPv4:端口")?;
+        let tcp_bind = if enabled("TURN_TCP_ENABLED", true)? {
+            Some(
+                env::var("TURN_TCP_BIND_ADDR")
+                    .unwrap_or_else(|_| bind.to_string())
+                    .parse::<SocketAddrV4>()
+                    .map_err(|_| "TURN_TCP_BIND_ADDR 必须是 IPv4:端口")?,
+            )
+        } else {
+            None
+        };
+        let tcp_public_port = number("TURN_TCP_PUBLIC_PORT", tcp_bind.unwrap_or(bind).port())?;
+        let tls = if enabled("TURN_TLS_ENABLED", false)? {
+            let tls_bind = env::var("TURN_TLS_BIND_ADDR")
+                .unwrap_or_else(|_| "0.0.0.0:5349".into())
+                .parse::<SocketAddrV4>()
+                .map_err(|_| "TURN_TLS_BIND_ADDR 必须是 IPv4:端口")?;
+            Some(stream::TlsConfig {
+                public_port: number("TURN_TLS_PUBLIC_PORT", tls_bind.port())?,
+                bind: tls_bind,
+                cert: env::var("TURN_TLS_CERT")
+                    .ok()
+                    .filter(|s| !s.is_empty())
+                    .ok_or("TURN_TLS_CERT 必须指定 PEM 证书链文件")?
+                    .into(),
+                key: env::var("TURN_TLS_KEY")
+                    .ok()
+                    .filter(|s| !s.is_empty())
+                    .ok_or("TURN_TLS_KEY 必须指定 PEM 私钥文件")?
+                    .into(),
+            })
+        } else {
+            None
+        };
+        let transport = env::var("TURN_TRANSPORT").unwrap_or_else(|_| "all".into());
+        if !matches!(transport.as_str(), "all" | "udp" | "tcp" | "tls")
+            || (transport == "tcp" && tcp_bind.is_none())
+            || (transport == "tls" && tls.is_none())
+        {
+            return Err("TURN_TRANSPORT 必须为 all/udp/tcp/tls，且对应入口已启用".into());
+        }
+        let max_connections = number("TURN_MAX_CONNECTIONS", 128)?;
+        if tcp_public_port == 0
+            || max_connections == 0
+            || max_connections > 1024
+            || tcp_bind.is_some_and(|b| b.port() == 0)
+            || tls.as_ref().is_some_and(|t| {
+                t.public_port == 0 || t.bind.port() == 0 || Some(t.bind) == tcp_bind
+            })
+        {
+            return Err("TURN TCP/TLS 端口或连接上限无效".into());
+        }
         let relay_ip = env::var("TURN_RELAY_IP")
             .unwrap_or_else(|_| "0.0.0.0".into())
             .parse()
@@ -105,6 +163,11 @@ impl Config {
             public_ip,
             public_host,
             bind,
+            tcp_bind,
+            tcp_public_port,
+            tls,
+            max_connections,
+            transport,
             relay_ip,
             min_port,
             max_port,
@@ -125,24 +188,43 @@ impl Config {
         format!("stun:{}:{}", self.public_host, self.bind.port())
     }
 
-    pub async fn start(&self) -> Result<Runtime, turn::Error> {
-        let ports = Arc::new(StdMutex::new(HashMap::new()));
-        let policy = Arc::new(PeerPolicy {
-            public_ip: self.public_ip,
-            ports,
-        });
-        let listener = Arc::new(ListenerSocket {
-            socket: UdpSocket::bind(self.bind).await?,
-            clients: StdMutex::new(HashMap::new()),
-            global: StdMutex::new(Budget::new(10_000_000)),
-        });
-        let server = Server::new(ServerConfig {
+    pub fn turn_urls(&self) -> Vec<String> {
+        let mut urls = vec![];
+        if matches!(self.transport.as_str(), "all" | "udp") {
+            urls.push(self.turn_url());
+        }
+        if matches!(self.transport.as_str(), "all" | "tcp") {
+            if self.tcp_bind.is_some() {
+                urls.push(format!(
+                    "turn:{}:{}?transport=tcp",
+                    self.public_host, self.tcp_public_port
+                ));
+            }
+        }
+        if matches!(self.transport.as_str(), "all" | "tls") {
+            if let Some(tls) = &self.tls {
+                urls.push(format!(
+                    "turns:{}:{}?transport=tcp",
+                    self.public_host, tls.public_port
+                ));
+            }
+        }
+        urls
+    }
+
+    async fn server(
+        &self,
+        conn: Arc<dyn Conn + Send + Sync>,
+        policy: Arc<PeerPolicy>,
+        slots: Arc<Semaphore>,
+    ) -> Result<Server, turn::Error> {
+        Server::new(ServerConfig {
             conn_configs: vec![ConnConfig {
-                conn: listener,
+                conn,
                 relay_addr_generator: Box::new(RelayGenerator {
                     config: self.clone(),
                     policy,
-                    slots: Arc::new(Semaphore::new(self.max_allocations)),
+                    slots,
                 }),
             }],
             realm: "kantengyen".into(),
@@ -152,38 +234,67 @@ impl Config {
             channel_bind_timeout: Duration::from_secs(600),
             alloc_close_notify: None,
         })
-        .await?;
-        tracing::info!(bind = %self.bind, public_ip = %self.public_ip,
-            min_port = self.min_port, max_port = self.max_port, "内置 TURN UDP 已启动");
-        let server = Arc::new(server);
-        let maintenance = tokio::spawn({
-            let server = server.clone();
-            async move {
-                let mut interval = tokio::time::interval(Duration::from_secs(15));
-                loop {
-                    interval.tick().await;
-                    let Ok(allocations) = server.get_allocations_info(None).await else {
-                        break;
-                    };
-                    let now = crate::now_ms() / 1000;
-                    for info in allocations.values() {
-                        let expired = info
-                            .username
-                            .split_once(':')
-                            .and_then(|(expiry, _)| expiry.parse::<u64>().ok())
-                            .is_none_or(|expiry| expiry <= now);
-                        if expired {
-                            let _ = server
-                                .delete_allocations_by_username(info.username.clone())
-                                .await;
-                        }
-                    }
-                }
-            }
+        .await
+    }
+
+    pub async fn start(&self) -> Result<Runtime, turn::Error> {
+        let policy = Arc::new(PeerPolicy {
+            public_ip: self.public_ip,
+            ports: Arc::new(StdMutex::new(HashMap::new())),
         });
+        let slots = Arc::new(Semaphore::new(self.max_allocations));
+        let ingress = Arc::new(Ingress::new());
+        let listener = Arc::new(ListenerSocket {
+            socket: UdpSocket::bind(self.bind).await?,
+            ingress: ingress.clone(),
+        });
+        // Validate all ports and TLS material before starting background workers.
+        let tcp = match self.tcp_bind {
+            Some(bind) => Some(tokio::net::TcpListener::bind(bind).await?),
+            None => None,
+        };
+        let tls = match &self.tls {
+            Some(config) => Some((
+                tokio::net::TcpListener::bind(config.bind).await?,
+                stream::Certificates::new(config.clone())?,
+            )),
+            None => None,
+        };
+        let (shutdown, rx) = tokio::sync::watch::channel(false);
+        let connections = Arc::new(Semaphore::new(self.max_connections));
+        let server = Arc::new(self.server(listener, policy.clone(), slots.clone()).await?);
+        let maintenance = tokio::spawn(maintain(server.clone()));
+        let mut tasks = vec![];
+        if let Some(listener) = tcp {
+            tasks.push(stream::listen(
+                listener,
+                None,
+                self.clone(),
+                policy.clone(),
+                slots.clone(),
+                ingress.clone(),
+                connections.clone(),
+                rx.clone(),
+            ));
+        }
+        if let Some((listener, certs)) = tls {
+            tasks.push(stream::listen(
+                listener,
+                Some(certs),
+                self.clone(),
+                policy,
+                slots,
+                ingress,
+                connections,
+                rx,
+            ));
+        }
+        tracing::info!(bind = %self.bind, tcp = ?self.tcp_bind, tls = ?self.tls.as_ref().map(|t| t.bind), public_ip = %self.public_ip, "内置 TURN UDP/TCP/TLS 已启动");
         Ok(Runtime {
             server,
             maintenance,
+            shutdown,
+            tasks: tokio::sync::Mutex::new(tasks),
         })
     }
 }
@@ -191,16 +302,63 @@ impl Config {
 pub struct Runtime {
     server: Arc<Server>,
     maintenance: JoinHandle<()>,
+    shutdown: tokio::sync::watch::Sender<bool>,
+    tasks: tokio::sync::Mutex<Vec<JoinHandle<()>>>,
 }
 impl Runtime {
     pub async fn close(&self) -> Result<(), turn::Error> {
+        let _ = self.shutdown.send(true);
+        for task in self.tasks.lock().await.drain(..) {
+            let _ = task.await;
+        }
         self.maintenance.abort();
         self.server.close().await
     }
 }
 impl Drop for Runtime {
     fn drop(&mut self) {
+        let _ = self.shutdown.send(true);
         self.maintenance.abort();
+        if let Ok(handle) = tokio::runtime::Handle::try_current() {
+            let server = self.server.clone();
+            handle.spawn(async move {
+                let _ = server.close().await;
+            });
+        }
+    }
+}
+
+async fn maintain(server: Arc<Server>) {
+    let mut interval = tokio::time::interval(Duration::from_secs(15));
+    loop {
+        interval.tick().await;
+        let Ok(allocations) = server.get_allocations_info(None).await else {
+            break;
+        };
+        let now = crate::now_ms() / 1000;
+        for info in allocations.values() {
+            if info
+                .username
+                .split_once(':')
+                .and_then(|(expiry, _)| expiry.parse::<u64>().ok())
+                .is_none_or(|expiry| expiry <= now)
+            {
+                let _ = server
+                    .delete_allocations_by_username(info.username.clone())
+                    .await;
+            }
+        }
+    }
+}
+
+fn enabled(name: &str, default: bool) -> Result<bool, String> {
+    match env::var(name)
+        .unwrap_or_else(|_| default.to_string())
+        .as_str()
+    {
+        "true" | "1" => Ok(true),
+        "false" | "0" => Ok(false),
+        _ => Err(format!("{name} 必须为 true/false")),
     }
 }
 
@@ -452,11 +610,42 @@ impl Conn for RelaySocket {
     }
 }
 
-struct ListenerSocket {
-    socket: UdpSocket,
+struct Ingress {
     clients: StdMutex<HashMap<std::net::IpAddr, (Instant, Budget, Budget)>>,
     global: StdMutex<Budget>,
 }
+impl Ingress {
+    fn new() -> Self {
+        Self {
+            clients: StdMutex::new(HashMap::new()),
+            global: StdMutex::new(Budget::new(10_000_000)),
+        }
+    }
+    fn allow(&self, buf: &[u8], source: SocketAddr) -> bool {
+        if !self.global.lock().unwrap().allow(buf.len()) {
+            return false;
+        }
+        let mut clients = self.clients.lock().unwrap();
+        if clients.len() >= 1024 {
+            clients.retain(|_, (seen, _, _)| seen.elapsed() < Duration::from_secs(60));
+        }
+        if !clients.contains_key(&source.ip()) && clients.len() >= 1024 {
+            return false;
+        }
+        let (seen, packets, requests) = clients
+            .entry(source.ip())
+            .or_insert_with(|| (Instant::now(), Budget::new(2000), Budget::new(200)));
+        *seen = Instant::now();
+        let request =
+            buf.len() >= 20 && buf[0] & 0xc0 == 0 && buf[0] & 1 == 0 && buf[1] & 0x10 == 0;
+        packets.allow(1) && (!request || requests.allow(1))
+    }
+}
+struct ListenerSocket {
+    socket: UdpSocket,
+    ingress: Arc<Ingress>,
+}
+
 #[async_trait]
 impl Conn for ListenerSocket {
     async fn connect(&self, _: SocketAddr) -> webrtc_util::Result<()> {
@@ -468,28 +657,7 @@ impl Conn for ListenerSocket {
     async fn recv_from(&self, buf: &mut [u8]) -> webrtc_util::Result<(usize, SocketAddr)> {
         loop {
             let (n, source) = recv_datagram(&self.socket, buf).await?;
-            if !self.global.lock().unwrap().allow(n) {
-                continue;
-            }
-            let allowed = {
-                let mut clients = self.clients.lock().unwrap();
-                if clients.len() >= 1024 {
-                    clients.retain(|_, (seen, _, _)| seen.elapsed() < Duration::from_secs(60));
-                }
-                if !clients.contains_key(&source.ip()) && clients.len() >= 1024 {
-                    false
-                } else {
-                    let (seen, packets, requests) = clients
-                        .entry(source.ip())
-                        .or_insert_with(|| (Instant::now(), Budget::new(2000), Budget::new(40)));
-                    *seen = Instant::now();
-                    // STUN requests (class 00), including unauthenticated allocations.
-                    let request =
-                        n >= 20 && buf[0] & 0xc0 == 0 && buf[0] & 1 == 0 && buf[1] & 0x10 == 0;
-                    packets.allow(1) && (!request || requests.allow(1))
-                }
-            };
-            if allowed {
+            if self.ingress.allow(&buf[..n], source) {
                 return Ok((n, source));
             }
         }
@@ -530,6 +698,11 @@ mod tests {
             public_ip: Ipv4Addr::new(203, 0, 113, 10),
             public_host: "turn.example.com".into(),
             bind,
+            tcp_bind: None,
+            tcp_public_port: bind.port(),
+            tls: None,
+            max_connections: 128,
+            transport: "all".into(),
             relay_ip: Ipv4Addr::LOCALHOST,
             min_port: 49160,
             max_port: 49200,

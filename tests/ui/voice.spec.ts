@@ -74,6 +74,18 @@ test("real three-way WebRTC audio, mute, rejoin and game-end cleanup", async ({ 
               && stats.get(pair.remoteCandidateId)?.candidateType === "relay";
           }))).every(Boolean);
         }), { timeout: 20_000 }).toBe(true);
+        if (process.env.EXPECT_TURN_TRANSPORT) {
+          const transports = await page.evaluate(async () => {
+            const peers = (window as typeof window & { voicePeers: RTCPeerConnection[] }).voicePeers.filter(peer => peer.connectionState === "connected");
+            return Promise.all(peers.map(async peer => {
+              const stats = await peer.getStats();
+              const transport = [...stats.values()].find(report => report.type === "transport" && report.selectedCandidatePairId);
+              const pair = transport && stats.get(transport.selectedCandidatePairId);
+              return pair && stats.get(pair.localCandidateId)?.relayProtocol;
+            }));
+          });
+          expect(transports).toEqual([process.env.EXPECT_TURN_TRANSPORT, process.env.EXPECT_TURN_TRANSPORT]);
+        }
       }
     }
     for (const [width, height] of [[390, 844], [667, 375], [1024, 768], [844, 390]]) {

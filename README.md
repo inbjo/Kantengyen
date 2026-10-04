@@ -52,7 +52,7 @@ npm run verify:static
 
 输出位于 `dist/`，包含服务端、SHA-256 校验及许可证。
 
-[GitHub Actions 构建任务](.github/workflows/build.yml) 在每次 push、pull request 和手动触发时执行：构建前端/WASM/静态服务端，检查 Rust 格式与测试、内嵌资源、游戏和语音信令；另行构建 Docker Compose 部署，验证 Caddy 代理及三人浏览器强制 TURN 的真实音频收包、刷新重入与清理。上传的 `kantengyen-server-linux-x64` 压缩包保留 30 天，两项检查通过后才更新每夜版。
+[GitHub Actions 构建任务](.github/workflows/build.yml) 在每次 push、pull request 和手动触发时执行：构建前端/WASM/静态服务端，检查 Rust 格式与测试、内嵌资源、游戏和语音信令；另行构建 Docker Compose 部署，验证 Caddy 代理及三人浏览器分别强制 TURN/UDP、TCP、TLS 的真实音频收包、刷新重入与清理。上传的 `kantengyen-server-linux-x64` 压缩包保留 30 天，两项检查通过后才更新每夜版。
 
 **每夜版使用滚动发布：每次推送默认分支（当前为 `master`），构建和测试通过后自动更新固定的 [nightly Release](https://github.com/inbjo/Kantengyen/releases/tag/nightly)，覆盖同名压缩包及 SHA-256 文件，`nightly` 标签同步到对应提交。** 默认分支也支持手动触发发布；PR 和其他分支只验证构建。较旧提交的构建不会覆盖新提交的每夜版，构建失败保留之前的产物。下载地址固定：
 
@@ -123,9 +123,9 @@ npm run test:ui
 
 已实现 WebRTC 音频 mesh，独立语音信令连接不改变牌桌版本、不打断选牌，只有同房间且在线、主动开启语音的玩家能互相协商。结束游戏或离开会释放麦克风，刷新不自动开启。
 
-Rust 服务已内置 **IPv4/UDP STUN/TURN**，支持临时凭证认证、固定中继端口、并发与带宽限制、内网目标拦截、同机中继路由和关闭清理。Compose 公网部署默认启用：在 `.env` 设置 `SITE_ADDRESS` 和 `TURN_PUBLIC_IP`，放行 3478、49160–49200 UDP，然后 `docker compose up -d --build`，不需要单独运行 coturn。原生本地开发默认关闭。
+Rust 服务已内置 **IPv4 STUN/TURN（UDP、TCP、TLS）**，支持临时凭证认证、固定中继端口、并发与带宽限制、内网目标拦截、同机中继路由、TCP 流拆包、TLS 证书热重载和关闭清理。Compose 公网部署默认启用：在 `.env` 设置 `SITE_ADDRESS` 和 `TURN_PUBLIC_IP`，放行 3478 UDP/TCP、49160–49200 UDP，然后 `docker compose up -d --build`，不需要单独运行 coturn。原生本地开发默认关闭。
 
-可运行 `npm run setup:turn -- --public-ip 你的公网IPv4 --domain turn.example.com` 生成私有 `.env` 配置。后端自动下发内置 ICE URL，`VOICE_ICE_POLICY=relay` 可强制中继。内置版本暂不支持 TURN/TCP/TLS 或 IPv6；完全禁止 UDP 的网络可通过 `VOICE_TURN_URLS` / `VOICE_ICE_SERVERS` 配置外部服务补充。完整步骤见 [Docker 部署](deploy/DOCKER.md) 与 [语音部署](deploy/VOICE.md)。
+可运行 `npm run setup:turn -- --public-ip 你的公网IPv4 --domain turn.example.com` 生成私有 `.env` 配置。后端自动下发内置 ICE URL，`VOICE_ICE_POLICY=relay` 可强制中继。TCP 默认启用；TLS 使用 `compose.tls.yaml` 挂载有效域名证书，开放 5349 TCP。内置服务仍仅支持 IPv4；客户端到 TURN 可走 TCP/TLS，服务器媒体中继端口仍需 UDP。也可通过 `VOICE_TURN_URLS` / `VOICE_ICE_SERVERS` 接入外部服务。完整步骤见 [Docker 部署](deploy/DOCKER.md) 与 [语音部署](deploy/VOICE.md)。
 
 ## 许可证与第三方
 

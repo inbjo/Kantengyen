@@ -13,4 +13,6 @@ prevents unauthenticated requests from growing the cache indefinitely.
 
 Socket rate limits, allocation limits, relay port selection, peer filtering,
 bandwidth limits and temporary credential validation are implemented in
-`crates/server/src/embedded_turn.rs` outside the vendored library.
+`crates/server/src/embedded_turn.rs` outside the vendored library. TCP/TLS
+stream framing, connection lifecycle and certificate loading/reloading are in
+`crates/server/src/turn_stream.rs`; relayed allocations remain IPv4/UDP.

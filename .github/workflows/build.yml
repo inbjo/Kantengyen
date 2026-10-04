@@ -113,10 +113,19 @@ jobs:
           export TURN_PUBLIC_HOST=$(hostname -I | awk '{print $1}')
           export TURN_ENABLED=true VOICE_ICE_POLICY=relay
           export SITE_ADDRESS=http://localhost TEST_BASE_URL=http://localhost
-          export EXPECT_TURN_RELAY=1
+          export EXPECT_TURN_RELAY=1 TURN_TRANSPORT=udp
+          compose() { docker compose -f compose.yaml -f compose.tls.yaml "$@"; }
+          mkdir -p deploy/turn-certs
+          openssl req -x509 -newkey rsa:2048 -nodes -days 2 -subj /CN=turn-test \
+            -addext "subjectAltName=IP:${TURN_PUBLIC_HOST},DNS:localhost" -addext "basicConstraints=critical,CA:FALSE" \
+            -addext extendedKeyUsage=serverAuth -keyout deploy/turn-certs/privkey.pem \
+            -out deploy/turn-certs/fullchain.pem > /tmp/turn-cert.log 2>&1
+          export TEST_TLS_SPKI=$(node --input-type=module -e 'import {readFileSync} from "node:fs"; import {X509Certificate,createHash} from "node:crypto"; console.log(createHash("sha256").update(new X509Certificate(readFileSync("deploy/turn-certs/fullchain.pem")).publicKey.export({type:"spki",format:"der"})).digest("base64"));')
+          sudo chown 10001:10001 deploy/turn-certs/privkey.pem
+          sudo chmod 640 deploy/turn-certs/privkey.pem
           cleanup() {
             status=$?
-            docker compose logs --no-color > /tmp/compose.log 2>&1 || true
+            compose logs --no-color > /tmp/compose.log 2>&1 || true
             cat /tmp/compose.log
             if [ "$status" -ne 0 ]; then
               for logfile in /tmp/turn-build.log /tmp/turn-test.log /tmp/compose.log; do
@@ -130,25 +139,34 @@ jobs:
                 fi
               done
             fi
-            docker compose down --volumes || true
+            compose down --volumes || true
             exit "$status"
           }
           trap cleanup EXIT
-          docker compose config --quiet
-          docker compose up --detach --build 2>&1 | tee /tmp/turn-build.log
-          ready=false
-          for attempt in {1..60}; do
-            if curl --fail --silent "$TEST_BASE_URL/api/health"; then
-              ready=true
-              break
-            fi
-            sleep 1
-          done
-          test "$ready" = true
-          # HTTP and WebSocket signalling pass through Caddy; all audio uses TURN/UDP.
+          compose config --quiet
+          compose up --detach --build 2>&1 | tee /tmp/turn-build.log
+          # Exercise the certificate exporter without requesting public certificates.
+          compose exec -T caddy mkdir -p /data/caddy/certificates/test/localhost
+          compose cp deploy/turn-certs/fullchain.pem caddy:/data/caddy/certificates/test/localhost/localhost.crt
+          sudo docker cp deploy/turn-certs/privkey.pem "$(compose ps -q caddy)":/data/caddy/certificates/test/localhost/localhost.key
+          sudo "$(command -v node)" scripts/export-turn-cert.mjs --domain localhost 2>&1 | tee -a /tmp/turn-build.log
+          wait_ready() {
+            for attempt in {1..60}; do
+              if curl --fail --silent "$TEST_BASE_URL/api/health"; then return; fi
+              sleep 1
+            done
+            return 1
+          }
+          wait_ready
+          # Signalling passes through Caddy; test each relay transport independently.
           npm run test:e2e > /tmp/turn-test.log 2>&1
           npm run test:voice >> /tmp/turn-test.log 2>&1
-          npx playwright test tests/ui/voice.spec.ts 2>&1 | tee -a /tmp/turn-test.log
+          for transport in udp tcp tls; do
+            export TURN_TRANSPORT="$transport" EXPECT_TURN_TRANSPORT="$transport"
+            compose up --detach --no-build game
+            wait_ready
+            npx playwright test tests/ui/voice.spec.ts 2>&1 | tee -a /tmp/turn-test.log
+          done
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

@@ -71,7 +71,7 @@ impl VoiceConfig {
         }
         if let Some(config) = embedded {
             servers.push(json!({"urls": config.stun_url()}));
-            turn_urls.push(config.turn_url());
+            turn_urls.extend(config.turn_urls());
             secret = Some(config.secret.clone());
         }
         if secret.is_some() == turn_urls.is_empty() {

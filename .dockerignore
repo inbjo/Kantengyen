@@ -17,3 +17,6 @@ blob-report
 .idea
 .vscode
 deploy/turnserver.conf
+deploy/turn-certs
+*.pem
+*.key

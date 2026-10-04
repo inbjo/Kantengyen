@@ -1,0 +1,13 @@
+# Enable after exporting a trusted certificate; see deploy/DOCKER.md.
+services:
+  game:
+    environment:
+      TURN_TLS_ENABLED: 'true'
+      TURN_TLS_PUBLIC_PORT: "${TURN_TLS_PUBLIC_PORT:-5349}"
+      TURN_TLS_BIND_ADDR: 0.0.0.0:5349
+      TURN_TLS_CERT: /etc/turn/fullchain.pem
+      TURN_TLS_KEY: /etc/turn/privkey.pem
+    ports:
+      - '5349:5349/tcp'
+    volumes:
+      - ./deploy/turn-certs:/etc/turn:ro

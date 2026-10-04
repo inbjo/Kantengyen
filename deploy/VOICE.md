@@ -24,9 +24,9 @@ export VOICE_ICE_POLICY=all
 BIND_ADDR=127.0.0.1:3000 ./kantengyen-server
 ```
 
-域名 A 记录指向该公网 IP。`TURN_PUBLIC_HOST` 可省略，客户端会使用公网 IP。不需手写内置 STUN/TURN URL；后端自动下发 `stun:host:3478` 与 `turn:host:3478?transport=udp`。实际分配的中继候选使用 `TURN_PUBLIC_IP`。
+域名 A 记录指向该公网 IP。`TURN_PUBLIC_HOST` 可省略，客户端会使用公网 IP。不需手写内置 STUN/TURN URL；后端自动下发 `stun:host:3478`、`turn:host:3478?transport=udp`、`turn:host:3478?transport=tcp`；TLS 启用后增加 `turns:host:5349?transport=tcp`。实际分配的中继候选使用 `TURN_PUBLIC_IP`。
 
-默认放行 **3478 UDP、49160–49200 UDP**，NAT 必须按原端口映射；Caddy 只代理 HTTPS/WSS，不能代理 TURN UDP。宿主机二进制可通过 `TURN_RELAY_IP` 绑定特定本地网卡，默认 `0.0.0.0`。Docker 应保持容器内 `0.0.0.0`，不要绑定宿主机公网/内网 IP。
+默认放行 **3478 UDP/TCP、49160–49200 UDP**，启用 TLS 时再开放 **5349 TCP**，NAT 必须按原端口映射；Caddy 只代理 HTTPS/WSS，不能代理 TURN UDP。宿主机二进制可通过 `TURN_RELAY_IP` 绑定特定本地网卡，默认 `0.0.0.0`。Docker 应保持容器内 `0.0.0.0`，不要绑定宿主机公网/内网 IP。
 
 | 变量 | 默认值 | 含义 |
 | --- | --- | --- |
@@ -34,6 +34,14 @@ BIND_ADDR=127.0.0.1:3000 ./kantengyen-server
 | `TURN_PUBLIC_IP` | 无 | 启用时必填，服务器真实公网 IPv4 |
 | `TURN_PUBLIC_HOST` | 公网 IP | 客户端访问 TURN 的域名或 IPv4 |
 | `TURN_BIND_ADDR` | `0.0.0.0:3478` | 本地 UDP 监听地址 |
+| `TURN_TCP_ENABLED` | `true` | 随内置服务启用 TCP 入口 |
+| `TURN_TCP_BIND_ADDR` | 与 UDP 监听地址相同 | TCP 本地入口 |
+| `TURN_TLS_ENABLED` | `false` | 原生启用 TLS；Compose 使用 TLS overlay |
+| `TURN_TLS_BIND_ADDR` | `0.0.0.0:5349` | TLS 本地入口 |
+| `TURN_TCP_PUBLIC_PORT` / `TURN_TLS_PUBLIC_PORT` | 对应监听端口 | 对外 URL 的端口；NAT 映射不同时需指定 |
+| `TURN_TLS_CERT` / `TURN_TLS_KEY` | 无 | PEM 完整证书链与未加密私钥路径 |
+| `TURN_TRANSPORT` | `all` | 自动发布所有已启用入口；`udp/tcp/tls` 只发布指定入口，用于验证 |
+| `TURN_MAX_CONNECTIONS` | `128` | TCP/TLS 共用连接上限，含未认证与握手连接 |
 | `TURN_RELAY_IP` | `0.0.0.0` | 分配中继 socket 的本地网卡地址 |
 | `TURN_MIN_PORT` / `TURN_MAX_PORT` | `49160` / `49200` | 包含两端的中继端口范围 |
 | `TURN_MAX_ALLOCATIONS` | `32` | 同时存在的 allocation 数量上限，最多 1024 |
@@ -55,7 +63,13 @@ Rust 服务给开启房间语音的玩家签发一小时有效的 `到期时间:
 
 ## 网络能力与外部 TURN
 
-内置 [`turn` 0.17.2](https://docs.rs/turn/0.17.2/turn/server/index.html) 本版支持 **IPv4/UDP**。未实现 TURN/TCP、TURN/TLS 或 IPv6；客户端网络完全禁止 UDP 时，可接入外部 TURN/TCP/TLS 服务作补充。
+内置 [`turn` 0.17.2](https://docs.rs/turn/0.17.2/turn/server/index.html) 配合项目的流传输适配层支持 **UDP、TCP、TLS 客户端入口，IPv4 UDP 媒体中继**。TCP/TLS 是浏览器到 TURN 的连接方式，服务器仍需 UDP 中继端口；未实现 RFC 6062 TCP 媒体 allocation 或 IPv6。
+
+TLS 使用 `TURN_TLS_ENABLED=true`、`TURN_TLS_CERT`、`TURN_TLS_KEY`；完整证书链必须覆盖 `TURN_PUBLIC_HOST` 且被客户端信任。私钥应只允许服务用户读取。证书每 60 秒检查重载，新握手使用新证书，现有连接不受影响；替换失败保留上次有效证书并记录警告。Docker 配置及从 Caddy 导出证书见 [Docker TLS 步骤](DOCKER.md#4-启用内置-turntls)。
+
+流入口支持 STUN/ChannelData 分片、粘包与四字节 padding，最大单帧 1500 字节，与 UDP 库接收上限一致。TCP/TLS 总连接上限默认 128、每个来源 IP 每个入口最多 64；TLS 握手限时 10 秒、帧头空闲 120 秒、帧体读取 10 秒、发送 5 秒。断开连接会清理其所有 allocation，UDP/TCP/TLS 共用 allocation、端口和带宽配额。
+
+如需其他地域或外部服务，也可以配置：
 
 使用支持临时凭证的外部服务时配置：
 
@@ -78,8 +92,8 @@ npx playwright install chromium
 npm run test:ui -- --grep 'WebRTC|microphone permission'
 ```
 
-Rust 测试运行实际 UDP STUN/TURN：验证错误密码被拒绝、凭证过期检查、分配与双向转发、地址/端口范围、并发限额、内网地址限制、带宽预算与关闭释放。浏览器测试使用模拟麦克风，验证实际 inbound RTP、静音、重入及结束清理，不采集机器真实麦克风。
+Rust 测试运行实际 UDP/TCP/TLS STUN/TURN：验证错误密码被拒绝、凭证过期检查、分配与双向转发、地址/端口范围、并发限额、内网地址限制、带宽预算与关闭释放，并覆盖流拆包、padding、证书拒绝及热重载。浏览器测试使用模拟麦克风，验证实际 inbound RTP、静音、重入及结束清理，不采集机器真实麦克风。
 
-以 `VOICE_ICE_POLICY=relay` 启动配置好的内置服务，再设置 `EXPECT_TURN_RELAY=1` 运行三人语音测试，会额外检查每个已选 candidate-pair 的本地与远端候选均为 relay。
+以 `VOICE_ICE_POLICY=relay` 启动配置好的内置服务，再设置 `EXPECT_TURN_RELAY=1` 运行三人语音测试，会额外检查每个已选 candidate-pair 的本地与远端候选均为 relay。再用 `TURN_TRANSPORT=tcp` / `tls` 启动服务，测试设置 `EXPECT_TURN_TRANSPORT=tcp` / `tls`，可检查实际 `relayProtocol`。CI 对临时测试证书仅信任其公钥（`TEST_TLS_SPKI`），不修改系统信任库；生产浏览器需要受信任域名证书。
 
 本机自动测试不能证明公网防火墙或运营商路径可达。上线时仍需两台设备在 Wi-Fi 与移动网络之间强制 relay，确认实际双向声音与 RTP 数据后恢复 `all`。部署步骤和排障见 [Docker 公网部署页](DOCKER.md)。

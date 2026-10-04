@@ -85,7 +85,7 @@ docker compose logs -f --tail=100 game caddy
 curl -fsS https://你的域名/api/health
 ```
 
-HTTPS 域名和端口要求与上面相同，还需放行 3478 UDP 和 49160–49200 UDP；TURN 由同一个游戏容器内的 Rust 服务运行，直接发布 UDP 端口。Compose 的 `deploy/Caddyfile` 代理到容器服务名 `game:3000`，不要替换成宿主机模板。游戏容器以非 root 用户运行，3000 不映射到宿主机；Caddy 的证书保存在 `caddy_data`、`caddy_config` 卷中。
+HTTPS 域名和端口要求与上面相同，还需放行 3478 UDP/TCP 和 49160–49200 UDP；启用 TLS 时另放行 5349 TCP；TURN 由同一个游戏容器内的 Rust 服务运行，直接发布 TURN TCP/TLS 入口与 UDP 中继端口。Compose 的 `deploy/Caddyfile` 代理到容器服务名 `game:3000`，不要替换成宿主机模板。游戏容器以非 root 用户运行，3000 不映射到宿主机；Caddy 的证书保存在 `caddy_data`、`caddy_config` 卷中。
 
 `.env` 仅用于 Compose 变量替换，直接运行二进制不会自动读取它。不要提交真实 `.env` 或 TURN 密钥。使用 `SITE_ADDRESS=localhost` 时 Caddy 使用本地证书，其他设备通常不信任它；公网部署应使用真实域名。
 
@@ -125,7 +125,7 @@ npm run verify:static
 | `VOICE_ICE_POLICY` | `all` | `all` 优先直连；`relay` 强制 TURN 中继 |
 | `VOICE_TURN_URLS` | 空 | 逗号分隔的 `turn:` / `turns:` URL |
 | `VOICE_TURN_SECRET` | 空 | 内置 TURN 自动生成，可指定至少 32 字节密钥；外部 TURN 需与其共享密钥一致 |
-| `TURN_ENABLED` | 原生 `false`，Compose `true` | 内置 IPv4/UDP STUN/TURN |
+| `TURN_ENABLED` | 原生 `false`，Compose `true` | 内置 IPv4 STUN/TURN，支持 UDP/TCP/TLS |
 | `TURN_PUBLIC_IP` | 无 | 启用内置 TURN 时必填，真实公网 IPv4 |
 | `TURN_PUBLIC_HOST` | 公网 IP | 内置 TURN 对外域名或 IPv4 |
 | `TURN_MAX_ALLOCATIONS` | `32` | 同时存在的中继 allocation 上限 |
@@ -155,5 +155,5 @@ HTTPS 是麦克风使用条件，跨运营商或移动网络通话还需中继�
 | 证书申请失败 | 检查域名 A/AAAA、80/443 安全组和防火墙、端口占用、Caddy 日志 |
 | 页面能打开但无法加入房间 | 检查反向代理/CDN 是否支持 WebSocket，查看浏览器网络面板和服务日志 |
 | 手机麦克风不可用 | 使用可信 HTTPS，允许麦克风，检查 `Permissions-Policy` |
-| 语音在同一 Wi-Fi 可用，移动网络不可用 | 检查内置 TURN 启用状态、公网 IP、3478 UDP 和中继端口；强制 `relay` 验证；完全禁 UDP 时使用外部 TCP/TLS TURN |
+| 语音在同一 Wi-Fi 可用，移动网络不可用 | 检查内置 TURN 启用状态、公网 IP、3478 UDP 和中继端口；强制 `relay` 验证；客户端禁 UDP 时使用内置 TCP/TLS，检查相应入口与证书 |
 | 更新后房间消失 | 当前内存存储的预期行为，需要重新创建房间 |
