@@ -57,8 +57,25 @@ jobs:
             sleep 1
           done
           test "$ready" = true
-          npm run test:e2e
-          npm run test:voice
+          run_test() {
+            local task="$1"
+            local logfile="/tmp/kantengyen-${task//:/-}.log"
+            if npm run "$task" > "$logfile" 2>&1; then
+              cat "$logfile"
+            else
+              cat "$logfile"
+              # Expose test failures through check annotations as well as logs.
+              local details
+              details=$(tail -c 12000 "$logfile")
+              details="${details//'%'/'%25'}"
+              details="${details//$'\r'/'%0D'}"
+              details="${details//$'\n'/'%0A'}"
+              echo "::error title=${task} failed::${details}"
+              return 1
+            fi
+          }
+          run_test test:e2e
+          run_test test:voice
       - name: Package server with licenses
         run: |
           tar -C dist -czf kantengyen-server-linux-x64.tar.gz kantengyen-server SHA256SUMS LICENSE THIRD_PARTY_NOTICES.md licenses
