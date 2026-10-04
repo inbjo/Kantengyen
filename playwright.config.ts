@@ -6,7 +6,7 @@ export default defineConfig({
   use: {
     baseURL: process.env.TEST_BASE_URL ?? "http://127.0.0.1:3000",
     launchOptions: {
-      args: ["--use-fake-device-for-media-stream"],
+      args: ["--use-fake-device-for-media-stream", "--use-fake-ui-for-media-stream"],
       executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH,
     },
     trace: "retain-on-failure",

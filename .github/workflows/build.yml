@@ -148,8 +148,7 @@ jobs:
           # HTTP and WebSocket signalling pass through Caddy; all audio uses TURN/UDP.
           npm run test:e2e > /tmp/turn-test.log 2>&1
           npm run test:voice >> /tmp/turn-test.log 2>&1
-          npx playwright test tests/ui/voice.spec.ts >> /tmp/turn-test.log 2>&1
-          cat /tmp/turn-test.log
+          npx playwright test tests/ui/voice.spec.ts 2>&1 | tee -a /tmp/turn-test.log
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

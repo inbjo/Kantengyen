@@ -2,14 +2,19 @@ import { test, expect, type Page } from "@playwright/test";
 
 async function observe(page: Page) {
   await page.addInitScript(() => {
-    const state = window as typeof window & { voiceStreams: MediaStream[]; voicePeers: RTCPeerConnection[]; mediaRequests: number; voiceIceErrors: unknown[] };
-    state.voiceStreams = []; state.voicePeers = []; state.mediaRequests = 0; state.voiceIceErrors = [];
+    const state = window as typeof window & { voiceStreams: MediaStream[]; voicePeers: RTCPeerConnection[]; mediaRequests: number; mediaErrors: unknown[]; voiceIceErrors: unknown[] };
+    state.voiceStreams = []; state.voicePeers = []; state.mediaRequests = 0; state.mediaErrors = []; state.voiceIceErrors = [];
     const getUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
     navigator.mediaDevices.getUserMedia = async constraints => {
       state.mediaRequests++;
-      const stream = await getUserMedia(constraints);
-      state.voiceStreams.push(stream);
-      return stream;
+      try {
+        const stream = await getUserMedia(constraints);
+        state.voiceStreams.push(stream);
+        return stream;
+      } catch (error) {
+        state.mediaErrors.push({ name: (error as Error).name, message: (error as Error).message });
+        throw error;
+      }
     };
     const Original = window.RTCPeerConnection;
     window.RTCPeerConnection = class extends Original {
@@ -115,9 +120,11 @@ test("real three-way WebRTC audio, mute, rejoin and game-end cleanup", async ({ 
     expect(await friend.evaluate(() => (window as typeof window & { mediaRequests: number }).mediaRequests)).toBe(0);
   } catch (error) {
     for (let i = 0; i < pages.length; i++) {
-      console.log("voice diagnostic", i, JSON.stringify(await pages[i].evaluate(async () => {
-        const state = window as typeof window & { voicePeers: RTCPeerConnection[]; voiceIceErrors: unknown[] };
-        return Promise.all(state.voicePeers.map(async pc => {
+      const diagnostic = JSON.stringify(await pages[i].evaluate(async () => {
+        const state = window as typeof window & { voicePeers: RTCPeerConnection[]; voiceIceErrors: unknown[]; mediaRequests: number; mediaErrors: unknown[] };
+        return { mediaRequests: state.mediaRequests, mediaErrors: state.mediaErrors,
+          status: document.querySelector('[role="status"]')?.textContent,
+          peers: await Promise.all(state.voicePeers.map(async pc => {
           const stats = await pc.getStats();
           return { iceErrors: state.voiceIceErrors, gathering: pc.iceGatheringState,
             config: { policy: pc.getConfiguration().iceTransportPolicy, urls: pc.getConfiguration().iceServers?.map(server => server.urls) },
@@ -127,8 +134,13 @@ test("real three-way WebRTC audio, mute, rejoin and game-end cleanup", async ({ 
             remoteMedia: pc.remoteDescription?.sdp.split("\r\n").filter(line => line.startsWith("m=") || /a=(sendrecv|sendonly|recvonly|inactive)/.test(line)),
             candidates: [...stats.values()].filter(item => item.type === "local-candidate" || item.type === "remote-candidate").map(item => ({ type: item.type, candidateType: item.candidateType })),
             pairs: [...stats.values()].filter(item => item.type === "candidate-pair").map(item => ({ state: item.state, nominated: item.nominated })) };
-        }));
-      })));
+        })) };
+      }));
+      console.log("voice diagnostic", i, diagnostic);
+      if (process.env.CI) {
+        const message = diagnostic.slice(0, 3000).replaceAll("%", "%25").replaceAll("\r", "%0D").replaceAll("\n", "%0A");
+        console.log(`::error title=Browser voice diagnostic ${i}::${message}`);
+      }
     }
     throw error;
   } finally { await context.close(); }
