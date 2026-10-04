@@ -18,8 +18,9 @@ FROM wasm AS backend
 RUN apt-get update && apt-get install -y --no-install-recommends musl-tools && rm -rf /var/lib/apt/lists/*
 RUN rustup target add x86_64-unknown-linux-musl
 COPY --from=frontend /app/web/dist ./web/dist
-ENV CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER=musl-gcc
-ENV RUSTFLAGS="-C target-feature=+crt-static"
+# Use Rust's bundled linker/CRT instead of distro-specific musl-gcc PIE specs.
+ENV CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER=rust-lld
+ENV RUSTFLAGS="-C target-feature=+crt-static -C link-self-contained=yes"
 RUN cargo build --locked --release -p kantengyen-server --target x86_64-unknown-linux-musl
 RUN readelf -h target/x86_64-unknown-linux-musl/release/kantengyen-server
 RUN ! readelf -l target/x86_64-unknown-linux-musl/release/kantengyen-server | grep -q INTERP

@@ -30,8 +30,8 @@ try {
     npm(["run", "build"]);
     run("cargo", ["build", "--locked", "--release", "-p", "kantengyen-server", "--target", "x86_64-unknown-linux-musl"], {
       ...process.env,
-      CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER: "musl-gcc",
-      RUSTFLAGS: "-C target-feature=+crt-static",
+      CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER: "rust-lld",
+      RUSTFLAGS: "-C target-feature=+crt-static -C link-self-contained=yes",
     });
     await copyFile(resolve(root, "target/x86_64-unknown-linux-musl/release/kantengyen-server"), resolve(output, "kantengyen-server"));
   } else {
