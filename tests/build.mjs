@@ -66,6 +66,22 @@ test("binary serves embedded frontend and WASM from an empty working directory",
     assert.equal(wasm.headers.get("content-type"), "application/wasm");
     const { instance } = await WebAssembly.instantiate(await wasm.arrayBuffer());
     assert.notEqual(instance.exports.check_play(1, 0, 0, 0, 0), 0);
+    const manifest = await fetch(base + "/manifest.webmanifest");
+    assert.match(manifest.headers.get("content-type"), /application\/manifest\+json/);
+    const metadata = await manifest.json();
+    assert.equal(metadata.id, "/");
+    assert.equal(metadata.start_url, "/");
+    assert.equal(metadata.display, "standalone");
+    for (const icon of [...metadata.icons, { src: "/icons/apple-touch-icon.png", sizes: "180x180" }]) {
+      const response = await fetch(base + icon.src);
+      assert.equal(response.headers.get("content-type"), "image/png");
+      const png = Buffer.from(await response.arrayBuffer());
+      assert.equal(`${png.readUInt32BE(16)}x${png.readUInt32BE(20)}`, icon.sizes);
+    }
+    const worker = await fetch(base + "/sw.js");
+    assert.equal(worker.status, 200);
+    assert.match(worker.headers.get("content-type"), /javascript/);
+    assert.equal(worker.headers.get("cache-control"), "no-cache");
     assert.equal((await fetch(base + "/missing.js")).status, 404);
     assert.equal((await fetch(base + "/api/missing")).status, 404);
     const head = await fetch(base + asset, { method: "HEAD" });

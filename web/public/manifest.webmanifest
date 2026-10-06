@@ -1,0 +1,17 @@
+{
+  "id": "/",
+  "name": "干瞪眼 · 再来一把",
+  "short_name": "干瞪眼",
+  "description": "和朋友围坐一桌，2–8 人轻松玩牌。",
+  "lang": "zh-CN",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#102c25",
+  "theme_color": "#102c25",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

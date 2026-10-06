@@ -11,6 +11,30 @@
   --line: #f5edda1e;
   color-scheme: dark;
 }
+.pwa-notice {
+  margin: 12px auto;
+  padding: 10px 16px;
+  width: fit-content;
+  max-width: calc(100% - 24px);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--green);
+  color: var(--cream);
+  font-size: 13px;
+  text-align: center;
+}
+.pwa-install, .pwa-update {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+.pwa-instructions { list-style: none; padding: 0; margin: 0 0 24px; }
+.pwa-instructions li { padding: 14px 0; border-top: 1px solid #243d3220; }
+.pwa-instructions strong, .pwa-instructions span { display: block; }
+.pwa-instructions strong { color: #6f5126; margin-bottom: 6px; }
+.pwa-instructions span { color: #51604e; font-size: 14px; line-height: 1.7; }
 * {
   box-sizing: border-box;
 }

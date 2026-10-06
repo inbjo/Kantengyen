@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import multiavatar from "@multiavatar/multiavatar/esm";
 import {
   ArrowRight,
+  Download,
   Check,
   Bomb,
   Crown,
@@ -34,6 +35,7 @@ import { randomName, randomSeed, read, write } from "./storage";
 import { useRoom } from "./useRoom";
 import { useVoice } from "./useVoice";
 import { useScreenWakeLock } from "./useScreenWakeLock";
+import { usePwa } from "./usePwa";
 import { loadRules, inspectSelection } from "./rules";
 import { unlockAudio, playCardSound } from "./audio";
 import { announceCard, stopAnnouncement, unlockSpeech } from "./speech";
@@ -167,6 +169,7 @@ function Modal({
 }
 
 function App() {
+  const pwa = usePwa();
   const saved = useMemo(
     () => read<Session | null>("kantengyen.session", null),
     [],
@@ -191,7 +194,7 @@ function App() {
     () => initialRoom,
   );
   const [dialog, setDialog] = useState<
-    "welcome" | "create" | "join" | "profile" | "rules" | "leave" | "end" | "orientation" | null
+    "welcome" | "create" | "join" | "profile" | "rules" | "leave" | "end" | "orientation" | "install" | null
   >(() =>
     room
       ? null
@@ -373,6 +376,7 @@ function App() {
   }
   async function enter(mode: "practice" | "create" | "join" | "resume") {
     if (loading) return;
+    if (!pwa.online) { notify("当前没有网络，请联网后再入座"); return; }
     const roundLimit = roundChoice === "unlimited" ? null : Number(roundChoice === "custom" ? customRounds : roundChoice);
     if (mode === "create" && roundLimit !== null && (!Number.isInteger(roundLimit) || roundLimit < 1 || roundLimit > 4294967295)) {
       notify("请输入有效的正整数局数");
@@ -583,6 +587,8 @@ function App() {
         </nav>
       </header>
 
+      {!pwa.online && <div className="pwa-notice" role="status">当前没有网络 · 页面仍可查看，练习和联机对局需要联网</div>}
+
       {!room ? (
         <main className="lobby">
           <section className="lobby-intro">
@@ -682,6 +688,12 @@ function App() {
               </p>
             )}
             <p className="avatar-credit">只记积分，轻松玩牌</p>
+            {!pwa.installed && <button className="text-button pwa-install" onClick={async () => {
+              if (!await pwa.install()) setDialog("install");
+            }}><Download size={16} /> 安装到桌面</button>}
+            {pwa.updateAvailable && <button className="secondary pwa-update" disabled={!pwa.online} onClick={pwa.refresh}>
+              <RotateCw size={16} /> 新版本已就绪，刷新更新
+            </button>}
           </section>
         </main>
       ) : !table ? (
@@ -1132,6 +1144,17 @@ function App() {
         <Modal title="横屏打牌更舒服" close={() => setDialog(null)}>
           <p className="modal-copy">建议手机用户使用横屏，体验更佳。横屏能看清更多手牌，也更方便选牌。转为横屏后此提示会自动关闭。</p>
           <button className="primary wide" onClick={() => setDialog(null)}>知道了，继续玩</button>
+        </Modal>
+      )}
+      {dialog === "install" && (
+        <Modal title="把牌桌放到桌面" close={() => setDialog(null)}>
+          <p className="modal-copy">下次点桌面上的“干瞪眼”就能开桌，用独立窗口玩牌。安装后仍需联网才能入座。</p>
+          <ul className="pwa-instructions">
+            <li><strong>iPhone / iPad</strong><span>用 Safari 打开，点分享按钮，选择“添加到主屏幕”。</span></li>
+            <li><strong>Android / 电脑</strong><span>用 Chrome 或 Edge 打开，在浏览器菜单中选择“安装应用”或“添加到主屏幕”。</span></li>
+            <li><strong>微信内打开</strong><span>先从右上角菜单选择“在浏览器中打开”，再按上面的步骤安装。</span></li>
+          </ul>
+          <button className="primary wide" onClick={() => setDialog(null)}>知道了</button>
         </Modal>
       )}
       {dialog === "create" && (

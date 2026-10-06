@@ -43,6 +43,7 @@ fn main() {
             "webp" => "image/webp",
             "ico" => "image/x-icon",
             "json" => "application/json",
+            "webmanifest" => "application/manifest+json",
             "woff" => "font/woff",
             "woff2" => "font/woff2",
             _ => "application/octet-stream",
