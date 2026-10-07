@@ -13,6 +13,7 @@ export interface Player extends Profile {
   online: boolean;
   auto_play?: boolean;
   managed?: boolean;
+  pending?: boolean;
   score: number;
   count: number;
 }
@@ -34,6 +35,8 @@ export interface Snapshot {
   round_limit: number | null;
   abandoned_round: boolean;
   final_scores: { id: string; name: string; avatar_seed: string; score: number; rank: number }[];
+  bot_target?: number;
+  retired_scores?: { id: string; name: string; score: number }[];
   deadline_ms: number;
   players: Player[];
   hand: number[] | null;

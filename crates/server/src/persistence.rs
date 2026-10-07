@@ -82,7 +82,7 @@ impl Store {
                 return Err(invalid("房间人数或房主无效"));
             }
             if let Some(game) = &room.game {
-                let count = room.players.len();
+                let count = room.players.iter().filter(|p| !p.pending).count();
                 if game.hands.len() != count
                     || game.result.len() != count
                     || game.turn >= count

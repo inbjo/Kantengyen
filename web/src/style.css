@@ -15,6 +15,12 @@
 .hand-cards .card-corner { min-width: 28px; padding-right: 4px; }
 .managed-control { display: inline-flex; align-items: center; gap: 8px; }
 .managed-control span { color: var(--gold); }
+.bot-control { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; padding: 8px 12px; font-size: 12px; }
+.bot-control select { margin-left: 6px; color: var(--cream); background: var(--green); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; }
+.bot-control small { color: var(--muted); }
+.queue-notice { margin: 4px 12px; text-align: center; color: var(--gold); font-size: 12px; }
+.retired-scores { font-size: 12px; text-align: left; }
+.retired-scores p { display: flex; justify-content: space-between; }
 .ready-summary { color: var(--gold); }
 .ready-waiting { max-width: 90%; margin: 0 auto 12px; overflow-wrap: anywhere; font-size: 12px; }
 .invite-preview { color: #51604e; background: #243d320a; padding: 12px; border-radius: 8px; line-height: 1.8; }

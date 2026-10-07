@@ -249,6 +249,7 @@ function App() {
   } = useRoom(room, session?.token ?? "", notify);
   const selectionGesture = useCardSelection(table?.hand ?? [], selected, setSelected, table?.version ?? 0);
   const myManaged = !table?.practice && !!table?.players[table.seat]?.managed;
+  const waitingNext = !!table?.players[table.seat]?.pending;
   useEffect(() => {
     setInviteInfo(null); setInviteError("");
     if (dialog !== "join" || !/^[1-9]\d{3}$/.test(roomInput) || !pwa.online) return;
@@ -484,7 +485,7 @@ function App() {
       notify("当前浏览器不支持全屏，可以横置手机继续游玩");
     }
   }
-  const myTurn = table?.phase === "playing" && table.turn === table.seat && !myManaged;
+  const myTurn = table?.phase === "playing" && table.turn === table.seat && !myManaged && !waitingNext;
   useEffect(() => {
     if (!autoPass || !table?.auto_pass_available || status !== "online" || busy) return;
     // A short pause makes the skipped turn legible, and allows opting out.
@@ -760,7 +761,7 @@ function App() {
               倍率 <b>×{table.multiplier}</b>
             </span>
             <button onClick={() => setShowLog(!showLog)}>牌局记录</button>
-            {!table.practice && table.phase === "playing" && <div className="managed-control">
+            {!table.practice && table.phase === "playing" && !waitingNext && <div className="managed-control">
               {myManaged && <span>机器正在代打</span>}
               <button disabled={busy || status !== "online"} onClick={() => send(myManaged ? "resume" : "takeover")}>
                 {myManaged ? "恢复自己出牌" : "开启托管"}
@@ -806,6 +807,14 @@ function App() {
               <button className="text-button" onClick={voice.leave}>{voice.status === "starting" ? "取消开启语音" : "退出语音"}</button>
             </>}
           </aside>}
+          {!table.practice && table.phase !== "ended" && table.host === table.players[table.seat].id && <div className="bot-control">
+            <label>机器人数量 <select aria-label="机器人数量" disabled={busy || status !== "online"} value={table.bot_target ?? 0}
+              onChange={event => send("set_bots", [], {bot_count:Number(event.target.value)})}>
+              {Array.from({length:9-table.players.filter(p=>!p.bot).length},(_,count)=><option key={count} value={count}>{count} 个</option>)}
+            </select></label>
+            <small>{table.phase === "waiting" ? "和朋友、机器人合计最多 8 人" : "调整将在下一局发牌时生效"}</small>
+          </div>}
+          {waitingNext && table.phase !== "ended" && <p className="queue-notice" role="status">已加入房间 · 等待下一局发牌，当前这局不参与计分</p>}
           <div className="felt-table">
             <div className="felt-inner" />
             <span className="table-watermark">
@@ -1107,6 +1116,10 @@ function App() {
                     </div>
                   ))}
                 </div>
+                {table.phase !== "ended" && !!table.retired_scores?.length && <div className="retired-scores">
+                  <small>已离桌机器人的累计成绩</small>
+                  {table.retired_scores.map(p=><p key={p.id}>{p.name} <b>{p.score > 0 ? "+" : ""}{p.score}</b></p>)}
+                </div>}
                 {table.settlement && <details className="settlement-detail" open>
                   <summary>第 {table.settlement.round} 局计分明细</summary>
                   {table.settlement.entries.map(entry => <p key={entry.id}>
@@ -1365,7 +1378,7 @@ function App() {
       {dialog === "leave" && (
         <Modal title="先离开这一桌？" close={() => setDialog(null)} feedback={toast}>
           <p className="modal-copy">
-            {table?.phase === "playing" && !table.practice
+            {waitingNext ? "离开等待席后，可以重新通过邀请链接加入。" : table?.phase === "playing" && !table.practice
               ? "本局进行中，座位和累计分数会保留到整桌结束。离线后机器接管，有牌就接、要不起就过；回来后可继续自己出牌。"
               : table && !table.practice && table.round > 0 && table.phase !== "ended"
                 ? "这一桌尚未结束，返回大厅后座位和累计分数仍保留，下一局离线时由机器代打。房主结束游戏后才能加入新桌。"
@@ -1375,12 +1388,12 @@ function App() {
             className="primary wide"
             disabled={loading}
             onClick={() =>
-              table?.phase === "playing" && !table.practice
+              table?.phase === "playing" && !table.practice && !waitingNext
                 ? (setRoom(""), setDialog(null))
                 : leave()
             }
           >
-            {table?.phase === "playing" && !table.practice
+            {table?.phase === "playing" && !table.practice && !waitingNext
               ? "暂时离开"
               : "退出房间"}
             <DoorOpen size={18} />
@@ -1443,8 +1456,8 @@ function Seat({
       <div className="opponent-info">
         <strong>{player.name}</strong>
         <small>
-          {player.bot
-            ? "练习伙伴"
+          {player.pending ? "等待下一局" : player.bot
+            ? "机器人"
             : player.auto_play
               ? player.online ? "托管中" : "离线 · 机器代打"
               : !player.online

@@ -70,6 +70,8 @@ struct Player {
     connection: Option<String>,
     #[serde(default)]
     managed: bool,
+    #[serde(default)]
+    pending: bool,
     score: i64,
     #[serde(skip)]
     voice: Option<voice::VoiceSeat>,
@@ -92,6 +94,10 @@ struct Room {
     final_scores: Vec<Value>,
     #[serde(default)]
     last_settlement: Option<Value>,
+    #[serde(default)]
+    bot_target: usize,
+    #[serde(default)]
+    retired_players: Vec<Player>,
     version: u64,
     #[serde(skip, default = "room_events")]
     changed: broadcast::Sender<()>,
@@ -104,12 +110,43 @@ struct Room {
     history: Vec<String>,
 }
 impl Room {
+    fn apply_bots(&mut self) {
+        let humans = self.players.iter().filter(|p| !p.bot).count();
+        self.bot_target = self.bot_target.min(8 - humans);
+        let mut count = self.players.iter().filter(|p| p.bot).count();
+        while count > self.bot_target {
+            let index = self.players.iter().rposition(|p| p.bot).unwrap();
+            let player = self.players.remove(index);
+            if player.score != 0 {
+                self.retired_players.push(player);
+            }
+            count -= 1;
+        }
+        while count < self.bot_target {
+            let id = Uuid::new_v4().to_string();
+            self.players.push(Player {
+                profile: Profile {
+                    id: id.clone(),
+                    name: format!("机器人 {}", count + 1),
+                    avatar_seed: id,
+                },
+                bot: true,
+                ready: true,
+                connection: None,
+                managed: false,
+                pending: false,
+                score: 0,
+                voice: None,
+            });
+            count += 1;
+        }
+    }
     fn settlement(&self) -> Value {
         let Some(game) = &self.game else {
             return Value::Null;
         };
         json!({"round":self.round,"multiplier":game.multiplier,"winner":game.winner,
-            "entries":self.players.iter().enumerate().map(|(i,p)| json!({
+            "entries":self.players.iter().take(game.hands.len()).enumerate().map(|(i,p)| json!({
                 "id":p.profile.id,"name":p.profile.name,"remaining":game.hands[i].len(),
                 "delta":game.result[i],"contribution":if game.result[i]<0 {-game.result[i]} else {0}
             })).collect::<Vec<_>>()})
@@ -153,6 +190,12 @@ impl Room {
         let _ = self.changed.send(());
     }
     fn begin(&mut self) {
+        if !self.practice {
+            self.apply_bots();
+        }
+        for player in &mut self.players {
+            player.pending = false;
+        }
         self.round += 1;
         let dealer = if self.practice {
             0
@@ -222,7 +265,7 @@ impl Room {
     }
     fn finish(&mut self, reason: &str) {
         self.abandoned_round = self.game.as_ref().is_some_and(|g| g.winner.is_none());
-        let mut players: Vec<_> = self.players.iter().collect();
+        let mut players: Vec<_> = self.players.iter().chain(&self.retired_players).collect();
         players.sort_by_key(|p| std::cmp::Reverse(p.score));
         let mut rank = 0;
         let mut previous_score = None;
@@ -306,14 +349,17 @@ impl Room {
             "completed_rounds": self.completed_rounds, "abandoned_round": self.abandoned_round,
             "round_limit": self.round_limit,
             "final_scores": self.final_scores,
+            "bot_target": self.bot_target,
+            "retired_scores": self.retired_players.iter().map(|p| json!({"id":p.profile.id,"name":p.profile.name,"score":p.score})).collect::<Vec<_>>(),
             "players": self.players.iter().enumerate().map(|(i,p)| json!({
                 "id": p.profile.id, "name": p.profile.name, "avatar_seed": p.profile.avatar_seed,
                 "bot": p.bot, "ready": p.ready, "online": p.bot || p.connection.is_some(), "score": p.score,
                 "managed": !self.practice && p.managed,
-                "auto_play": !self.practice && !p.bot && (p.managed || p.connection.is_none()) && phase == "playing",
-                "count": self.game.as_ref().map(|g| g.hands[i].len()).unwrap_or(0)
+                "pending": p.pending,
+                "auto_play": !p.pending && !self.practice && !p.bot && (p.managed || p.connection.is_none()) && phase == "playing",
+                "count": self.game.as_ref().and_then(|g| g.hands.get(i)).map(Vec::len).unwrap_or(0)
             })).collect::<Vec<_>>(),
-            "hand": self.game.as_ref().map(|g| &g.hands[seat]),
+            "hand": self.game.as_ref().and_then(|g| g.hands.get(seat)),
             "turn": self.game.as_ref().map(|g| g.turn),
             "last": self.game.as_ref().and_then(|g| g.last.as_ref()),
             "auto_pass_available": self.game.as_ref().is_some_and(|g|
@@ -456,6 +502,7 @@ async fn create(
             ready: true,
             connection: None,
             managed: false,
+            pending: false,
             score: 0,
             voice: None,
         }],
@@ -471,6 +518,8 @@ async fn create(
         abandoned_round: false,
         final_scores: vec![],
         last_settlement: None,
+        bot_target: 0,
+        retired_players: vec![],
         version: 0,
         changed: broadcast::channel(32).0,
         touched: Instant::now(),
@@ -491,6 +540,7 @@ async fn create(
                 ready: true,
                 connection: None,
                 managed: false,
+                pending: false,
                 score: 0,
                 voice: None,
             });
@@ -529,8 +579,8 @@ async fn room_info(
     }
     Ok(Json(
         json!({"code":room.code,"count":room.players.len(),"round_limit":room.round_limit,
-        "available":room.round==0 && room.players.len()<8,
-        "reason":if room.round>0 {"牌局已经开始，仅原玩家可返回"} else if room.players.len()>=8 {"房间已满，请联系房主"} else {"朋友正在等你入座"}}),
+        "available":room.players.len()<8,
+        "reason":if room.players.len()>=8 {"房间已满，请联系房主"} else if room.round>0 {"可加入等待，下一局发牌时参与"} else {"朋友正在等你入座"}}),
     ))
 }
 async fn persist_http(
@@ -571,25 +621,24 @@ async fn join(
         if room.practice {
             return Err(error(StatusCode::FORBIDDEN, "练习房间仅供本人使用"));
         }
-        if room.round > 0 {
-            return Err(error(
-                StatusCode::CONFLICT,
-                "牌局已开始，请等房主开启新房间",
-            ));
-        }
         if room.players.len() >= 8 {
             return Err(error(StatusCode::CONFLICT, "房间已满，最多八位玩家"));
         }
         membership.insert(profile.id.clone(), code.clone());
+        let pending = room.game.is_some();
         room.players.push(Player {
             profile,
             bot: false,
-            ready: false,
+            ready: pending,
             connection: None,
             managed: false,
+            pending,
             score: 0,
             voice: None,
         });
+        room.bot_target = room
+            .bot_target
+            .min(8 - room.players.iter().filter(|p| !p.bot).count());
         room.publish();
     }
     Ok(Json(json!({"code":code})))
@@ -605,6 +654,12 @@ async fn leave(
     if let Some(room_ref) = room_ref {
         let mut room = room_ref.lock().await;
         if let Some(seat) = room.players.iter().position(|p| p.profile.id == profile.id) {
+            if room.players[seat].pending {
+                room.players.remove(seat);
+                membership.remove(&profile.id);
+                room.publish();
+                return Ok(Json(json!({"ok":true})));
+            }
             if room.game.as_ref().is_some_and(|g| g.winner.is_none()) && !room.practice {
                 return Err(error(
                     StatusCode::CONFLICT,
@@ -668,6 +723,8 @@ struct AuthMessage {
 struct Command {
     action: String,
     request_id: String,
+    #[serde(default)]
+    bot_count: Option<usize>,
     version: u64,
     #[serde(default)]
     cards: Vec<Card>,
@@ -871,6 +928,14 @@ fn handle(room: &mut Room, id: &str, cmd: Command) -> Option<Value> {
         if room.ended {
             return Err("游戏已结束，请返回大厅重新开房".into());
         }
+        if room.players[seat].pending
+            && matches!(
+                cmd.action.as_str(),
+                "hint" | "play" | "pass" | "auto_pass" | "takeover" | "resume"
+            )
+        {
+            return Err("你将在下一局发牌时参与，请稍候".into());
+        }
         if cmd.action == "hint" {
             let g = room.game.as_ref().ok_or("牌局还没开始")?;
             let hint = if room.practice && room.round == 1 && g.discarded.is_empty() && seat == 0 {
@@ -888,12 +953,26 @@ fn handle(room: &mut Room, id: &str, cmd: Command) -> Option<Value> {
         if cmd.version != room.version
             && !matches!(
                 cmd.action.as_str(),
-                "ready_on" | "ready_off" | "takeover" | "resume"
+                "ready_on" | "ready_off" | "takeover" | "resume" | "set_bots"
             )
         {
             return Err("牌桌状态已更新，请重新操作".into());
         }
         match cmd.action.as_str() {
+            "set_bots" => {
+                if room.practice || room.host != id {
+                    return Err("只有房主可以调整机器人数量".into());
+                }
+                let count = cmd.bot_count.ok_or("请选择机器人数量")?;
+                let humans = room.players.iter().filter(|p| !p.bot).count();
+                if count > 8 - humans {
+                    return Err("真人和机器人合计最多八人".into());
+                }
+                room.bot_target = count;
+                if room.game.is_none() {
+                    room.apply_bots();
+                }
+            }
             "end" => {
                 if room.host != id {
                     return Err("只有房主可以结束游戏".into());
@@ -901,7 +980,7 @@ fn handle(room: &mut Room, id: &str, cmd: Command) -> Option<Value> {
                 room.finish("房主结束了游戏，房间已解散");
             }
             "ready" | "ready_on" | "ready_off" => {
-                if room.game.is_some() {
+                if room.game.is_some() && !room.players[seat].pending {
                     return Err("牌局已经开始".into());
                 }
                 room.players[seat].ready = match cmd.action.as_str() {
@@ -914,7 +993,9 @@ fn handle(room: &mut Room, id: &str, cmd: Command) -> Option<Value> {
                 if room.host != id {
                     return Err("只有房主可以开始".into());
                 }
-                if room.players.len() < 2 {
+                if room.players.iter().filter(|p| !p.bot).count() + room.bot_target < 2
+                    && !room.practice
+                {
                     return Err("至少需要两位玩家".into());
                 }
                 if room.game.as_ref().is_some_and(|g| g.winner.is_none()) {
@@ -1172,6 +1253,7 @@ mod tests {
                     ready: true,
                     connection: None,
                     managed: false,
+                    pending: false,
                     score: 0,
                     voice: None,
                 })
@@ -1184,6 +1266,8 @@ mod tests {
             abandoned_round: false,
             final_scores: vec![],
             last_settlement: None,
+            bot_target: 0,
+            retired_players: vec![],
             version: 0,
             changed: broadcast::channel(32).0,
             touched: Instant::now(),
@@ -1226,6 +1310,7 @@ mod tests {
                 action: action.into(),
                 version: 0,
                 cards: vec![],
+                bot_count: None,
                 request_id: Uuid::new_v4().to_string(),
             };
             assert!(handle(&mut room, "1", command).is_none());
@@ -1243,6 +1328,7 @@ mod tests {
             request_id: "end-once".into(),
             version,
             cards: vec![],
+            bot_count: None,
         };
         assert_eq!(handle(&mut room, "1", command(0)).unwrap()["type"], "error");
         assert!(!room.ended);
@@ -1279,6 +1365,7 @@ mod tests {
                         request_id: action.into(),
                         version,
                         cards: vec![0],
+                        bot_count: None,
                     }
                 )
                 .unwrap()["type"],
@@ -1307,6 +1394,7 @@ mod tests {
                     request_id: "end".into(),
                     version: 0,
                     cards: vec![],
+                    bot_count: None,
                 }
             )
             .is_none()
@@ -1319,7 +1407,7 @@ mod tests {
         );
     }
     #[tokio::test]
-    async fn leaving_between_rounds_retains_zero_sum_scores_and_prevents_replacement() {
+    async fn leaving_retains_scores_and_new_players_wait_for_next_round() {
         let state = Arc::new(AppState::default());
         let mut room = test_room();
         room.practice = false;
@@ -1379,7 +1467,8 @@ mod tests {
                     action: "next".into(),
                     request_id: "next".into(),
                     version,
-                    cards: vec![]
+                    cards: vec![],
+                    bot_count: None,
                 }
             )
             .is_none()
@@ -1401,12 +1490,54 @@ mod tests {
         );
         let mut headers = HeaderMap::new();
         headers.insert("authorization", "Bearer outsider".parse().unwrap());
+        let _ = join(State(state.clone()), Path("1234".into()), headers)
+            .await
+            .unwrap();
+        let mut room = room_ref.lock().await;
+        assert!(room.players[2].pending);
+        assert_eq!(room.snapshot("outsider")["hand"], Value::Null);
+        assert_eq!(room.players[2].score, 0);
+        room.begin();
+        assert!(!room.players[2].pending);
+        assert_eq!(room.game.as_ref().unwrap().hands.len(), 3);
+    }
+    #[test]
+    fn robot_changes_apply_at_round_boundary_and_keep_retired_scores() {
+        let mut room = test_room();
+        room.practice = false;
+        room.game = None;
+        room.round = 0;
+        let command = |count, id: &str, version| Command {
+            action: "set_bots".into(),
+            bot_count: Some(count),
+            cards: vec![],
+            request_id: id.into(),
+            version,
+        };
+        assert!(handle(&mut room, "1", command(1, "guest", 0)).is_some());
+        assert!(handle(&mut room, "0", command(7, "too-many", 0)).is_some());
+        assert!(handle(&mut room, "0", command(1, "add", 0)).is_none());
+        assert_eq!(room.players.len(), 3);
+        room.begin();
+        let version = room.version;
+        assert!(handle(&mut room, "0", command(0, "remove", version)).is_none());
+        assert_eq!(room.players.len(), 3);
+        let game = room.game.as_mut().unwrap();
+        game.winner = Some(0);
+        game.hands = vec![vec![], vec![1], vec![2, 3]];
+        game.result = vec![3, -1, -2];
+        room.settle();
+        room.begin();
+        assert_eq!(room.players.len(), 2);
+        assert_eq!(room.game.as_ref().unwrap().hands.len(), 2);
+        assert_eq!(room.retired_players[0].score, -2);
+        room.finish("结束");
         assert_eq!(
-            join(State(state.clone()), Path("1234".into()), headers)
-                .await
-                .unwrap_err()
-                .0,
-            StatusCode::CONFLICT
+            room.final_scores
+                .iter()
+                .map(|p| p["score"].as_i64().unwrap())
+                .sum::<i64>(),
+            0
         );
     }
     #[test]
@@ -1432,6 +1563,7 @@ mod tests {
                     request_id: "test".into(),
                     version: 0,
                     cards: vec![],
+                    bot_count: None,
                 },
             );
             assert_eq!(result.is_none(), unavailable);
@@ -1452,6 +1584,7 @@ mod tests {
                     request_id: "lead".into(),
                     version: 0,
                     cards: vec![],
+                    bot_count: None,
                 }
             )
             .is_some()
@@ -1553,7 +1686,8 @@ mod tests {
                     action: "resume".into(),
                     request_id: "resume".into(),
                     version: 0,
-                    cards: vec![]
+                    cards: vec![],
+                    bot_count: None,
                 }
             )
             .is_none()

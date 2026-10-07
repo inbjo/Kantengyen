@@ -132,7 +132,7 @@ export function useRoom(
       ws.current?.close();
     };
   }, [code, token]);
-  const send = useCallback((action: string, cards: number[] = []) => {
+  const send = useCallback((action: string, cards: number[] = [], options: { bot_count?: number } = {}) => {
     if (
       ws.current?.readyState !== WebSocket.OPEN ||
       !current.current ||
@@ -152,6 +152,7 @@ export function useRoom(
         cards,
         version: current.current.version,
         request_id: requestId,
+        ...options,
       }),
     );
   }, []);

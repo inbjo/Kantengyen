@@ -139,14 +139,14 @@ test("room authentication, readiness, private hands, stale/repeated actions and 
     );
     assert.equal(
       (await api(`/api/rooms/${code}/join`, {}, outsider.token)).status,
-      409,
+      200,
     );
     assert.equal(
       (await api(`/api/rooms/${code}/leave`, {}, a.token)).status,
       409,
     );
     cb.close();
-    await ca.wait(() => ca.snapshot.players.some((p) => !p.online));
+    await ca.wait(() => !ca.snapshot.players[1].online);
     const reconnected = new Client(b, code);
     try {
       await reconnected.wait(() => reconnected.snapshot?.phase === "playing");
@@ -345,7 +345,17 @@ test("two-player settlement uses remaining cards and bombs, balances totals, and
     await clients[0].wait(() => !clients[0].snapshot.players[1].online);
     assert.equal(clients[0].snapshot.players.length, 2);
     assert.deepEqual(clients[0].snapshot.players.map(p => p.score), scores);
-    assert.equal((await api(`/api/rooms/${code}/join`, {}, sessions[2].token)).status, 409);
+    assert.equal((await api(`/api/rooms/${code}/join`, {}, sessions[2].token)).status, 200);
+    const waiting = new Client(sessions[2], code);
+    clients.push(waiting);
+    await waiting.wait(() => waiting.snapshot?.players[2].pending);
+    assert.equal(waiting.snapshot.hand, null);
+    assert.equal(waiting.snapshot.players[2].score, 0);
+    await clients[0].wait(() => clients[0].snapshot.players[2]?.online);
+    clients[0].send("next");
+    await waiting.wait(() => waiting.snapshot.phase === "playing" && !waiting.snapshot.players[2].pending);
+    assert.ok(waiting.snapshot.hand.length >= 5);
+    await clients[0].wait(() => clients[0].snapshot.round === 2);
     clients[0].send("end");
     await clients[0].wait(() => clients[0].snapshot.phase === "ended");
     assert.equal(clients[0].snapshot.final_scores.reduce((sum,p) => sum+p.score,0), 0);
@@ -384,4 +394,31 @@ test("host transfer keeps the next host ready and a guest cannot open another se
     successor.close();
     await api(`/api/rooms/${code}/leave`, {}, b.token);
   }
+});
+
+test("host controls robots and mid-round arrivals wait privately and may leave", async () => {
+  const host=await guest("机器人房主"), visitor=await guest("等待朋友");
+  const {body:{code}}=await api("/api/rooms",{},host.token);
+  const a=new Client(host,code), clients=[a];
+  try {
+    await a.wait(()=>!!a.snapshot);
+    a.send("set_bots",[],{bot_count:2});
+    await a.wait(()=>a.snapshot.players.length===3);
+    assert.equal(a.snapshot.players.filter(p=>p.bot).length,2);
+    a.send("start");await a.wait(()=>a.snapshot.phase==="playing");
+    const hand=a.snapshot.hand;
+    assert.equal((await api(`/api/rooms/${code}/join`,{},visitor.token)).status,200);
+    const b=new Client(visitor,code);clients.push(b);
+    await b.wait(()=>b.snapshot?.players[3].pending);
+    await a.wait(()=>a.snapshot.players.length===4);
+    assert.deepEqual(a.snapshot.hand,hand);
+    assert.equal(b.snapshot.hand,null);
+    b.send("hint");await b.wait(()=>b.messages.some(m=>m.error?.includes("下一局")));
+    assert.equal((await api(`/api/rooms/${code}/leave`,{},visitor.token)).status,200);
+    await a.wait(()=>a.snapshot.players.length===3);
+    a.send("set_bots",[],{bot_count:0});
+    await a.wait(()=>a.snapshot.bot_target===0);
+    assert.equal(a.snapshot.players.filter(p=>p.bot).length,2);
+    a.send("end");await a.wait(()=>a.snapshot.phase==="ended");
+  } finally {clients.forEach(c=>c.close());}
 });
