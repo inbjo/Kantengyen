@@ -25,3 +25,5 @@ Thumbs.db
 /kantengyen-server-linux-x64.tar.gz.sha256
 /deploy/turnserver.conf
 /deploy/turn-certs/
+
+/data/

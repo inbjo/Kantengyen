@@ -5,6 +5,7 @@ services:
     restart: unless-stopped
     environment:
       BIND_ADDR: 0.0.0.0:3000
+      STATE_PATH: /data/state.json
       RUST_LOG: kantengyen_server=info
       VOICE_ICE_SERVERS: "${VOICE_ICE_SERVERS:-[]}"
       VOICE_ICE_POLICY: "${VOICE_ICE_POLICY:-all}"
@@ -30,6 +31,8 @@ services:
       - '49160-49223:49160-49223/udp'
     expose:
       - "3000"
+    volumes:
+      - game_data:/data
     stop_grace_period: 10s
   caddy:
     image: caddy:2
@@ -47,5 +50,6 @@ services:
     depends_on:
       - game
 volumes:
+  game_data:
   caddy_data:
   caddy_config:

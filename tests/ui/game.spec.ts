@@ -39,8 +39,8 @@ test("selected cards leave every adjacent rank visible and clickable in portrait
   await expect(cards).toHaveCount(5);
   for (const [width,height] of [[390,844],[844,390],[667,375]]) {
     await page.setViewportSize({width,height});
-    const reset = page.locator(".clear-button");
-    if (await reset.isEnabled()) await reset.click();
+    while (await page.locator(".hand-cards .selected").count())
+      await page.locator(".hand-cards .selected .card-corner").first().click();
     await cards.nth(1).locator(".card-corner").click();
     await expect(cards.nth(1)).toHaveAttribute("aria-pressed","true");
     for (let i=0;i<5;i++) {
@@ -53,6 +53,36 @@ test("selected cards leave every adjacent rank visible and clickable in portrait
     await expect(cards.nth(2)).toHaveAttribute("aria-pressed","true");
     await cards.nth(1).locator(".card-corner").click();
     await expect(cards.nth(1)).toHaveAttribute("aria-pressed","false");
+    await cards.nth(2).locator(".card-corner").click();
+    const corners = await cards.locator(".card-corner").evaluateAll(elements => elements.map(el => {
+      const r = el.getBoundingClientRect(); return { x:r.left+5, y:r.top+8 };
+    }));
+    await page.mouse.move(corners[0].x,corners[0].y);
+    await page.mouse.down();
+    await page.mouse.move(corners[3].x,corners[0].y,{steps:12});
+    for (let i=0;i<4;i++) await expect(cards.nth(i)).toHaveAttribute("aria-pressed","true");
+    await page.mouse.move(corners[1].x,corners[0].y,{steps:8});
+    await expect(cards.nth(2)).toHaveAttribute("aria-pressed","false");
+    await expect(cards.nth(3)).toHaveAttribute("aria-pressed","false");
+    await page.mouse.up();
+    await expect(cards.nth(0)).toHaveAttribute("aria-pressed","true");
+    await expect(cards.nth(1)).toHaveAttribute("aria-pressed","true");
+    if (height > width) {
+      await cards.nth(0).locator(".card-corner").click();
+      await cards.nth(1).locator(".card-corner").click();
+      const touch = await page.context().newCDPSession(page);
+      const dispatch = (type:string,x:number) => touch.send("Input.dispatchTouchEvent",{
+        type,touchPoints:type==="touchEnd"?[]:[{x,y:corners[0].y,id:1}],
+      });
+      await dispatch("touchStart",corners[0].x);
+      await dispatch("touchMove",corners[3].x);
+      await expect(cards.nth(3)).toHaveAttribute("aria-pressed","true");
+      await dispatch("touchMove",corners[1].x);
+      await dispatch("touchEnd",corners[1].x);
+      await expect(cards.nth(1)).toHaveAttribute("aria-pressed","true");
+      await expect(cards.nth(2)).toHaveAttribute("aria-pressed","false");
+      await touch.detach();
+    }
     await page.screenshot({path:`test-results/card-selection-${width}.png`});
     if (height>width) await expect(page.getByText("建议手机用户使用横屏，体验更佳 ↻")).toBeVisible();
   }
@@ -72,7 +102,7 @@ test("creation offers default eight, presets, unlimited and validated custom rou
       await page.getByLabel("自定义局数", { exact: true }).fill("3");
     }
     await page.getByRole("button", { name: "确认开桌" }).click();
-    await expect(page.locator(".waiting-center p")).toContainText(text);
+    await expect(page.locator(".waiting-center p").first()).toContainText(text);
     await page.getByRole("button", { name: "结束游戏", exact: true }).click();
     await page.getByRole("button", { name: "确认结束游戏" }).click();
     await expect(page.getByRole("heading", { name: "总计分" })).toBeVisible();
@@ -250,6 +280,7 @@ test("two browsers create, join, ready, play and reload into the same seat", asy
     friend.getByRole("button", { name: "提示", exact: true }),
   ).toBeEnabled();
   await friend.reload();
+  await friend.getByRole("button", { name: "恢复自己出牌", exact: true }).click();
   await expect(friend.locator(".hand-cards .playing-card")).toHaveCount(5);
   await expect(
     friend.getByRole("button", { name: "提示", exact: true }),
@@ -280,6 +311,7 @@ test("invite in a new tab uses an independent seat and refreshing preserves it",
   await expect(host.locator(".hand-cards .playing-card")).toHaveCount(6);
   await expect(friend.locator(".hand-cards .playing-card")).toHaveCount(5);
   await friend.reload();
+  await friend.getByRole("button", { name: "恢复自己出牌", exact: true }).click();
   await expect(friend.locator(".hand-cards .playing-card")).toHaveCount(5);
   await expect(friend.getByRole("dialog")).toHaveCount(0);
   expect(await identity(friend)).toBe(original);

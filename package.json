@@ -15,6 +15,7 @@
     "verify:static": "node scripts/verify-static.mjs",
     "setup:turn": "node scripts/setup-turn.mjs",
     "test:build": "node --test tests/build.mjs",
+    "test:recovery": "node --test tests/recovery.mjs",
     "test:voice": "node --test tests/voice.mjs"
   },
   "devDependencies": { "@playwright/test": "^1.56.0" }

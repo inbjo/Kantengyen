@@ -45,7 +45,7 @@ VOICE_ICE_POLICY=all
 
 `TURN_PUBLIC_HOST` 可省略，客户端将使用公网 IP；STUN/TURN URL 由后端自动生成。TCP 默认启用，TLS 需按下节挂载证书启用。默认不用额外配置 `VOICE_ICE_SERVERS`、`VOICE_TURN_URLS`。
 
-`VOICE_TURN_SECRET` 可留空，由服务每次启动自动生成随机密钥；也可填入至少 32 字节随机字符串。它只用于签发和校验临时凭证，不会发送给浏览器。固定密钥便于管理，但服务重启仍会关闭中继连接及游戏房间。
+`VOICE_TURN_SECRET` 可留空，由服务每次启动自动生成随机密钥；也可填入至少 32 字节随机字符串。它只用于签发和校验临时凭证，不会发送给浏览器。固定密钥便于管理；服务重启会断开中继连接，游戏房间从持久化文件恢复。
 
 如果配置机装有 Node.js 22+，可以使用辅助脚本生成固定密钥（无需安装 npm 依赖）：
 
@@ -84,7 +84,7 @@ sudo node scripts/export-turn-cert.mjs --domain play.your-domain.com
 docker compose -f compose.yaml -f compose.tls.yaml up -d game
 ```
 
-`compose.tls.yaml` 挂载 `deploy/turn-certs`，打开 5349 TCP，并设置 Rust TLS 路径。后端自动发布 `turns:play.your-domain.com:5349?transport=tcp`。只在 Caddy 第一次申请证书之后启用，避免游戏因为缺失证书而无法启动。首次重新创建容器会清空房间。
+`compose.tls.yaml` 挂载 `deploy/turn-certs`，打开 5349 TCP，并设置 Rust TLS 路径。后端自动发布 `turns:play.your-domain.com:5349?transport=tcp`。只在 Caddy 第一次申请证书之后启用，避免游戏因为缺失证书而无法启动。重新创建容器后房间从 `game_data` 卷恢复。
 
 没有 Node.js 或使用自己的 ACME 工具时，将覆盖 `TURN_PUBLIC_HOST` 的完整 PEM 证书链保存为 `deploy/turn-certs/fullchain.pem`，未加密 PEM 私钥保存为 `deploy/turn-certs/privkey.pem`，在 Linux 配置权限：
 
@@ -111,7 +111,7 @@ Rust 每 60 秒检查文件变化，成功解析并验证密钥匹配后替换 T
 为了证明音频确实经过内置 TURN，而非刚好直连：
 
 1. 在 `.env` 临时设置 `VOICE_ICE_POLICY=relay`。
-2. `docker compose up -d game` 重新创建游戏容器。这会清空房间，请先结束对局。
+2. `docker compose up -d game` 重新创建游戏容器。保留 `game_data` 卷，对局重连后可恢复。
 3. 两台设备重新入房并开启语音，检查双向听感；用浏览器 WebRTC 诊断查看选中的 candidate-pair 类型为 `relay`，同时检查 RTP 收包。
 4. 分别设置 `TURN_TRANSPORT=udp`、`tcp`、`tls` 并重新创建游戏容器。此变量只下发指定入口；检查选中的本地候选 `relayProtocol` 对应 `udp`、`tcp`、`tls`。TLS 测试必须已启用 overlay。
 5. 验证后恢复 `TURN_TRANSPORT=all`、`VOICE_ICE_POLICY=all` 并重新创建游戏容器。
@@ -140,7 +140,7 @@ docker compose down
 
 启用 TLS 后，运维命令应始终包含两个 Compose 文件，或在 `.env` 配置 `COMPOSE_FILE=compose.yaml:compose.tls.yaml`，否则重新创建游戏时会移除 TLS 配置。
 
-升级、回滚和重新创建游戏容器都会清空房间并断开内置中继；在无对局时维护。不要使用 `down -v` 删除证书卷，备份 `.env` 和 Caddy 数据卷。内置 TURN 与游戏在同一进程，不能独立重启中继。
+升级和重新创建游戏容器会断开内置中继，房间从 `game_data` 卷内的 `/data/state.json` 恢复。不要使用 `down -v` 删除游戏与证书卷；按需保护 `.env`、`game_data` 和 Caddy 数据卷。状态文件包含手牌和访客凭证，不要公开。回滚到不支持持久化的旧版本不能恢复房间。内置 TURN 与游戏在同一进程，不能独立重启中继。
 
 从旧的独立 coturn 部署迁移时，更新代码前先停止旧 TURN 服务，释放 3478 和中继端口，再设置新 `.env`。删除不再使用的旧 `VOICE_TURN_URLS` / `VOICE_ICE_SERVERS`，避免向浏览器发布过期入口；保留至少 32 字节密钥可继续使用。旧的 `deploy/turnserver.conf` 不再读取，请自行安全保存或删除。
 

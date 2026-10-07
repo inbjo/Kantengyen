@@ -10,6 +10,7 @@ import {
   Layers,
   Zap,
   Copy,
+  Share2,
   Dice5,
   DoorOpen,
   Expand,
@@ -36,6 +37,7 @@ import { useRoom } from "./useRoom";
 import { useVoice } from "./useVoice";
 import { useScreenWakeLock } from "./useScreenWakeLock";
 import { usePwa } from "./usePwa";
+import { useCardSelection } from "./useCardSelection";
 import { loadRules, inspectSelection } from "./rules";
 import { unlockAudio, playCardSound } from "./audio";
 import { announceCard, stopAnnouncement, unlockSpeech } from "./speech";
@@ -121,6 +123,7 @@ function Card({
       className={classes}
       aria-label={description}
       aria-pressed={selected}
+      data-card={card}
       onClick={onClick}
     >
       {content}
@@ -208,6 +211,8 @@ function App() {
   const [roundChoice, setRoundChoice] = useState("8");
   const [customRounds, setCustomRounds] = useState("8");
   const [toast, setToast] = useState("");
+  const [inviteInfo, setInviteInfo] = useState<{ count: number; round_limit: number | null; available: boolean; reason: string } | null>(null);
+  const [inviteError, setInviteError] = useState("");
   useEffect(() => {
     if (dialog === "welcome") write("kantengyen.intro_seen", true);
   }, [dialog]);
@@ -242,6 +247,22 @@ function App() {
     hint,
     send,
   } = useRoom(room, session?.token ?? "", notify);
+  const selectionGesture = useCardSelection(table?.hand ?? [], selected, setSelected, table?.version ?? 0);
+  const myManaged = !table?.practice && !!table?.players[table.seat]?.managed;
+  useEffect(() => {
+    setInviteInfo(null); setInviteError("");
+    if (dialog !== "join" || !/^[1-9]\d{3}$/.test(roomInput) || !pwa.online) return;
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      try {
+        const response = await fetch(`/api/rooms/${roomInput}`, { signal: controller.signal, cache: "no-store" });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error ?? "无法查询房间");
+        setInviteInfo(data);
+      } catch (error) { if (!controller.signal.aborted) setInviteError(error instanceof Error ? error.message : "无法查询房间，请稍后重试"); }
+    }, 200);
+    return () => { clearTimeout(timer); controller.abort(); };
+  }, [dialog, roomInput, pwa.online]);
   const orientationChecked = useRef("");
   useEffect(() => {
     if (!room) { orientationChecked.current = ""; return; }
@@ -443,6 +464,18 @@ function App() {
       notify(`房间号是 ${room}，可以直接告诉朋友`);
     }
   }
+  async function shareInvite() {
+    if (!navigator.share) { await copyInvite(); return; }
+    try {
+      await navigator.share({ title: `干瞪眼 · 房间 ${room}`,
+        text: `房间 ${room} · ${table?.players.length ?? 1}/8 人 · ${table?.round_limit ? `${table.round_limit} 局` : "血战到底"}，一起玩干瞪眼！`,
+        url: `${location.origin}/?room=${room}` });
+    } catch (error) { if (!(error instanceof Error && error.name === "AbortError")) await copyInvite(); }
+  }
+  function returnFromInvite() {
+    const url = new URL(location.href); url.searchParams.delete("room"); history.replaceState(history.state,"",url);
+    setRoomInput(""); setDialog(null); setToast("");
+  }
   async function fullscreen() {
     try {
       if (document.fullscreenElement) await document.exitFullscreen();
@@ -451,7 +484,7 @@ function App() {
       notify("当前浏览器不支持全屏，可以横置手机继续游玩");
     }
   }
-  const myTurn = table?.phase === "playing" && table.turn === table.seat;
+  const myTurn = table?.phase === "playing" && table.turn === table.seat && !myManaged;
   useEffect(() => {
     if (!autoPass || !table?.auto_pass_available || status !== "online" || busy) return;
     // A short pause makes the skipped turn legible, and allows opting out.
@@ -727,6 +760,12 @@ function App() {
               倍率 <b>×{table.multiplier}</b>
             </span>
             <button onClick={() => setShowLog(!showLog)}>牌局记录</button>
+            {!table.practice && table.phase === "playing" && <div className="managed-control">
+              {myManaged && <span>机器正在代打</span>}
+              <button disabled={busy || status !== "online"} onClick={() => send(myManaged ? "resume" : "takeover")}>
+                {myManaged ? "恢复自己出牌" : "开启托管"}
+              </button>
+            </div>}
             <button disabled={!screenWakeLock.supported}
               aria-label={keepScreenOn ? "关闭屏幕常亮" : "开启屏幕常亮"}
               aria-pressed={keepScreenOn}
@@ -806,6 +845,9 @@ function App() {
                 房间 <span>{table.code}</span>
               </h2>
               <p>已入座 {table.players.length} / 8 人 · {table.round_limit ? `${table.round_limit} 局` : "血战到底"} · 至少两人即可开始</p>
+              <p className="ready-summary">已准备 {table.players.filter(p => p.ready && p.online).length}/{table.players.length} 人</p>
+              {table.players.some(p => !p.ready || !p.online) && <p className="ready-waiting">等待：{table.players.filter(p => !p.ready || !p.online).map(p => `${p.name}${!p.online ? "（离线）" : ""}`).join("、")}</p>}
+              <button className="primary invite-button" onClick={shareInvite}><Share2 size={17} /> 一键分享邀请</button>
               <button className="secondary invite-button" onClick={copyInvite}>
                 <Copy size={17} /> 复制邀请链接
               </button>
@@ -928,6 +970,7 @@ function App() {
               </div>
               <div
                 className="hand-cards"
+                {...selectionGesture}
                 style={
                   {
                     "--card-count": table.hand?.length ?? 0,
@@ -1064,6 +1107,15 @@ function App() {
                     </div>
                   ))}
                 </div>
+                {table.settlement && <details className="settlement-detail" open>
+                  <summary>第 {table.settlement.round} 局计分明细</summary>
+                  {table.settlement.entries.map(entry => <p key={entry.id}>
+                    <strong>{entry.name}</strong><span>{entry.delta < 0
+                      ? `剩余 ${entry.remaining} 张 × ${table.settlement!.multiplier}，扣 ${-entry.delta} 分`
+                      : entry.delta > 0 ? `收取 ${table.settlement!.entries.filter(e => e.delta < 0).map(e => `${e.name} ${e.contribution} 分`).join(" + ")} = +${entry.delta} 分`
+                        : "本局 0 分"}</span>
+                  </p>)}
+                </details>}
                 {table.phase !== "ended" && table.players[table.seat].id === table.host && (
                   <button
                     className="primary"
@@ -1179,6 +1231,8 @@ function App() {
       {dialog === "join" && (
         <Modal title="朋友在哪一桌？" close={() => setDialog(null)} feedback={toast}>
           <p className="modal-copy">问朋友要四位房间号，输入后就能入座。</p>
+          {inviteInfo && <p className="invite-preview" role="status">房间 {roomInput} · {inviteInfo.count}/8 人 · {inviteInfo.round_limit ? `${inviteInfo.round_limit} 局` : "血战到底"}<br />{inviteInfo.reason}</p>}
+          {inviteError && <p className="modal-feedback" role="status">{inviteError}</p>}
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -1210,6 +1264,7 @@ function App() {
               加入房间 <ArrowRight size={18} />
             </button>
           </form>
+          <button className="text-button wide" onClick={returnFromInvite}>返回大厅</button>
         </Modal>
       )}
       {dialog === "profile" && (
@@ -1391,7 +1446,7 @@ function Seat({
           {player.bot
             ? "练习伙伴"
             : player.auto_play
-              ? "离线 · 机器代打"
+              ? player.online ? "托管中" : "离线 · 机器代打"
               : !player.online
               ? "离线 · 座位保留"
               : host

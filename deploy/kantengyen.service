@@ -9,6 +9,9 @@ Group=kantengyen
 WorkingDirectory=/opt/kantengyen
 Environment=BIND_ADDR=127.0.0.1:3000
 Environment=RUST_LOG=kantengyen_server=info
+Environment=STATE_PATH=/var/lib/kantengyen/state.json
+StateDirectory=kantengyen
+StateDirectoryMode=0700
 EnvironmentFile=-/etc/kantengyen.env
 ExecStart=/opt/kantengyen/kantengyen-server
 Restart=on-failure

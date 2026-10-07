@@ -21,6 +21,7 @@ use std::{
 use tokio::sync::{Mutex, RwLock, broadcast};
 mod assets;
 mod embedded_turn;
+mod persistence;
 mod voice;
 use uuid::Uuid;
 
@@ -37,7 +38,7 @@ fn now_ms() -> u64 {
         .as_millis() as u64
 }
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Serialize, Deserialize)]
 struct Profile {
     id: String,
     name: String,
@@ -49,6 +50,10 @@ struct Session {
 }
 #[derive(Default)]
 struct AppState {
+    store: persistence::Store,
+    storage_error: std::sync::atomic::AtomicBool,
+    stopping: std::sync::atomic::AtomicBool,
+    shutdown: tokio::sync::Notify,
     voice_config: voice::VoiceConfig,
     sessions: RwLock<HashMap<String, Session>>,
     rooms: RwLock<HashMap<String, RoomRef>>,
@@ -56,14 +61,23 @@ struct AppState {
     membership: Mutex<HashMap<String, String>>,
     rate: Mutex<HashMap<String, Vec<Instant>>>,
 }
+#[derive(Serialize, Deserialize)]
 struct Player {
     profile: Profile,
     bot: bool,
     ready: bool,
+    #[serde(skip)]
     connection: Option<String>,
+    #[serde(default)]
+    managed: bool,
     score: i64,
+    #[serde(skip)]
     voice: Option<voice::VoiceSeat>,
 }
+fn room_events() -> broadcast::Sender<()> {
+    broadcast::channel(32).0
+}
+#[derive(Serialize, Deserialize)]
 struct Room {
     code: String,
     practice: bool,
@@ -76,15 +90,30 @@ struct Room {
     ended: bool,
     abandoned_round: bool,
     final_scores: Vec<Value>,
+    #[serde(default)]
+    last_settlement: Option<Value>,
     version: u64,
+    #[serde(skip, default = "room_events")]
     changed: broadcast::Sender<()>,
+    #[serde(skip, default = "Instant::now")]
     touched: Instant,
+    #[serde(skip, default = "Instant::now")]
     deadline: Instant,
     deadline_ms: u64,
     seen: HashSet<String>,
     history: Vec<String>,
 }
 impl Room {
+    fn settlement(&self) -> Value {
+        let Some(game) = &self.game else {
+            return Value::Null;
+        };
+        json!({"round":self.round,"multiplier":game.multiplier,"winner":game.winner,
+            "entries":self.players.iter().enumerate().map(|(i,p)| json!({
+                "id":p.profile.id,"name":p.profile.name,"remaining":game.hands[i].len(),
+                "delta":game.result[i],"contribution":if game.result[i]<0 {-game.result[i]} else {0}
+            })).collect::<Vec<_>>()})
+    }
     fn update(&mut self) {
         let millis = if self
             .game
@@ -100,9 +129,14 @@ impl Room {
         self.publish();
     }
     fn is_automated(&self, seat: usize) -> bool {
-        self.players[seat].bot || self.players[seat].connection.is_none()
+        self.players[seat].bot
+            || self.players[seat].managed
+            || self.players[seat].connection.is_none()
     }
     fn connection_changed(&mut self, seat: usize) {
+        if !self.practice && !self.players[seat].bot && self.players[seat].connection.is_none() {
+            self.players[seat].managed = true;
+        }
         if self
             .game
             .as_ref()
@@ -176,6 +210,7 @@ impl Room {
                 player.score += delta;
             }
             self.completed_rounds += 1;
+            self.last_settlement = Some(self.settlement());
             if !self.practice
                 && self
                     .round_limit
@@ -274,7 +309,8 @@ impl Room {
             "players": self.players.iter().enumerate().map(|(i,p)| json!({
                 "id": p.profile.id, "name": p.profile.name, "avatar_seed": p.profile.avatar_seed,
                 "bot": p.bot, "ready": p.ready, "online": p.bot || p.connection.is_some(), "score": p.score,
-                "auto_play": !p.bot && p.connection.is_none() && phase == "playing",
+                "managed": !self.practice && p.managed,
+                "auto_play": !self.practice && !p.bot && (p.managed || p.connection.is_none()) && phase == "playing",
                 "count": self.game.as_ref().map(|g| g.hands[i].len()).unwrap_or(0)
             })).collect::<Vec<_>>(),
             "hand": self.game.as_ref().map(|g| &g.hands[seat]),
@@ -289,6 +325,7 @@ impl Room {
             "result": self.game.as_ref().map(|g| &g.result),
             "message": self.game.as_ref().map(|g| g.message.as_str()).unwrap_or("等朋友入座，准备好就开局"),
             "history": self.history,
+            "settlement": if phase == "finished" { Some(self.settlement()) } else { self.last_settlement.clone() },
         })
     }
 }
@@ -418,6 +455,7 @@ async fn create(
             bot: false,
             ready: true,
             connection: None,
+            managed: false,
             score: 0,
             voice: None,
         }],
@@ -432,6 +470,7 @@ async fn create(
         ended: false,
         abandoned_round: false,
         final_scores: vec![],
+        last_settlement: None,
         version: 0,
         changed: broadcast::channel(32).0,
         touched: Instant::now(),
@@ -451,6 +490,7 @@ async fn create(
                 bot: true,
                 ready: true,
                 connection: None,
+                managed: false,
                 score: 0,
                 voice: None,
             });
@@ -466,6 +506,44 @@ fn allocate_code<T>(rooms: &HashMap<String, T>) -> Option<String> {
     (0..9000)
         .map(|n| format!("{}", 1000 + (start - 1000 + n) % 9000))
         .find(|c| !rooms.contains_key(c))
+}
+async fn room_info(
+    State(state): State<Shared>,
+    Path(code): Path<String>,
+) -> Result<Json<Value>, ApiError> {
+    let reference = state
+        .rooms
+        .read()
+        .await
+        .get(&code)
+        .cloned()
+        .ok_or_else(|| {
+            error(
+                StatusCode::NOT_FOUND,
+                "房间已解散或不存在，请联系房主获取新的邀请",
+            )
+        })?;
+    let room = reference.lock().await;
+    if room.practice || room.ended {
+        return Err(error(StatusCode::NOT_FOUND, "房间已解散或不存在"));
+    }
+    Ok(Json(
+        json!({"code":room.code,"count":room.players.len(),"round_limit":room.round_limit,
+        "available":room.round==0 && room.players.len()<8,
+        "reason":if room.round>0 {"牌局已经开始，仅原玩家可返回"} else if room.players.len()>=8 {"房间已满，请联系房主"} else {"朋友正在等你入座"}}),
+    ))
+}
+async fn persist_http(
+    State(state): State<Shared>,
+    request: axum::extract::Request,
+    next: axum::middleware::Next,
+) -> axum::response::Response {
+    let mutation = request.method() == axum::http::Method::POST;
+    let response = next.run(request).await;
+    if mutation && response.status().is_success() {
+        persistence::checkpoint(&state).await;
+    }
+    response
 }
 async fn join(
     State(state): State<Shared>,
@@ -508,6 +586,7 @@ async fn join(
             bot: false,
             ready: false,
             connection: None,
+            managed: false,
             score: 0,
             voice: None,
         });
@@ -535,6 +614,7 @@ async fn leave(
             // A match keeps its original seats and their accumulated scores until dissolution.
             if !room.practice && room.round > 0 && !room.ended {
                 room.players[seat].connection = None;
+                room.players[seat].managed = true;
                 room.players[seat].voice = None;
                 if room.host == profile.id
                     && let Some(next) = room
@@ -599,6 +679,9 @@ async fn ws(State(state): State<Shared>, upgrade: WebSocketUpgrade) -> impl Into
         .on_upgrade(move |socket| connection(state, socket))
 }
 async fn connection(state: Shared, mut socket: WebSocket) {
+    if state.stopping.load(std::sync::atomic::Ordering::Relaxed) {
+        return;
+    }
     let auth = match tokio::time::timeout(Duration::from_secs(10), socket.recv()).await {
         Ok(Some(Ok(Message::Text(text)))) => serde_json::from_str::<AuthMessage>(&text).ok(),
         _ => None,
@@ -667,6 +750,7 @@ async fn connection(state: Shared, mut socket: WebSocket) {
             .find(|p| p.profile.id == profile.id && p.connection.as_deref() == Some(&connection_id))
         {
             p.connection = None;
+            p.managed = true;
             let seat = room
                 .players
                 .iter()
@@ -681,7 +765,11 @@ async fn connection(state: Shared, mut socket: WebSocket) {
     let mut last_input = Instant::now();
     let mut heartbeat = tokio::time::interval(Duration::from_secs(10));
     loop {
+        if state.stopping.load(std::sync::atomic::Ordering::Relaxed) {
+            break;
+        }
         tokio::select! {
+            _ = state.shutdown.notified() => { break; }
             _ = heartbeat.tick() => {
                 if last_input.elapsed() > Duration::from_secs(60) { break; }
             }
@@ -720,6 +808,7 @@ async fn connection(state: Shared, mut socket: WebSocket) {
                                 let ended = room.ended;
                                 drop(room);
                                 if ended { dissolve(&state, &auth.code, &room_ref).await; }
+                                persistence::checkpoint(&state).await;
                                 response
                             }
                             Err(_) => Some(json!({"type":"error","error":"无法识别操作"})),
@@ -740,6 +829,7 @@ async fn connection(state: Shared, mut socket: WebSocket) {
         .find(|p| p.profile.id == profile.id && p.connection.as_deref() == Some(&connection_id))
     {
         player.connection = None;
+        player.managed = true;
         let seat = room
             .players
             .iter()
@@ -747,6 +837,8 @@ async fn connection(state: Shared, mut socket: WebSocket) {
             .unwrap();
         room.connection_changed(seat);
     }
+    drop(room);
+    persistence::checkpoint(&state).await;
 }
 async fn dissolve(state: &AppState, code: &str, room_ref: &RoomRef) {
     let mut membership = state.membership.lock().await;
@@ -793,7 +885,12 @@ fn handle(room: &mut Room, id: &str, cmd: Command) -> Option<Value> {
                 json!({"type":"hint","cards":hint,"version":room.version}),
             ));
         }
-        if cmd.version != room.version {
+        if cmd.version != room.version
+            && !matches!(
+                cmd.action.as_str(),
+                "ready_on" | "ready_off" | "takeover" | "resume"
+            )
+        {
             return Err("牌桌状态已更新，请重新操作".into());
         }
         match cmd.action.as_str() {
@@ -803,11 +900,15 @@ fn handle(room: &mut Room, id: &str, cmd: Command) -> Option<Value> {
                 }
                 room.finish("房主结束了游戏，房间已解散");
             }
-            "ready" => {
+            "ready" | "ready_on" | "ready_off" => {
                 if room.game.is_some() {
                     return Err("牌局已经开始".into());
                 }
-                room.players[seat].ready = !room.players[seat].ready;
+                room.players[seat].ready = match cmd.action.as_str() {
+                    "ready_on" => true,
+                    "ready_off" => false,
+                    _ => !room.players[seat].ready,
+                };
             }
             "start" | "next" => {
                 if room.host != id {
@@ -828,7 +929,25 @@ fn handle(room: &mut Room, id: &str, cmd: Command) -> Option<Value> {
                 }
                 room.begin();
             }
+            "takeover" | "resume" => {
+                if room.practice || room.game.is_none() {
+                    return Err("开局后才能使用托管".into());
+                }
+                room.players[seat].managed = cmd.action == "takeover";
+                room.add_history(format!(
+                    "{}{}",
+                    room.players[seat].profile.name,
+                    if cmd.action == "takeover" {
+                        " 开启了机器托管"
+                    } else {
+                        " 恢复了自己出牌"
+                    }
+                ));
+            }
             "play" | "pass" | "auto_pass" => {
+                if !room.practice && room.players[seat].managed {
+                    return Err("请先恢复自己出牌".into());
+                }
                 let game = room.game.as_mut().ok_or("牌局还没开始")?;
                 let name = room.players[seat].profile.name.clone();
                 if cmd.action == "play" {
@@ -873,7 +992,10 @@ fn handle(room: &mut Room, id: &str, cmd: Command) -> Option<Value> {
 async fn tick(state: Shared) {
     let mut timer = tokio::time::interval(Duration::from_millis(200));
     loop {
-        timer.tick().await;
+        tokio::select! { _ = timer.tick() => {}, _ = state.shutdown.notified() => break }
+        if state.stopping.load(std::sync::atomic::Ordering::Relaxed) {
+            break;
+        }
         let rooms: Vec<_> = state
             .rooms
             .read()
@@ -882,24 +1004,34 @@ async fn tick(state: Shared) {
             .map(|(k, v)| (k.clone(), v.clone()))
             .collect();
         let mut expired = vec![];
+        let mut dirty = false;
         for (code, room_ref) in rooms {
             let mut room = room_ref.lock().await;
             if room.ended {
                 drop(room);
                 dissolve(&state, &code, &room_ref).await;
+                dirty = true;
                 continue;
             }
             if room.touched.elapsed() > Duration::from_secs(3600) {
                 expired.push(code);
                 continue;
             }
+            let previous_version = room.version;
             room.advance_timeout();
+            let advanced = room.version != previous_version;
             if room.ended {
                 drop(room);
                 dissolve(&state, &code, &room_ref).await;
+            } else {
+                drop(room);
+            }
+            if advanced {
+                dirty = true;
             }
         }
         if !expired.is_empty() {
+            dirty = true;
             let mut membership = state.membership.lock().await;
             let mut rooms = state.rooms.write().await;
             for code in expired {
@@ -907,11 +1039,15 @@ async fn tick(state: Shared) {
                 membership.retain(|_, c| c != &code);
             }
         }
-        state
-            .sessions
-            .write()
-            .await
-            .retain(|_, s| s.touched.elapsed() < Duration::from_secs(86400));
+        {
+            let mut sessions = state.sessions.write().await;
+            let previous = sessions.len();
+            sessions.retain(|_, s| s.touched.elapsed() < Duration::from_secs(86400));
+            dirty |= sessions.len() != previous;
+        }
+        if dirty {
+            persistence::checkpoint(&state).await;
+        }
         state.rate.lock().await.retain(|_, attempts| {
             attempts.retain(|t| t.elapsed() < Duration::from_secs(60));
             !attempts.is_empty()
@@ -929,24 +1065,53 @@ async fn main() {
         .init();
     let turn_config = embedded_turn::Config::from_env().expect("内置 TURN 配置无效");
     let state = Arc::new(AppState {
+        store: persistence::Store::from_env(),
         voice_config: voice::VoiceConfig::from_env(turn_config.as_ref())
             .expect("语音 ICE/TURN 配置无效"),
         ..AppState::default()
     });
+    let restored = state
+        .store
+        .load(&state)
+        .await
+        .expect("无法恢复状态文件，保留文件后检查配置");
+    state
+        .store
+        .save(&state)
+        .await
+        .expect("状态目录无法写入，检查 STATE_PATH 与目录权限");
+    tracing::info!(restored, "已恢复对局状态");
     tokio::spawn(tick(state.clone()));
     let router = Router::new()
         .route(
             "/api/health",
-            get(|| async { Json(json!({"ok":true,"version":"0.1.0"})) }),
+            get(|State(state): State<Shared>| async move {
+                let ok = !state
+                    .storage_error
+                    .load(std::sync::atomic::Ordering::Relaxed);
+                (
+                    if ok {
+                        StatusCode::OK
+                    } else {
+                        StatusCode::SERVICE_UNAVAILABLE
+                    },
+                    Json(json!({"ok":ok,"version":"0.1.0"})),
+                )
+            }),
         )
         .route("/api/session", post(session))
         .route("/api/rooms", post(create))
+        .route("/api/rooms/{code}", get(room_info))
         .route("/api/rooms/{code}/join", post(join))
         .route("/api/rooms/{code}/leave", post(leave))
         .route("/api/ws", get(ws))
         .route("/api/voice", get(voice::upgrade))
         .fallback(assets::serve)
-        .with_state(state);
+        .layer(axum::middleware::from_fn_with_state(
+            state.clone(),
+            persist_http,
+        ))
+        .with_state(state.clone());
     let bind = std::env::var("BIND_ADDR").unwrap_or_else(|_| "127.0.0.1:3000".into());
     let listener = tokio::net::TcpListener::bind(&bind)
         .await
@@ -956,12 +1121,19 @@ async fn main() {
         None => None,
     };
     tracing::info!("干瞪眼服务已启动：http://{bind}");
+    let shutdown_state = state.clone();
     axum::serve(listener, router)
-        .with_graceful_shutdown(async {
+        .with_graceful_shutdown(async move {
             shutdown_signal().await;
+            shutdown_state
+                .stopping
+                .store(true, std::sync::atomic::Ordering::Relaxed);
+            shutdown_state.shutdown.notify_waiters();
+            persistence::checkpoint(&shutdown_state).await;
         })
         .await
         .unwrap();
+    persistence::checkpoint(&state).await;
     if let Some(server) = turn_server {
         let _ = server.close().await;
     }
@@ -999,6 +1171,7 @@ mod tests {
                     bot: false,
                     ready: true,
                     connection: None,
+                    managed: false,
                     score: 0,
                     voice: None,
                 })
@@ -1010,6 +1183,7 @@ mod tests {
             ended: false,
             abandoned_round: false,
             final_scores: vec![],
+            last_settlement: None,
             version: 0,
             changed: broadcast::channel(32).0,
             touched: Instant::now(),
@@ -1017,6 +1191,45 @@ mod tests {
             deadline_ms: 0,
             seen: HashSet::new(),
             history: vec![],
+        }
+    }
+    #[test]
+    fn final_round_keeps_settlement_after_game_is_removed() {
+        let mut room = test_room();
+        room.practice = false;
+        room.round_limit = Some(1);
+        let game = room.game.as_mut().unwrap();
+        game.hands = vec![vec![], vec![1, 2, 3, 4, 5]];
+        game.winner = Some(0);
+        game.multiplier = 2;
+        game.result = vec![10, -10];
+        room.settle();
+        assert!(room.ended && room.game.is_none());
+        let snapshot = room.snapshot("0");
+        assert_eq!(snapshot["settlement"]["multiplier"], 2);
+        assert_eq!(snapshot["settlement"]["entries"][1]["remaining"], 5);
+        assert_eq!(snapshot["settlement"]["entries"][1]["contribution"], 10);
+        assert_eq!(room.players.iter().map(|p| p.score).sum::<i64>(), 0);
+    }
+    #[test]
+    fn readiness_desired_state_is_idempotent_even_with_stale_versions() {
+        let mut room = test_room();
+        room.game = None;
+        room.round = 0;
+        for (action, ready) in [
+            ("ready_off", false),
+            ("ready_off", false),
+            ("ready_on", true),
+            ("ready_on", true),
+        ] {
+            let command = Command {
+                action: action.into(),
+                version: 0,
+                cards: vec![],
+                request_id: Uuid::new_v4().to_string(),
+            };
+            assert!(handle(&mut room, "1", command).is_none());
+            assert_eq!(room.players[1].ready, ready);
         }
     }
     #[test]
@@ -1319,7 +1532,7 @@ mod tests {
         }
     }
     #[test]
-    fn disconnect_accelerates_turn_and_reconnect_restores_manual_control() {
+    fn disconnect_accelerates_turn_and_reconnect_requires_explicit_resume() {
         let mut room = test_room();
         room.practice = false;
         room.players[0].connection = Some("online".into());
@@ -1331,6 +1544,20 @@ mod tests {
         assert_eq!(room.snapshot("1")["players"][0]["auto_play"], true);
         room.players[0].connection = Some("reconnected".into());
         room.connection_changed(0);
+        assert_eq!(room.snapshot("1")["players"][0]["auto_play"], true);
+        assert!(
+            handle(
+                &mut room,
+                "0",
+                Command {
+                    action: "resume".into(),
+                    request_id: "resume".into(),
+                    version: 0,
+                    cards: vec![]
+                }
+            )
+            .is_none()
+        );
         assert_eq!(room.snapshot("1")["players"][0]["auto_play"], false);
         assert!(room.deadline.duration_since(Instant::now()) > Duration::from_secs(29));
         let before = room.game.as_ref().unwrap().hands[0].clone();

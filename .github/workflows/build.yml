@@ -40,7 +40,9 @@ jobs:
           cargo test --workspace --locked
           cargo build --locked -p kantengyen-server
       - name: Check embedded assets
-        run: npm run test:build
+        run: |
+          npm run test:build
+          npm run test:recovery
       - name: Test release server
         shell: bash
         run: |
@@ -218,7 +220,7 @@ jobs:
           - 构建记录：${RUN_URL}
           - 平台：Linux x64，前端与 WASM 已内嵌。
           - 校验：下载两个附件，执行 sha256sum -c kantengyen-server-linux-x64.tar.gz.sha256。
-          - 升级会清空内存房间和对局，请在无对局时维护。
+          - 保留 STATE_PATH 指定的状态文件或 Compose game_data 卷，升级后可恢复对局。
 
           部署说明：https://github.com/${GH_REPO}/blob/${BUILD_SHA}/deploy/README.md
           EOF

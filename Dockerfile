@@ -25,6 +25,7 @@ RUN cargo build --locked --release -p kantengyen-server --target x86_64-unknown-
 RUN readelf -h target/x86_64-unknown-linux-musl/release/kantengyen-server
 RUN ! readelf -l target/x86_64-unknown-linux-musl/release/kantengyen-server | grep -q INTERP
 RUN ! readelf -d target/x86_64-unknown-linux-musl/release/kantengyen-server | grep -q NEEDED
+RUN mkdir -p /persistent-data && chown 10001:10001 /persistent-data && chmod 700 /persistent-data
 
 FROM scratch AS artifact
 COPY --from=backend /app/target/x86_64-unknown-linux-musl/release/kantengyen-server /kantengyen-server
@@ -32,7 +33,9 @@ COPY LICENSE THIRD_PARTY_NOTICES.md /
 COPY licenses /licenses/
 
 FROM artifact AS runtime
+COPY --from=backend --chown=10001:10001 /persistent-data /data
 ENV BIND_ADDR=0.0.0.0:3000
+ENV STATE_PATH=/data/state.json
 USER 10001:10001
 EXPOSE 3000
 EXPOSE 3478/udp

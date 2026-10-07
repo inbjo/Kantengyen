@@ -1,6 +1,6 @@
 # 部署指南
 
-服务端内嵌前端和规则 WASM，不需要数据库或 Node.js 运行环境。发布构建目前仅支持 **Linux x86_64（amd64）**，ARM64 机器不能直接运行。房间、身份、手牌和积分全部存放在内存中；每次重启、升级或回滚都会清空，建议在无对局时维护。部署一个游戏服务实例即可。
+服务端内嵌前端和规则 WASM，不需要数据库或 Node.js 运行环境。发布构建目前仅支持 **Linux x86_64（amd64）**，ARM64 机器不能直接运行。房间、身份、手牌和积分自动保存到状态文件；保留文件可在重启和升级后恢复。部署一个游戏服务实例即可。
 
 ## 方式一：下载每夜版或 CI 二进制
 
@@ -50,7 +50,7 @@ sudo systemctl status kantengyen --no-pager
 curl -fsS http://127.0.0.1:3000/api/health
 ```
 
-`/etc/kantengyen.env` 每行写 `变量=值`，不要加 `export`。没有语音中继时可以留空；已有文件不要再次执行创建空文件的命令，以免覆盖配置。日志和重启：
+`/etc/kantengyen.env` 每行写 `变量=值`，不要加 `export`。没有语音中继时可以留空；已有文件不要再次执行创建空文件的命令，以免覆盖配置。unit 使用 `StateDirectory` 创建 `/var/lib/kantengyen`，状态保存为 `/var/lib/kantengyen/state.json`，仅服务用户可读写。升级保留此目录，勿与二进制发布目录一并删除。状态损坏时启动失败；写入失败时健康检查返回 503，应检查磁盘和目录权限。日志和重启：
 
 ```sh
 sudo journalctl -u kantengyen -f

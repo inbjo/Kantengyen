@@ -322,7 +322,11 @@ async fn connection(state: Shared, mut socket: WebSocket) {
     let mut maintenance = tokio::time::interval(Duration::from_secs(10));
     let mut configured = Instant::now();
     loop {
+        if state.stopping.load(std::sync::atomic::Ordering::Relaxed) {
+            break;
+        }
         tokio::select! {
+            _ = state.shutdown.notified() => { break; }
             message = outgoing.recv() => {
                 let Some(message) = message else { break; };
                 let terminal = message["type"] == "closed";

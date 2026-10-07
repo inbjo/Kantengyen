@@ -39,7 +39,7 @@ test("binary serves embedded frontend and WASM from an empty working directory",
   await new Promise(resolve => portProbe.close(resolve));
   const cwd = await mkdtemp(join(tmpdir(), "kantengyen-embedded-"));
   const binary = resolve("target/debug/kantengyen-server" + (process.platform === "win32" ? ".exe" : ""));
-  const child = spawn(binary, [], { cwd, env: { ...process.env, BIND_ADDR: `127.0.0.1:${port}` }, stdio: "ignore" });
+  const child = spawn(binary, [], { cwd, env: { ...process.env, STATE_PATH: "", BIND_ADDR: `127.0.0.1:${port}` }, stdio: "ignore" });
   let spawnError;
   child.on("error", error => { spawnError = error; });
   const closed = new Promise(resolve => child.on("close", resolve));

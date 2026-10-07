@@ -11,6 +11,17 @@
   --line: #f5edda1e;
   color-scheme: dark;
 }
+.hand-cards { touch-action: pan-y; user-select: none; }
+.hand-cards .card-corner { min-width: 28px; padding-right: 4px; }
+.managed-control { display: inline-flex; align-items: center; gap: 8px; }
+.managed-control span { color: var(--gold); }
+.ready-summary { color: var(--gold); }
+.ready-waiting { max-width: 90%; margin: 0 auto 12px; overflow-wrap: anywhere; font-size: 12px; }
+.invite-preview { color: #51604e; background: #243d320a; padding: 12px; border-radius: 8px; line-height: 1.8; }
+.settlement-detail { margin: 12px 0 18px; text-align: left; font-size: 12px; }
+.settlement-detail summary { cursor: pointer; color: #51604e; font-weight: 600; }
+.settlement-detail p { display: flex; flex-direction: column; gap: 3px; padding: 8px 0; margin: 0; border-bottom: 1px solid #243d3215; overflow-wrap: anywhere; }
+.settlement-detail span { color: #51604e; line-height: 1.6; }
 .pwa-notice {
   margin: 12px auto;
   padding: 10px 16px;

@@ -274,7 +274,9 @@ test("eight seats can start, ninth seat is rejected, and disconnected players ar
     const replacement = new Client(sessions[0], code);
     clients.push(replacement);
     await replacement.wait(() => replacement.snapshot?.players[0].online);
-    assert.equal(replacement.snapshot.players[0].auto_play, false);
+    assert.equal(replacement.snapshot.players[0].auto_play, true);
+    replacement.send("resume");
+    await replacement.wait(() => !replacement.snapshot.players[0].managed);
     replacement.send("end");
     await clients[1].wait(() => clients[1].snapshot.phase === "ended");
   } finally {
