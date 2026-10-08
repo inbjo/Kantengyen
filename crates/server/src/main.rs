@@ -79,6 +79,13 @@ struct Player {
 fn room_events() -> broadcast::Sender<()> {
     broadcast::channel(32).0
 }
+#[derive(Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+enum PlayOrder {
+    #[default]
+    Random,
+    Winner,
+}
 #[derive(Serialize, Deserialize)]
 struct Room {
     code: String,
@@ -97,6 +104,8 @@ struct Room {
     #[serde(default)]
     bot_target: usize,
     #[serde(default)]
+    play_order: PlayOrder,
+    #[serde(default)]
     retired_players: Vec<Player>,
     version: u64,
     #[serde(skip, default = "room_events")]
@@ -112,9 +121,9 @@ struct Room {
 impl Room {
     fn apply_bots(&mut self) {
         let humans = self.players.iter().filter(|p| !p.bot).count();
-        self.bot_target = self.bot_target.min(8 - humans);
+        let target = self.bot_target.min(8 - humans);
         let mut count = self.players.iter().filter(|p| p.bot).count();
-        while count > self.bot_target {
+        while count > target {
             let index = self.players.iter().rposition(|p| p.bot).unwrap();
             let player = self.players.remove(index);
             if player.score != 0 {
@@ -122,7 +131,7 @@ impl Room {
             }
             count -= 1;
         }
-        while count < self.bot_target {
+        while count < target {
             let id = Uuid::new_v4().to_string();
             self.players.push(Player {
                 profile: Profile {
@@ -200,7 +209,15 @@ impl Room {
         let dealer = if self.practice {
             0
         } else {
-            (self.round as usize - 1) % self.players.len()
+            let previous_winner = self
+                .game
+                .as_ref()
+                .and_then(|game| game.winner)
+                .filter(|&seat| seat < self.players.len());
+            match (self.play_order, previous_winner) {
+                (PlayOrder::Winner, Some(seat)) => seat,
+                _ => rand::rng().random_range(0..self.players.len()),
+            }
         };
         let mut deck: Vec<Card> = (0..DECK_SIZE).collect();
         deck.shuffle(&mut rand::rng());
@@ -350,6 +367,7 @@ impl Room {
             "round_limit": self.round_limit,
             "final_scores": self.final_scores,
             "bot_target": self.bot_target,
+            "play_order": self.play_order,
             "retired_scores": self.retired_players.iter().map(|p| json!({"id":p.profile.id,"name":p.profile.name,"score":p.score})).collect::<Vec<_>>(),
             "players": self.players.iter().enumerate().map(|(i,p)| json!({
                 "id": p.profile.id, "name": p.profile.name, "avatar_seed": p.profile.avatar_seed,
@@ -458,6 +476,10 @@ struct CreateInput {
     practice: bool,
     #[serde(default = "default_round_limit")]
     round_limit: Option<u32>,
+    #[serde(default)]
+    bot_count: usize,
+    #[serde(default)]
+    play_order: PlayOrder,
 }
 fn default_round_limit() -> Option<u32> {
     Some(8)
@@ -468,6 +490,12 @@ async fn create(
     Json(input): Json<CreateInput>,
 ) -> Result<Json<Value>, ApiError> {
     let profile = authenticate(&state, &headers).await?;
+    if input.bot_count > 7 {
+        return Err(error(
+            StatusCode::BAD_REQUEST,
+            "机器人数量必须在 0 到 7 之间",
+        ));
+    }
     if input.round_limit == Some(0) {
         return Err(error(
             StatusCode::BAD_REQUEST,
@@ -518,7 +546,8 @@ async fn create(
         abandoned_round: false,
         final_scores: vec![],
         last_settlement: None,
-        bot_target: 0,
+        bot_target: if input.practice { 0 } else { input.bot_count },
+        play_order: input.play_order,
         retired_players: vec![],
         version: 0,
         changed: broadcast::channel(32).0,
@@ -546,6 +575,8 @@ async fn create(
             });
         }
         room.begin();
+    } else {
+        room.apply_bots();
     }
     rooms.insert(code.clone(), Arc::new(Mutex::new(room)));
     membership.insert(host, code.clone());
@@ -636,9 +667,6 @@ async fn join(
             score: 0,
             voice: None,
         });
-        room.bot_target = room
-            .bot_target
-            .min(8 - room.players.iter().filter(|p| !p.bot).count());
         room.publish();
     }
     Ok(Json(json!({"code":code})))
@@ -723,8 +751,6 @@ struct AuthMessage {
 struct Command {
     action: String,
     request_id: String,
-    #[serde(default)]
-    bot_count: Option<usize>,
     version: u64,
     #[serde(default)]
     cards: Vec<Card>,
@@ -960,18 +986,7 @@ fn handle(room: &mut Room, id: &str, cmd: Command) -> Option<Value> {
         }
         match cmd.action.as_str() {
             "set_bots" => {
-                if room.practice || room.host != id {
-                    return Err("只有房主可以调整机器人数量".into());
-                }
-                let count = cmd.bot_count.ok_or("请选择机器人数量")?;
-                let humans = room.players.iter().filter(|p| !p.bot).count();
-                if count > 8 - humans {
-                    return Err("真人和机器人合计最多八人".into());
-                }
-                room.bot_target = count;
-                if room.game.is_none() {
-                    room.apply_bots();
-                }
+                return Err("机器人数量在创建房间时确定，创建后不可修改".into());
             }
             "end" => {
                 if room.host != id {
@@ -1267,6 +1282,7 @@ mod tests {
             final_scores: vec![],
             last_settlement: None,
             bot_target: 0,
+            play_order: PlayOrder::Random,
             retired_players: vec![],
             version: 0,
             changed: broadcast::channel(32).0,
@@ -1310,7 +1326,6 @@ mod tests {
                 action: action.into(),
                 version: 0,
                 cards: vec![],
-                bot_count: None,
                 request_id: Uuid::new_v4().to_string(),
             };
             assert!(handle(&mut room, "1", command).is_none());
@@ -1328,7 +1343,6 @@ mod tests {
             request_id: "end-once".into(),
             version,
             cards: vec![],
-            bot_count: None,
         };
         assert_eq!(handle(&mut room, "1", command(0)).unwrap()["type"], "error");
         assert!(!room.ended);
@@ -1365,7 +1379,6 @@ mod tests {
                         request_id: action.into(),
                         version,
                         cards: vec![0],
-                        bot_count: None,
                     }
                 )
                 .unwrap()["type"],
@@ -1394,7 +1407,6 @@ mod tests {
                     request_id: "end".into(),
                     version: 0,
                     cards: vec![],
-                    bot_count: None,
                 }
             )
             .is_none()
@@ -1468,7 +1480,6 @@ mod tests {
                     request_id: "next".into(),
                     version,
                     cards: vec![],
-                    bot_count: None,
                 }
             )
             .is_none()
@@ -1502,43 +1513,99 @@ mod tests {
         assert_eq!(room.game.as_ref().unwrap().hands.len(), 3);
     }
     #[test]
-    fn robot_changes_apply_at_round_boundary_and_keep_retired_scores() {
+    fn robot_count_is_locked_before_and_during_play() {
         let mut room = test_room();
         room.practice = false;
         room.game = None;
-        room.round = 0;
-        let command = |count, id: &str, version| Command {
-            action: "set_bots".into(),
-            bot_count: Some(count),
-            cards: vec![],
-            request_id: id.into(),
-            version,
-        };
-        assert!(handle(&mut room, "1", command(1, "guest", 0)).is_some());
-        assert!(handle(&mut room, "0", command(7, "too-many", 0)).is_some());
-        assert!(handle(&mut room, "0", command(1, "add", 0)).is_none());
-        assert_eq!(room.players.len(), 3);
+        room.bot_target = 2;
+        room.apply_bots();
+        for playing in [false, true] {
+            if playing {
+                room.begin();
+            }
+            let version = room.version;
+            let response = handle(
+                &mut room,
+                "0",
+                Command {
+                    action: "set_bots".into(),
+                    request_id: format!("locked-{playing}"),
+                    version,
+                    cards: vec![],
+                },
+            )
+            .unwrap();
+            assert!(response["error"].as_str().unwrap().contains("不可修改"));
+            assert_eq!(room.bot_target, 2);
+            assert_eq!(room.players.iter().filter(|p| p.bot).count(), 2);
+        }
+    }
+    #[test]
+    fn winner_leads_next_round_and_draw_falls_back_to_random() {
+        let mut room = test_room();
+        room.practice = false;
+        room.play_order = PlayOrder::Winner;
+        room.game.as_mut().unwrap().winner = Some(1);
         room.begin();
-        let version = room.version;
-        assert!(handle(&mut room, "0", command(0, "remove", version)).is_none());
-        assert_eq!(room.players.len(), 3);
-        let game = room.game.as_mut().unwrap();
-        game.winner = Some(0);
-        game.hands = vec![vec![], vec![1], vec![2, 3]];
-        game.result = vec![3, -1, -2];
-        room.settle();
+        let game = room.game.as_ref().unwrap();
+        assert_eq!(game.turn, 1);
+        assert_eq!(game.hands[1].len(), 6);
+        room.game.as_mut().unwrap().winner = Some(usize::MAX);
         room.begin();
-        assert_eq!(room.players.len(), 2);
-        assert_eq!(room.game.as_ref().unwrap().hands.len(), 2);
-        assert_eq!(room.retired_players[0].score, -2);
-        room.finish("结束");
-        assert_eq!(
-            room.final_scores
-                .iter()
-                .map(|p| p["score"].as_i64().unwrap())
-                .sum::<i64>(),
-            0
+        assert!(room.game.as_ref().unwrap().turn < 2);
+    }
+    #[test]
+    fn random_order_does_not_follow_previous_winner_or_rotate_seats() {
+        let mut room = test_room();
+        room.practice = false;
+        let mut leaders = HashSet::new();
+        for _ in 0..64 {
+            room.game.as_mut().unwrap().winner = Some(0);
+            room.begin();
+            let game = room.game.as_ref().unwrap();
+            leaders.insert(game.turn);
+            assert_eq!(game.hands[game.turn].len(), 6);
+        }
+        assert_eq!(leaders.len(), 2);
+    }
+    #[tokio::test]
+    async fn creation_applies_bots_and_validates_options() {
+        let state = Arc::new(AppState::default());
+        state.sessions.write().await.insert(
+            "host-token".into(),
+            Session {
+                profile: test_room().players.remove(0).profile,
+                touched: Instant::now(),
+            },
         );
+        let mut headers = HeaderMap::new();
+        headers.insert("authorization", "Bearer host-token".parse().unwrap());
+        let defaults: CreateInput = serde_json::from_str("{}").unwrap();
+        assert!(defaults.play_order == PlayOrder::Random);
+        assert_eq!(defaults.bot_count, 0);
+        assert!(serde_json::from_str::<CreateInput>(r#"{"play_order":"invalid"}"#).is_err());
+        let invalid = serde_json::from_str(r#"{"bot_count":8}"#).unwrap();
+        assert_eq!(
+            create(State(state.clone()), headers.clone(), Json(invalid))
+                .await
+                .unwrap_err()
+                .0,
+            StatusCode::BAD_REQUEST
+        );
+        let input = serde_json::from_str(r#"{"bot_count":7,"play_order":"winner"}"#).unwrap();
+        let Json(result) = create(State(state.clone()), headers, Json(input))
+            .await
+            .unwrap();
+        let rooms = state.rooms.read().await;
+        let room = rooms[result["code"].as_str().unwrap()].lock().await;
+        assert_eq!(room.players.len(), 8);
+        assert_eq!(room.bot_target, 7);
+        assert!(room.players.iter().all(|p| p.ready));
+        assert_eq!(room.snapshot("0")["play_order"], "winner");
+        let saved = serde_json::to_value(&*room).unwrap();
+        let restored: Room = serde_json::from_value(saved).unwrap();
+        assert!(restored.play_order == PlayOrder::Winner);
+        assert_eq!(restored.bot_target, 7);
     }
     #[test]
     fn automatic_pass_only_when_no_legal_response() {
@@ -1563,7 +1630,6 @@ mod tests {
                     request_id: "test".into(),
                     version: 0,
                     cards: vec![],
-                    bot_count: None,
                 },
             );
             assert_eq!(result.is_none(), unavailable);
@@ -1584,7 +1650,6 @@ mod tests {
                     request_id: "lead".into(),
                     version: 0,
                     cards: vec![],
-                    bot_count: None,
                 }
             )
             .is_some()
@@ -1687,7 +1752,6 @@ mod tests {
                     request_id: "resume".into(),
                     version: 0,
                     cards: vec![],
-                    bot_count: None,
                 }
             )
             .is_none()

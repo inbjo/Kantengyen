@@ -209,6 +209,8 @@ function App() {
   );
   const [loading, setLoading] = useState(false);
   const [roundChoice, setRoundChoice] = useState("8");
+  const [botCount, setBotCount] = useState(0);
+  const [playOrder, setPlayOrder] = useState<"random" | "winner">("random");
   const [customRounds, setCustomRounds] = useState("8");
   const [toast, setToast] = useState("");
   const [inviteInfo, setInviteInfo] = useState<{ count: number; round_limit: number | null; available: boolean; reason: string } | null>(null);
@@ -415,7 +417,8 @@ function App() {
         mode === "create" || mode === "practice"
           ? await api(
               "/api/rooms",
-              { practice: mode === "practice", round_limit: roundLimit },
+              { practice: mode === "practice", round_limit: roundLimit,
+                bot_count: mode === "practice" ? 0 : botCount, play_order: playOrder },
               next.token,
             )
           : await api(
@@ -807,13 +810,6 @@ function App() {
               <button className="text-button" onClick={voice.leave}>{voice.status === "starting" ? "取消开启语音" : "退出语音"}</button>
             </>}
           </aside>}
-          {!table.practice && table.phase !== "ended" && table.host === table.players[table.seat].id && <div className="bot-control">
-            <label>机器人数量 <select aria-label="机器人数量" disabled={busy || status !== "online"} value={table.bot_target ?? 0}
-              onChange={event => send("set_bots", [], {bot_count:Number(event.target.value)})}>
-              {Array.from({length:9-table.players.filter(p=>!p.bot).length},(_,count)=><option key={count} value={count}>{count} 个</option>)}
-            </select></label>
-            <small>{table.phase === "waiting" ? "和朋友、机器人合计最多 8 人" : "调整将在下一局发牌时生效"}</small>
-          </div>}
           {waitingNext && table.phase !== "ended" && <p className="queue-notice" role="status">已加入房间 · 等待下一局发牌，当前这局不参与计分</p>}
           <div className="felt-table">
             <div className="felt-inner" />
@@ -1225,7 +1221,7 @@ function App() {
       {dialog === "create" && (
         <Modal title="开一桌，玩几局？" close={() => setDialog(null)} feedback={toast}>
           <p className="modal-copy">最多 8 人同桌。打满约定局数后结算总分并解散房间，房主也可提前结束。</p>
-          <fieldset className="round-options">
+          <fieldset className="room-options round-options">
             <legend>对局局数</legend>
             {[["8", "8 局"], ["16", "16 局"], ["20", "20 局"], ["unlimited", "血战到底"], ["custom", "自定义"]].map(([value, label]) => (
               <label key={value} className={roundChoice === value ? "selected" : ""}>
@@ -1238,6 +1234,23 @@ function App() {
             <input type="number" min="1" max="4294967295" step="1" inputMode="numeric" value={customRounds} onChange={e => setCustomRounds(e.target.value)} />
           </label>}
           {roundChoice === "unlimited" && <p className="modal-copy">不限制局数，玩到房主结束游戏为止。</p>}
+          <div className="create-bots">
+            <label htmlFor="create-bot-count">机器人数量</label>
+            <select id="create-bot-count" value={botCount} onChange={event => setBotCount(Number(event.target.value))}>
+              {Array.from({length:8}, (_, count) => <option key={count} value={count}>{count === 0 ? "不添加" : `${count} 个`}</option>)}
+            </select>
+            <small>真人和机器人合计最多 8 人，创建后不可修改。</small>
+          </div>
+          <fieldset className="room-options play-order-options">
+            <legend>出牌顺序</legend>
+            {[["random", "随机"], ["winner", "赢家"]].map(([value, label]) => (
+              <label key={value} className={playOrder === value ? "selected" : ""}>
+                <input type="radio" name="play-order" value={value} checked={playOrder === value} onChange={() => setPlayOrder(value as "random" | "winner")} />
+                <span>{label}</span>
+              </label>
+            ))}
+          </fieldset>
+          <p className="create-option-note">{playOrder === "random" ? "每局随机一位玩家先出牌。" : "上一局赢家先出牌，首局或流局后随机。"}</p>
           <button className="primary wide" disabled={loading} onClick={() => enter("create")}>确认开桌 <ArrowRight size={18} /></button>
         </Modal>
       )}

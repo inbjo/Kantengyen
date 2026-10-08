@@ -123,7 +123,7 @@ test("real three-way WebRTC audio, mute, rejoin and game-end cleanup", async ({ 
     await third.getByRole("button", { name: "我准备好了" }).click();
     await expect(third.getByRole("button", { name: "取消准备" })).toBeVisible();
     await host.getByRole("button", { name: "开始游戏" }).click();
-    await expect(host.locator(".hand-cards .playing-card")).toHaveCount(6);
+    await expect.poll(() => host.locator(".hand-cards .playing-card").count()).toBeGreaterThanOrEqual(5);
     await expect(host.locator('.voice-members [data-state="connected"]')).toHaveCount(2);
     await host.getByRole("button", { name: "结束游戏", exact: true }).click();
     await host.getByRole("button", { name: "确认结束游戏" }).click();

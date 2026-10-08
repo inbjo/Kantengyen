@@ -102,21 +102,20 @@ test("final settlement preserves remaining-card calculations and winner contribu
   await expect(page.locator(".settlement-detail")).toContainText("收取 朋友 10 分 = +10 分");
 });
 
-test("host adjusts robots and invite arrivals wait without hands or controls", async ({page:host,context}) => {
+test("robots are chosen at creation and invite arrivals wait without hands or controls", async ({page:host,context}) => {
   await host.setViewportSize({width:667,height:375});
   await host.goto("/");
   await host.getByRole("button",{name:"我会玩了，直接去大厅"}).click();
   await host.getByRole("button",{name:/创建房间/}).click();
+  await expect(host.getByRole("radio", {name:"随机",exact:true})).toBeChecked();
+  await host.getByLabel("机器人数量").selectOption("2");
   await host.getByRole("button",{name:"确认开桌"}).click();
   const code=await host.locator(".waiting-center h2 span").innerText();
-  const robots=host.getByLabel("机器人数量");
-  await robots.selectOption("7");
-  await expect(host.locator(".waiting-center p").first()).toContainText("8 / 8 人");
-  await expect(host.getByRole("button",{name:"开始游戏"})).toBeEnabled();
-  await robots.selectOption("2");
+  await expect(host.getByLabel("机器人数量")).toHaveCount(0);
+  await expect(host.locator(".bot-control")).toHaveCount(0);
   await expect(host.locator(".waiting-center p").first()).toContainText("3 / 8 人");
   await host.getByRole("button",{name:"开始游戏"}).click();
-  await expect(host.locator(".hand-cards .playing-card")).toHaveCount(6);
+  await expect.poll(() => host.locator(".hand-cards .playing-card").count()).toBeGreaterThanOrEqual(5);
   const friend=await context.newPage();
   await friend.setViewportSize({width:844,height:390});
   await friend.goto(`/?room=${code}`);
@@ -131,11 +130,45 @@ test("host adjusts robots and invite arrivals wait without hands or controls", a
   await friend.getByRole("button",{name:"退出房间",exact:true}).click();
   await friend.getByRole("dialog").getByRole("button",{name:"退出房间",exact:true}).click();
   await expect(friend.getByRole("button",{name:/创建房间/})).toBeVisible();
-  await robots.selectOption("0");
-  await expect(robots).toHaveValue("0");
-  await expect(host.locator(".bot-control")).toContainText("下一局");
   await expect(host.locator(".opponent")).toHaveCount(2);
   expect(await host.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   await host.getByRole("button",{name:"结束游戏",exact:true}).click();
   await host.getByRole("button",{name:"确认结束游戏"}).click();
+});
+
+
+test("creation options fit phones and submit fixed robots with winner order", async ({page}) => {
+  await page.goto("/");
+  await page.getByRole("button", {name:"我会玩了，直接去大厅"}).click();
+  await page.getByRole("button", {name:/创建房间/}).click();
+  await expect(page.getByRole("radio", {name:"随机",exact:true})).toBeChecked();
+  await expect(page.getByLabel("机器人数量")).toHaveValue("0");
+  for (const [width, height] of [[390,844], [320,640], [844,390]]) {
+    await page.setViewportSize({width,height});
+    const sizes = await page.locator(".round-options label").evaluateAll(labels => labels.map(label => {
+      const text = label.querySelector("span")!;
+      const radio = label.querySelector("input")!;
+      return {textHeight:text.getBoundingClientRect().height, radioWidth:radio.getBoundingClientRect().width,
+        fits:label.scrollWidth <= label.clientWidth};
+    }));
+    for (const size of sizes) {
+      expect(size.textHeight).toBeLessThanOrEqual(24);
+      expect(size.radioWidth).toBeLessThanOrEqual(16);
+      expect(size.fits).toBe(true);
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  }
+  await page.setViewportSize({width:390,height:844});
+  await page.screenshot({path:"test-results/create-room-mobile.png"});
+  await page.getByRole("radio", {name:"赢家",exact:true}).check();
+  await page.getByLabel("机器人数量").selectOption("7");
+  const request = page.waitForRequest(req => req.url().endsWith("/api/rooms") && req.method() === "POST");
+  await page.getByRole("button", {name:"确认开桌"}).click();
+  expect((await request).postDataJSON()).toMatchObject({bot_count:7,play_order:"winner",round_limit:8});
+  await page.getByRole("button", {name:"知道了，继续玩"}).click();
+  await expect(page.locator(".waiting-center p").first()).toContainText("8 / 8 人");
+  await expect(page.getByLabel("机器人数量")).toHaveCount(0);
+  await expect(page.locator(".bot-control")).toHaveCount(0);
+  await page.getByRole("button", {name:"结束游戏",exact:true}).click();
+  await page.getByRole("button", {name:"确认结束游戏"}).click();
 });

@@ -36,6 +36,7 @@ export interface Snapshot {
   abandoned_round: boolean;
   final_scores: { id: string; name: string; avatar_seed: string; score: number; rank: number }[];
   bot_target?: number;
+  play_order?: "random" | "winner";
   retired_scores?: { id: string; name: string; score: number }[];
   deadline_ms: number;
   players: Player[];

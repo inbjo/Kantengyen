@@ -15,9 +15,6 @@
 .hand-cards .card-corner { min-width: 28px; padding-right: 4px; }
 .managed-control { display: inline-flex; align-items: center; gap: 8px; }
 .managed-control span { color: var(--gold); }
-.bot-control { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; padding: 8px 12px; font-size: 12px; }
-.bot-control select { margin-left: 6px; color: var(--cream); background: var(--green); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; }
-.bot-control small { color: var(--muted); }
 .queue-notice { margin: 4px 12px; text-align: center; color: var(--gold); font-size: 12px; }
 .retired-scores { font-size: 12px; text-align: left; }
 .retired-scores p { display: flex; justify-content: space-between; }
@@ -801,34 +798,62 @@ button:hover:not(:disabled) {
   right: 9%;
   top: 59%;
 }
-.round-options {
+.room-options {
   border: 0;
   padding: 0;
-  margin: 22px 0;
+  min-width: 0;
+  margin: 18px 0;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
-.round-options legend {
+.room-options legend {
   margin-bottom: 12px;
   font-weight: 700;
 }
-.round-options label {
+.room-options label {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 14px 6px;
+  min-height: 44px;
+  padding: 10px 8px;
   border: 1px solid #243d3233;
   border-radius: 10px;
   cursor: pointer;
+  white-space: nowrap;
+  font-size: 14px;
+  transition: background 150ms, border-color 150ms;
 }
-.round-options label.selected {
+.room-options label.selected {
   color: var(--green);
   border-color: currentColor;
   background: #edf1e7;
+  box-shadow: inset 0 0 0 1px var(--green);
 }
-.round-options input { accent-color: var(--green); }
+.room-options label:has(input:focus-visible) { outline: 3px solid var(--gold); outline-offset: 3px; }
+.modal .room-options input[type="radio"] {
+  width: 14px;
+  height: 14px;
+  min-height: 14px;
+  flex: 0 0 14px;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  accent-color: var(--green);
+}
+.round-options { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.round-options label { grid-column: span 2; }
+.round-options label:nth-last-child(-n + 2) { grid-column: span 3; }
+.create-bots { display: grid; grid-template-columns: 1fr auto; gap: 10px 16px; align-items: center; margin: 18px 0; }
+.create-bots label { font-weight: 700; }
+.create-bots select { min-height: 44px; padding: 8px 32px 8px 12px; border: 1px solid #243d3233; border-radius: 10px; background: #fffaf0; color: var(--ink); font: inherit; font-size: 14px; }
+.create-bots select:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+.create-bots small, .create-option-note { color: #687260; font-size: 12px; line-height: 1.6; }
+.create-bots small { grid-column: 1 / -1; }
+.play-order-options { margin-bottom: 8px; }
+.create-option-note { margin-bottom: 20px; }
 .custom-rounds { display: grid; gap: 8px; margin: 0 0 20px; }
 .card-count {
   display: flex;
