@@ -197,7 +197,7 @@ function App() {
     () => initialRoom,
   );
   const [dialog, setDialog] = useState<
-    "welcome" | "create" | "join" | "profile" | "rules" | "leave" | "end" | "orientation" | "install" | null
+    "welcome" | "create" | "join" | "profile" | "rules" | "leave" | "end" | "install" | null
   >(() =>
     room
       ? null
@@ -266,25 +266,6 @@ function App() {
     }, 200);
     return () => { clearTimeout(timer); controller.abort(); };
   }, [dialog, roomInput, pwa.online]);
-  const orientationChecked = useRef("");
-  useEffect(() => {
-    if (!room) { orientationChecked.current = ""; return; }
-    if (!table) return;
-    if (table.phase === "ended") {
-      setDialog(current => current === "orientation" ? null : current);
-      return;
-    }
-    if (orientationChecked.current === room) return;
-    orientationChecked.current = room;
-    if (window.matchMedia("(orientation: portrait)").matches) setDialog("orientation");
-  }, [room, table?.code, table?.phase]);
-  useEffect(() => {
-    if (dialog !== "orientation") return;
-    const portrait = window.matchMedia("(orientation: portrait)");
-    const changed = () => { if (!portrait.matches) setDialog(null); };
-    portrait.addEventListener("change", changed);
-    return () => portrait.removeEventListener("change", changed);
-  }, [dialog]);
   const screenWakeLock = useScreenWakeLock(keepScreenOn && !!room && !!table && table.phase !== "ended");
   const voiceAllowed = !!table && !table.practice && table.phase !== "ended" && status === "online";
   const voice = useVoice(room, session?.token ?? "", voiceAllowed, notify);
@@ -1208,12 +1189,6 @@ function App() {
           <button className="text-button wide" onClick={skipIntro}>
             我会玩了，直接去大厅
           </button>
-        </Modal>
-      )}
-      {dialog === "orientation" && (
-        <Modal title="横屏打牌更舒服" close={() => setDialog(null)}>
-          <p className="modal-copy">建议手机用户使用横屏，体验更佳。横屏能看清更多手牌，也更方便选牌。转为横屏后此提示会自动关闭。</p>
-          <button className="primary wide" onClick={() => setDialog(null)}>知道了，继续玩</button>
         </Modal>
       )}
       {dialog === "install" && (

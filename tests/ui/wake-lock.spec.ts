@@ -94,12 +94,16 @@ test("unsupported browsers can still create and end rooms", async ({ page }) => 
   await expect(page.getByRole("heading", { name: "总计分" })).toBeVisible();
 });
 
-test("portrait entry suggests landscape once; rotating or dismissing keeps play available", async ({ page }) => {
+test("portrait room entry and reentry keep play available without an orientation dialog", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await mockWakeLock(page);
   await createRoom(page);
   const prompt = page.getByRole("dialog", { name: "横屏打牌更舒服" });
-  await expect(prompt).toBeVisible();
+  await expect(prompt).toHaveCount(0);
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await page.reload();
+  await expect(page.locator(".waiting-center h2")).toBeVisible();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
   await page.setViewportSize({ width: 844, height: 390 });
   await expect(prompt).toHaveCount(0);
   await page.setViewportSize({ width: 390, height: 844 });
@@ -109,9 +113,8 @@ test("portrait entry suggests landscape once; rotating or dismissing keeps play 
   await page.getByRole("button", { name: "返回大厅", exact: true }).click();
   await page.getByRole("button", { name: /创建房间/ }).click();
   await page.getByRole("button", { name: "确认开桌" }).click();
-  await expect(prompt).toBeVisible();
-  await page.getByRole("button", { name: "知道了，继续玩" }).click();
   await expect(prompt).toHaveCount(0);
+  await expect(page.getByRole("dialog")).toHaveCount(0);
   await page.getByRole("button", { name: "结束游戏", exact: true }).click();
   await page.getByRole("button", { name: "确认结束游戏" }).click();
   await expect(page.getByRole("heading", { name: "总计分" })).toBeVisible();
