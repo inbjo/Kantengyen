@@ -752,22 +752,43 @@ button:hover:not(:disabled) {
   color: var(--muted);
   white-space: nowrap;
 }
-.opponent.active .avatar {
-  border-color: var(--gold);
-  box-shadow: 0 0 0 4px #e9bf6c20;
+.opponent.active,
+.self-seat.active {
+  outline: 2px solid var(--gold);
+  outline-offset: 8px;
+  border-radius: 12px;
+  background: #e9bf6c22;
+  box-shadow: 0 0 24px #e9bf6c40;
 }
-.turn-dot {
+.opponent.active .avatar,
+.self-seat.active .avatar {
+  border: 2px solid var(--gold);
+  box-shadow: 0 0 0 4px #e9bf6c45;
+}
+.opponent.active .opponent-info strong,
+.self-seat.active strong {
+  color: #ffe3a1;
+  font-weight: 700;
+}
+.turn-badge {
   position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 12px;
-  height: 12px;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 2px 5px;
   background: var(--gold);
-  border: 2px solid #163a2c;
-  border-radius: 50%;
+  color: #163a2c;
+  border-radius: 5px;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1.4;
+  white-space: nowrap;
 }
 .opponent.disconnected {
   opacity: 0.5;
+}
+.opponent.active.disconnected {
+  opacity: 1;
 }
 .opponent.upper-left {
   left: 23%;

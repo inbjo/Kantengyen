@@ -345,11 +345,16 @@ impl Game {
             if seat == winner {
                 continue;
             }
-            let loss = self.hands[seat].len() as i64 * self.multiplier;
+            let base = if self.played[seat] == 0 {
+                10 // 整局未出牌为关门，底分翻倍为 10 分。
+            } else {
+                self.hands[seat].len() as i64
+            };
+            let loss = base * self.multiplier;
             self.result[seat] = -loss;
             self.result[winner] += loss;
         }
-        self.message = "本局结束，每张剩余牌计 1 分，乘以炸弹倍率，赢家获得其余玩家扣分之和".into();
+        self.message = "本局结束，关门扣 10 分，其余每张剩余牌计 1 分，再乘以炸弹倍率，赢家获得其余玩家扣分之和".into();
     }
 }
 
@@ -422,10 +427,10 @@ mod tests {
         g.play(0, vec![0]).unwrap();
         assert_eq!(g.winner, Some(0));
         assert_eq!(g.result.iter().sum::<i64>(), 0);
-        assert_eq!(g.result, vec![5, -5]);
+        assert_eq!(g.result, vec![10, -10]);
     }
     #[test]
-    fn losses_are_remaining_cards_times_bombs_without_extra_multipliers() {
+    fn played_players_lose_remaining_cards_times_bombs() {
         for (winning_cards, other_hands, expected, multiplier) in [
             (vec![0], vec![vec![1, 8]], vec![2, -2], 1),
             (vec![0, 1, 2, 3, 4, 5], vec![vec![7, 8]], vec![2, -2], 1),
@@ -440,9 +445,35 @@ mod tests {
         ] {
             let mut game = Game::deal((0..DECK_SIZE).collect(), other_hands.len() + 1, 0);
             game.hands = [vec![winning_cards.clone()], other_hands].concat();
+            game.played.fill(1);
             game.play(0, winning_cards).unwrap();
             assert_eq!(game.multiplier, multiplier);
             assert_eq!(game.result, expected);
+            assert_eq!(game.result.iter().sum::<i64>(), 0);
+        }
+    }
+    #[test]
+    fn closed_players_lose_ten_times_cumulative_bombs() {
+        for (cards, initial_multiplier, expected_multiplier) in [
+            (vec![0], 1, 1),
+            (vec![0, 13, 26], 1, 2),
+            (vec![0, 13, 26, 39], 1, 4),
+            (vec![0, 13, 26], 4, 8),
+        ] {
+            let mut game = Game::deal((0..DECK_SIZE).collect(), 3, 0);
+            game.hands = vec![cards.clone(), vec![1, 2, 3, 4, 5], vec![6, 7, 8]];
+            game.played[2] = 1;
+            game.multiplier = initial_multiplier;
+            game.play(0, cards).unwrap();
+            assert_eq!(game.multiplier, expected_multiplier);
+            assert_eq!(
+                game.result,
+                vec![
+                    13 * expected_multiplier,
+                    -10 * expected_multiplier,
+                    -3 * expected_multiplier
+                ]
+            );
             assert_eq!(game.result.iter().sum::<i64>(), 0);
         }
     }

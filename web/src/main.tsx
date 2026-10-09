@@ -491,11 +491,11 @@ function App() {
   const myTurn = table?.phase === "playing" && table.turn === table.seat && !myManaged && !waitingNext;
   useEffect(() => {
     if (!autoPass || !table?.auto_pass_available || status !== "online" || busy) return;
-    // A short pause makes the skipped turn legible, and allows opting out.
+    // Match automated players' three-second turn delay and allow opting out.
     const timer = setTimeout(() => {
       send("auto_pass");
       notify("要不起，已自动过牌");
-    }, 2000);
+    }, 3000);
     return () => clearTimeout(timer);
   }, [autoPass, table?.version, table?.auto_pass_available, status, busy, send, notify]);
   useEffect(() => {
@@ -934,10 +934,11 @@ function App() {
             </aside>
           )}
           <section className={`hand-zone ${myTurn ? "your-turn" : ""}`}>
-            <div className="self-seat">
+            <div className={`self-seat ${table.phase === "playing" && table.turn === table.seat ? "active" : ""}`}>
               <div className="seat-avatar">
                 <Avatar seed={profile.avatar_seed} name={profile.name} />
                 {table.players[table.seat].id === table.host && <HostBadge />}
+                {table.phase === "playing" && table.turn === table.seat && <span className="turn-badge">出牌中</span>}
               </div>
               <div>
                 <strong>{profile.name}</strong>
@@ -1120,7 +1121,7 @@ function App() {
                   <summary>第 {table.settlement.round} 局计分明细</summary>
                   {table.settlement.entries.map(entry => <p key={entry.id}>
                     <strong>{entry.name}</strong><span>{entry.delta < 0
-                      ? `剩余 ${entry.remaining} 张 × ${table.settlement!.multiplier}，扣 ${-entry.delta} 分`
+                      ? `${entry.closed ? "关门 10 分" : `剩余 ${entry.remaining} 张`} × ${table.settlement!.multiplier}，扣 ${-entry.delta} 分`
                       : entry.delta > 0 ? `收取 ${table.settlement!.entries.filter(e => e.delta < 0).map(e => `${e.name} ${e.contribution} 分`).join(" + ")} = +${entry.delta} 分`
                         : "本局 0 分"}</span>
                   </p>)}
@@ -1365,7 +1366,7 @@ function App() {
                 <p>
                   54 张牌，只有大小王是万能牌；庄家 6 张，其他人 5
                   张。按座位依次出牌；一圈没人接，最后出牌的人摸一张再领出。剩余牌计负分，三张炸弹
-                  ×2、深水炸弹 ×4，倍率累乘。每张剩余牌计 1 分，赢家获得其他玩家扣分之和，全桌得分合计为 0。牌堆耗尽且领出者只剩万能牌时，本局和局。
+                  ×2、深水炸弹 ×4，倍率累乘。整局一张牌都未出的玩家为关门，扣 10 分，再乘炸弹倍率；其余每张剩余牌计 1 分，再乘炸弹倍率。赢家获得其他玩家扣分之和，全桌得分合计为 0。牌堆耗尽且领出者只剩万能牌时，本局和局。
                 </p>
               </div>
             </section>
@@ -1464,7 +1465,7 @@ function Seat({
       <div className="opponent-avatar">
         <Avatar seed={player.avatar_seed} name={player.name} />
         {host && <HostBadge />}
-        {active && <span className="turn-dot" />}
+        {active && <span className="turn-badge">出牌中</span>}
       </div>
       <div className="opponent-info">
         <strong>{player.name}</strong>

@@ -157,6 +157,7 @@ impl Room {
         json!({"round":self.round,"multiplier":game.multiplier,"winner":game.winner,
             "entries":self.players.iter().take(game.hands.len()).enumerate().map(|(i,p)| json!({
                 "id":p.profile.id,"name":p.profile.name,"remaining":game.hands[i].len(),
+                "closed":game.played[i] == 0 && game.result[i] < 0,
                 "delta":game.result[i],"contribution":if game.result[i]<0 {-game.result[i]} else {0}
             })).collect::<Vec<_>>()})
     }
@@ -166,7 +167,7 @@ impl Room {
             .as_ref()
             .is_some_and(|g| self.is_automated(g.turn))
         {
-            900
+            3_000
         } else {
             30_000
         };
@@ -199,6 +200,13 @@ impl Room {
         let _ = self.changed.send(());
     }
     fn begin(&mut self) {
+        // Bot changes can move seats. Follow the winner's identity across rounds.
+        let previous_winner = self
+            .game
+            .as_ref()
+            .and_then(|game| game.winner)
+            .and_then(|seat| self.players.get(seat))
+            .map(|player| player.profile.id.clone());
         if !self.practice {
             self.apply_bots();
         }
@@ -209,11 +217,11 @@ impl Room {
         let dealer = if self.practice {
             0
         } else {
-            let previous_winner = self
-                .game
-                .as_ref()
-                .and_then(|game| game.winner)
-                .filter(|&seat| seat < self.players.len());
+            let previous_winner = previous_winner.and_then(|id| {
+                self.players
+                    .iter()
+                    .position(|player| player.profile.id == id)
+            });
             match (self.play_order, previous_winner) {
                 (PlayOrder::Winner, Some(seat)) => seat,
                 _ => rand::rng().random_range(0..self.players.len()),
@@ -1432,7 +1440,7 @@ mod tests {
         room.settle();
         assert_eq!(
             room.players.iter().map(|p| p.score).collect::<Vec<_>>(),
-            vec![2, -2]
+            vec![10, -10]
         );
         for player in &room.players {
             state.sessions.write().await.insert(
@@ -1465,7 +1473,7 @@ mod tests {
         assert_eq!(room.players.len(), 2);
         assert_eq!(
             room.players.iter().map(|p| p.score).collect::<Vec<_>>(),
-            vec![2, -2]
+            vec![10, -10]
         );
         assert_eq!(room.host, "1");
         assert_eq!(room.round, 1);
@@ -1553,6 +1561,69 @@ mod tests {
         room.game.as_mut().unwrap().winner = Some(usize::MAX);
         room.begin();
         assert!(room.game.as_ref().unwrap().turn < 2);
+    }
+    #[test]
+    fn winner_order_randomizes_first_round_then_tracks_each_winner() {
+        let mut room = test_room();
+        room.practice = false;
+        room.play_order = PlayOrder::Winner;
+        room.game = None;
+        room.round = 0;
+        room.begin();
+        assert_eq!(room.round, 1);
+        let first = room.game.as_ref().unwrap();
+        assert!(first.turn < room.players.len());
+        assert_eq!(first.hands[first.turn].len(), 6);
+        for winner in [1, 0, 1, 1, 0] {
+            room.game.as_mut().unwrap().winner = Some(winner);
+            let version = room.version;
+            assert!(
+                handle(
+                    &mut room,
+                    "0",
+                    Command {
+                        action: "next".into(),
+                        request_id: format!("next-{version}"),
+                        version,
+                        cards: vec![],
+                    }
+                )
+                .is_none()
+            );
+            assert_eq!(room.game.as_ref().unwrap().turn, winner);
+            assert_eq!(room.game.as_ref().unwrap().hands[winner].len(), 6);
+        }
+    }
+    #[test]
+    fn winner_follows_identity_when_bots_are_removed() {
+        let mut room = test_room();
+        room.practice = false;
+        room.play_order = PlayOrder::Winner;
+        let mut bot = test_room().players.remove(0);
+        bot.bot = true;
+        bot.profile.id = "bot".into();
+        room.players.insert(1, bot);
+        room.game = Some(Game::deal((0..DECK_SIZE).collect(), 3, 0));
+        room.game.as_mut().unwrap().winner = Some(2);
+        room.begin();
+        assert_eq!(room.players.len(), 2);
+        assert_eq!(
+            room.players[room.game.as_ref().unwrap().turn].profile.id,
+            "1"
+        );
+    }
+    #[test]
+    fn automated_turn_waits_three_seconds() {
+        let mut room = test_room();
+        room.players[0].bot = true;
+        room.update();
+        assert!((2900..=3000).contains(&room.deadline_ms.saturating_sub(now_ms())));
+        let before = room.game.as_ref().unwrap().hands[0].clone();
+        room.advance_timeout();
+        assert_eq!(room.game.as_ref().unwrap().hands[0], before);
+        room.deadline = Instant::now();
+        room.advance_timeout();
+        assert_ne!(room.game.as_ref().unwrap().hands[0], before);
     }
     #[test]
     fn random_order_does_not_follow_previous_winner_or_rotate_seats() {
@@ -1738,7 +1809,8 @@ mod tests {
         assert!(room.deadline.duration_since(Instant::now()) > Duration::from_secs(29));
         room.players[0].connection = None;
         room.connection_changed(0);
-        assert!(room.deadline.duration_since(Instant::now()) <= Duration::from_millis(900));
+        assert!(room.deadline.duration_since(Instant::now()) <= Duration::from_secs(3));
+        assert!(room.deadline.duration_since(Instant::now()) > Duration::from_millis(2900));
         assert_eq!(room.snapshot("1")["players"][0]["auto_play"], true);
         room.players[0].connection = Some("reconnected".into());
         room.connection_changed(0);

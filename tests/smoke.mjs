@@ -343,7 +343,8 @@ test("two-player settlement uses remaining cards and bombs, balances totals, and
     assert.equal(result.players.reduce((sum,p) => sum+p.score,0), 0);
     if (result.winner !== -1) {
       const loser = 1-result.winner;
-      const loss = result.players[loser].count * result.multiplier;
+      const entry = result.settlement.entries[loser];
+      const loss = (entry.closed ? 10 : result.players[loser].count) * result.multiplier;
       assert.equal(result.result[loser], -loss);
       assert.equal(result.result[result.winner], loss);
     }

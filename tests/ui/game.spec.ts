@@ -172,21 +172,21 @@ test("automatic pass defaults on, can be disabled, and never skips a playable or
   await page.getByRole("button", { name: /先练三把/ }).click();
   const toggle = page.getByRole("checkbox", { name: "要不起过牌", exact: true });
   await expect(toggle).toBeChecked();
-  await page.waitForTimeout(1000);
+  await page.waitForTimeout(2500);
   expect(automatic).toBe(0);
   await expect.poll(() => automatic).toBe(1);
   await toggle.uncheck();
   publish(true);
-  await page.waitForTimeout(2300);
+  await page.waitForTimeout(3300);
   expect(automatic).toBe(1);
   await page.getByRole("button", { name: "过牌", exact: true }).click();
   await expect.poll(() => manual).toBe(1);
   await toggle.check();
   publish(false); // a playable response is not skipped
-  await page.waitForTimeout(2300);
+  await page.waitForTimeout(3300);
   expect(automatic).toBe(1);
   publish(false, true); // the leader must play
-  await page.waitForTimeout(2300);
+  await page.waitForTimeout(3300);
   expect(automatic).toBe(1);
   publish(true);
   await expect.poll(() => automatic).toBe(2);

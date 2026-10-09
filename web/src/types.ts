@@ -51,5 +51,5 @@ export interface Snapshot {
   message: string;
   history: string[];
   settlement?: { round: number; multiplier: number; winner: number | null;
-    entries: { id: string; name: string; remaining: number; delta: number; contribution: number }[] } | null;
+    entries: { id: string; name: string; remaining: number; closed?: boolean; delta: number; contribution: number }[] } | null;
 }
