@@ -167,7 +167,7 @@ impl Room {
             .as_ref()
             .is_some_and(|g| self.is_automated(g.turn))
         {
-            3_000
+            2_000
         } else {
             30_000
         };
@@ -1050,7 +1050,7 @@ fn handle(room: &mut Room, id: &str, cmd: Command) -> Option<Value> {
             }
             "play" | "pass" | "auto_pass" => {
                 if !room.practice && room.players[seat].managed {
-                    return Err("请先恢复自己出牌".into());
+                    return Err("请先取消托管".into());
                 }
                 let game = room.game.as_mut().ok_or("牌局还没开始")?;
                 let name = room.players[seat].profile.name.clone();
@@ -1613,11 +1613,11 @@ mod tests {
         );
     }
     #[test]
-    fn automated_turn_waits_three_seconds() {
+    fn automated_turn_waits_two_seconds() {
         let mut room = test_room();
         room.players[0].bot = true;
         room.update();
-        assert!((2900..=3000).contains(&room.deadline_ms.saturating_sub(now_ms())));
+        assert!((1900..=2000).contains(&room.deadline_ms.saturating_sub(now_ms())));
         let before = room.game.as_ref().unwrap().hands[0].clone();
         room.advance_timeout();
         assert_eq!(room.game.as_ref().unwrap().hands[0], before);
@@ -1809,8 +1809,8 @@ mod tests {
         assert!(room.deadline.duration_since(Instant::now()) > Duration::from_secs(29));
         room.players[0].connection = None;
         room.connection_changed(0);
-        assert!(room.deadline.duration_since(Instant::now()) <= Duration::from_secs(3));
-        assert!(room.deadline.duration_since(Instant::now()) > Duration::from_millis(2900));
+        assert!(room.deadline.duration_since(Instant::now()) <= Duration::from_secs(2));
+        assert!(room.deadline.duration_since(Instant::now()) > Duration::from_millis(1900));
         assert_eq!(room.snapshot("1")["players"][0]["auto_play"], true);
         room.players[0].connection = Some("reconnected".into());
         room.connection_changed(0);

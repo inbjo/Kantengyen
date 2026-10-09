@@ -14,7 +14,6 @@
 .hand-cards { touch-action: pan-y; user-select: none; }
 .hand-cards .card-corner { min-width: 28px; padding-right: 4px; }
 .managed-control { display: inline-flex; align-items: center; gap: 8px; }
-.managed-control span { color: var(--gold); }
 .queue-notice { margin: 4px 12px; text-align: center; color: var(--gold); font-size: 12px; }
 .retired-scores { font-size: 12px; text-align: left; }
 .retired-scores p { display: flex; justify-content: space-between; }
@@ -519,9 +518,13 @@ button:hover:not(:disabled) {
   height: 100dvh;
   min-height: 0;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding-top: env(safe-area-inset-top);
 }
 .in-room .topbar {
   height: 64px;
+  flex-shrink: 0;
 }
 .in-room .brand-seal {
   width: 33px;
@@ -541,6 +544,9 @@ button:hover:not(:disabled) {
   position: relative;
   overflow: hidden;
   --hand-height: 160px;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
 }
 .table-meta {
   position: absolute;
@@ -552,7 +558,13 @@ button:hover:not(:disabled) {
   font-size: 10px;
   color: var(--muted);
   z-index: 2;
+  right: max(18px, env(safe-area-inset-right));
+  white-space: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
+.table-meta::-webkit-scrollbar { display: none; }
+.table-meta > * { flex-shrink: 0; }
 .table-meta b {
   color: var(--cream);
   font-weight: 400;
@@ -2651,4 +2663,35 @@ button:hover:not(:disabled) {
   .large-table .waiting-center { width: 62%; top: 37%; }
   .large-table .empty-chairs { flex-wrap: wrap; gap: 5px; }
   .large-table .play-center { width: 58%; }
+}
+
+/* Safari's expanded browser bars can leave less than 350px in landscape. */
+@media (max-height: 350px) and (orientation: landscape) {
+  .in-room .topbar { height: 40px; gap: 8px; }
+  .in-room .brand small { display: none; }
+  .in-room .toolbar { gap: 2px; }
+  .in-room .icon-button { width: 34px; height: 34px; }
+  .game-area { --hand-height: calc(114px + env(safe-area-inset-bottom)); }
+  .table-meta { top: 3px; gap: 12px; min-height: 24px; }
+  .felt-table { top: 33px; bottom: calc(var(--hand-height) - 14px); }
+  .opponent.upper-left, .opponent.upper-right, .opponent.top { top: 32px; }
+  .opponent.left, .opponent.right { top: 29%; }
+  .large-table .opponent.lower-left, .large-table .opponent.lower-right { top: 43%; }
+  .opponent-info small { font-size: 7px; }
+  .play-center {
+    top: calc((100% - var(--hand-height) + 32px) / 2);
+    width: 45%;
+  }
+  .last-player { margin-bottom: 3px; font-size: 9px; }
+  .playing-card.small { width: 36px; height: 50px; }
+  .playing-card.small .card-center { font-size: 20px; }
+  .game-message { margin-top: 3px; font-size: 9px; line-height: 1.2; }
+  .play-center > p:not(.game-message) { margin-top: 3px; }
+  .hand-zone { gap: 8px; padding-top: 4px; padding-bottom: calc(6px + env(safe-area-inset-bottom)); }
+  .turn-caption { height: 18px; }
+  .hand-cards { min-height: 80px; padding-top: 13px; }
+  .hand-cards .playing-card { width: 46px; height: 64px; flex-basis: 46px; }
+  .hand-actions .secondary { min-height: 32px; padding: 6px; }
+  .hand-actions .primary { min-height: 34px; padding: 6px; }
+  .clear-button { display: none; }
 }

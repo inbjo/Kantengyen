@@ -172,9 +172,9 @@ test("automatic pass defaults on, can be disabled, and never skips a playable or
   await page.getByRole("button", { name: /先练三把/ }).click();
   const toggle = page.getByRole("checkbox", { name: "要不起过牌", exact: true });
   await expect(toggle).toBeChecked();
-  await page.waitForTimeout(2500);
+  await page.waitForTimeout(1500);
   expect(automatic).toBe(0);
-  await expect.poll(() => automatic).toBe(1);
+  await expect.poll(() => automatic, { timeout: 1000 }).toBe(1);
   await toggle.uncheck();
   publish(true);
   await page.waitForTimeout(3300);
@@ -280,7 +280,7 @@ test("two browsers create, join, ready, play and reload into the same seat", asy
   await leader.getByRole("button", { name: /^出牌/ }).click();
   await expect(follower.getByRole("button", { name: "提示", exact: true })).toBeEnabled();
   await follower.reload();
-  await follower.getByRole("button", { name: "恢复自己出牌", exact: true }).click();
+  await follower.getByRole("button", { name: "取消托管", exact: true }).click();
   await expect.poll(() => follower.locator(".hand-cards .playing-card").count()).toBeGreaterThanOrEqual(5);
   await expect(follower.getByRole("button", { name: "提示", exact: true })).toBeEnabled();
   await friend.screenshot({ path: "test-results/table-phone.png" });
@@ -309,7 +309,7 @@ test("invite in a new tab uses an independent seat and refreshing preserves it",
   await expect.poll(() => host.locator(".hand-cards .playing-card").count()).toBeGreaterThanOrEqual(5);
   await expect.poll(() => friend.locator(".hand-cards .playing-card").count()).toBeGreaterThanOrEqual(5);
   await friend.reload();
-  await friend.getByRole("button", { name: "恢复自己出牌", exact: true }).click();
+  await friend.getByRole("button", { name: "取消托管", exact: true }).click();
   await expect.poll(() => friend.locator(".hand-cards .playing-card").count()).toBeGreaterThanOrEqual(5);
   await expect(friend.getByRole("dialog")).toHaveCount(0);
   expect(await identity(friend)).toBe(original);

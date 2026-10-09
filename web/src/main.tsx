@@ -481,21 +481,30 @@ function App() {
     setRoomInput(""); setDialog(null); setToast("");
   }
   async function fullscreen() {
+    const unavailable = () => notify(
+      /iPhone|iPad|iPod/.test(navigator.userAgent)
+        ? pwa.installed ? "已从主屏幕打开，可横置手机游玩" : "Safari 请点“分享”→“添加到主屏幕”，再从主屏幕打开游玩"
+        : "当前浏览器不支持全屏，可以横置手机继续游玩",
+    );
+    if (!document.fullscreenEnabled || !document.documentElement.requestFullscreen) {
+      unavailable();
+      return;
+    }
     try {
       if (document.fullscreenElement) await document.exitFullscreen();
       else await document.documentElement.requestFullscreen();
     } catch {
-      notify("当前浏览器不支持全屏，可以横置手机继续游玩");
+      unavailable();
     }
   }
   const myTurn = table?.phase === "playing" && table.turn === table.seat && !myManaged && !waitingNext;
   useEffect(() => {
     if (!autoPass || !table?.auto_pass_available || status !== "online" || busy) return;
-    // Match automated players' three-second turn delay and allow opting out.
+    // Match automated players' two-second turn delay and allow opting out.
     const timer = setTimeout(() => {
       send("auto_pass");
       notify("要不起，已自动过牌");
-    }, 3000);
+    }, 2000);
     return () => clearTimeout(timer);
   }, [autoPass, table?.version, table?.auto_pass_available, status, busy, send, notify]);
   useEffect(() => {
@@ -765,9 +774,8 @@ function App() {
             </span>
             <button onClick={() => setShowLog(!showLog)}>牌局记录</button>
             {!table.practice && table.phase === "playing" && !waitingNext && <div className="managed-control">
-              {myManaged && <span>机器正在代打</span>}
               <button disabled={busy || status !== "online"} onClick={() => send(myManaged ? "resume" : "takeover")}>
-                {myManaged ? "恢复自己出牌" : "开启托管"}
+                {myManaged ? "取消托管" : "开启托管"}
               </button>
             </div>}
             <button disabled={!screenWakeLock.supported}

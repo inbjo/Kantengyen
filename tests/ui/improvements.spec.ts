@@ -65,10 +65,10 @@ test("manual takeover stays active after refresh until explicit resume", async (
   await friend.getByRole("button",{name:"我准备好了"}).click();
   await page.getByRole("button",{name:"开始游戏"}).click();
   await page.getByRole("button",{name:"开启托管"}).click();
-  await expect(page.getByRole("button",{name:"恢复自己出牌"})).toBeVisible();
+  await expect(page.getByRole("button",{name:"取消托管"})).toBeVisible();
   await page.reload();
-  await expect(page.getByRole("button",{name:"恢复自己出牌"})).toBeVisible();
-  await page.getByRole("button",{name:"恢复自己出牌"}).click();
+  await expect(page.getByRole("button",{name:"取消托管"})).toBeVisible();
+  await page.getByRole("button",{name:"取消托管"}).click();
   await expect(page.getByRole("button",{name:"开启托管"})).toBeVisible();
 });
 
