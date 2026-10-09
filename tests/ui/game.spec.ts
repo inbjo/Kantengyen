@@ -142,7 +142,7 @@ test("eight seats occupy distinct visible positions on desktop, tablet and phone
   }
 });
 
-test("automatic pass defaults on, can be disabled, and never skips a playable or leading turn", async ({ page }) => {
+test("automatic pass waits one second, can be disabled, and never skips a playable or leading turn", async ({ page }) => {
   let automatic = 0;
   let manual = 0;
   let publish: (available: boolean, leading?: boolean) => void = () => {};
@@ -172,9 +172,9 @@ test("automatic pass defaults on, can be disabled, and never skips a playable or
   await page.getByRole("button", { name: /先练三把/ }).click();
   const toggle = page.getByRole("checkbox", { name: "要不起过牌", exact: true });
   await expect(toggle).toBeChecked();
-  await page.waitForTimeout(1500);
+  await page.waitForTimeout(500);
   expect(automatic).toBe(0);
-  await expect.poll(() => automatic, { timeout: 1000 }).toBe(1);
+  await expect.poll(() => automatic, { timeout: 800, intervals: [50] }).toBe(1);
   await toggle.uncheck();
   publish(true);
   await page.waitForTimeout(3300);

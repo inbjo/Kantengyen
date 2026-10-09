@@ -481,11 +481,11 @@ function App() {
   const myTurn = table?.phase === "playing" && table.turn === table.seat && !myManaged && !waitingNext;
   useEffect(() => {
     if (!autoPass || !table?.auto_pass_available || status !== "online" || busy) return;
-    // Match automated players' two-second turn delay and allow opting out.
+    // Give human players one second to opt out before passing automatically.
     const timer = setTimeout(() => {
       send("auto_pass");
       notify("要不起，已自动过牌");
-    }, 2000);
+    }, 1000);
     return () => clearTimeout(timer);
   }, [autoPass, table?.version, table?.auto_pass_available, status, busy, send, notify]);
   useEffect(() => {
