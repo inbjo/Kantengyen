@@ -34,13 +34,30 @@ test("Safari-sized landscape keeps played cards separate from the hand and simpl
   await page.getByRole("button", { name: /创建房间/ }).click();
   await page.getByRole("button", { name: "确认开桌" }).click();
   await expect(page.locator(".hand-cards .playing-card")).toHaveCount(5);
-  for (const [width, height] of [[844, 292], [667, 280], [1024, 342], [844, 390], [390, 844]]) {
+  for (const [width, height] of [[844, 292], [667, 280], [1024, 342], [844, 390], [390, 844], [320, 740]]) {
     await page.setViewportSize({ width, height });
     const discard = await page.locator(".play-center").boundingBox();
     const caption = await page.locator(".turn-caption").boundingBox();
     expect(discard!.y + discard!.height).toBeLessThanOrEqual(caption!.y);
     const meta = await page.locator(".table-meta").boundingBox();
     expect(meta!.height).toBeLessThan(32);
+    await expect(page.locator(".brand b")).toBeVisible();
+    for (const selector of [".brand", ".topbar-middle", ".toolbar"]) {
+      const rect = await page.locator(selector).boundingBox();
+      expect(rect!.x).toBeGreaterThanOrEqual(0);
+      expect(rect!.x + rect!.width).toBeLessThanOrEqual(width);
+    }
+    const brand = await page.locator(".brand").boundingBox();
+    const toolbar = await page.locator(".toolbar").boundingBox();
+    expect(brand!.x + brand!.width).toBeLessThanOrEqual(toolbar!.x);
+    if (width < height) {
+      await expect(page.locator(".connection")).toBeHidden();
+      const header = await page.locator(".topbar").boundingBox();
+      expect(Math.abs(toolbar!.y + toolbar!.height / 2 - header!.y - header!.height / 2)).toBeLessThanOrEqual(1);
+      const icon = await page.locator(".toolbar .icon-button svg").first().boundingBox();
+      expect(icon!.width).toBeGreaterThanOrEqual(22);
+      await page.screenshot({ path: `test-results/header-portrait-${width}.png` });
+    }
     for (const selector of [".hand-cards", ".hand-actions", ".self-seat"]) {
       const rect = await page.locator(selector).boundingBox();
       expect(rect!.y + rect!.height).toBeLessThanOrEqual(height);

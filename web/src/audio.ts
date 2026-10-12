@@ -1,9 +1,79 @@
+import backgroundMusicUrl from "./assets/music/bg.mp3?url";
+import winnerMusicUrl from "./assets/music/winner.mp3?url";
+import failedMusicUrl from "./assets/music/failed.mp3?url";
+
+export type MusicTrack = "background" | "winner" | "failed";
+const musicUrls = { background: backgroundMusicUrl, winner: winnerMusicUrl, failed: failedMusicUrl };
+
 let context: AudioContext | null = null;
 let lastSound = 0;
+let musicWanted: MusicTrack | null = null;
+const musicBuffers = new Map<MusicTrack, Promise<AudioBuffer>>();
+let musicSource: AudioBufferSourceNode | undefined;
+let musicGain: GainNode | undefined;
+let musicGeneration = 0;
+
+async function playBackgroundMusic() {
+  const audio = context;
+  if (!musicWanted || !audio || audio.state !== "running" || musicSource) return;
+  const generation = musicGeneration;
+  const track = musicWanted;
+  try {
+    let loading = musicBuffers.get(track);
+    if (!loading) {
+      loading = fetch(musicUrls[track]).then(response => {
+        if (!response.ok) throw new Error("Background music unavailable");
+        return response.arrayBuffer();
+      }).then(data => audio.decodeAudioData(data));
+      musicBuffers.set(track, loading);
+    }
+    const buffer = await loading;
+    if (musicWanted !== track || generation !== musicGeneration || audio !== context || audio.state !== "running" || musicSource) return;
+    const source = audio.createBufferSource();
+    const gain = audio.createGain();
+    source.buffer = buffer;
+    source.loop = true;
+    gain.gain.value = .6;
+    source.connect(gain);
+    gain.connect(audio.destination);
+    source.start();
+    musicSource = source;
+    musicGain = gain;
+  } catch {
+    musicBuffers.delete(track); // Retry a failed download on the next gesture.
+  }
+}
+
+export function startBackgroundMusic(track: MusicTrack = "background") {
+  if (musicWanted !== track) stopBackgroundMusic();
+  musicWanted = track;
+  unlockAudio();
+}
+
+export function stopBackgroundMusic() {
+  musicWanted = null;
+  musicGeneration++;
+  if (musicSource) {
+    try { musicSource.stop(); } catch { /* Already stopped. */ }
+    musicSource.disconnect();
+    musicGain?.disconnect();
+    musicSource = undefined;
+    musicGain = undefined;
+  }
+}
+
 export function unlockAudio() {
   try {
-    context ??= new AudioContext();
-    if (context.state === "suspended") void context.resume().catch(() => {});
+    if (!context || context.state === "closed") context = new AudioContext();
+    if (context.state !== "running") {
+      void context.resume().then(playBackgroundMusic).catch(() => {});
+      const prime = context.createBufferSource();
+      prime.buffer = context.createBuffer(1, 1, context.sampleRate);
+      prime.connect(context.destination);
+      prime.onended = () => prime.disconnect();
+      prime.start();
+    }
+    void playBackgroundMusic();
   } catch { /* Unsupported or blocked audio must not interrupt play. */ }
 }
 export function playCardSound(kind: string) {

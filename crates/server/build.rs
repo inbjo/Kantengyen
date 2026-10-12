@@ -46,6 +46,8 @@ fn main() {
             "webmanifest" => "application/manifest+json",
             "woff" => "font/woff",
             "woff2" => "font/woff2",
+            "wav" => "audio/wav",
+            "mp3" => "audio/mpeg",
             _ => "application/octet-stream",
         };
         let mut hash = std::collections::hash_map::DefaultHasher::new();

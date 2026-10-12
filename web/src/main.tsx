@@ -39,8 +39,10 @@ import { useScreenWakeLock } from "./useScreenWakeLock";
 import { usePwa } from "./usePwa";
 import { useCardSelection } from "./useCardSelection";
 import { loadRules, inspectSelection } from "./rules";
-import { unlockAudio, playCardSound } from "./audio";
-import { announceCard, stopAnnouncement, unlockSpeech } from "./speech";
+import { unlockAudio, playCardSound, startBackgroundMusic, stopBackgroundMusic, type MusicTrack } from "./audio";
+import { listenForAudioActivation } from "./audioActivation";
+import { stopAnnouncement, unlockSpeech } from "./speech";
+import { useGameAnnouncements } from "./useGameAnnouncements";
 import { JokerArt } from "./JokerArt";
 import "./style.css";
 
@@ -53,7 +55,7 @@ const lessons = [
   {
     title: "连起来，就是顺子",
     text: "至少三张连续点数组成顺子，例如 3、4、5。接牌必须长度相同、起点大一级：345 只能由 456 接上。A 可以在末尾，2 不参与顺子。",
-    tip: "你的起手有 3、4、5，可以一起选中。无人接牌时，你会摸一张，再自由领出。",
+    tip: "你的起手有 3、4、5，可以一起选中。无人接牌时，你会摸一张，再选择任意合法牌型出牌。",
   },
   {
     title: "炸弹与万能牌",
@@ -178,14 +180,18 @@ function App() {
     [],
   );
   const [profile, setProfile] = useState<Profile>(
-    () =>
-      saved?.profile ?? {
-        id: "",
+    () => ({
+      id: saved?.profile.id ?? "",
+      ...(read<Pick<Profile, "name" | "avatar_seed"> | null>("kantengyen.profile", null) ?? saved?.profile ?? {
         name: randomName(),
         avatar_seed: randomSeed(),
-      },
+      }),
+    }),
   );
   const [session, setSession] = useState<Session | null>(saved);
+  useEffect(() => {
+    write("kantengyen.profile", { name: profile.name, avatar_seed: profile.avatar_seed });
+  }, [profile.name, profile.avatar_seed]);
   const [initialRoom] = useState(() => {
     const code = new URLSearchParams(location.search).get("room") ?? "";
     return /^[1-9]\d{3}$/.test(code) ? code : "";
@@ -227,7 +233,6 @@ function App() {
   const [autoPass, setAutoPass] = useState(() => read("kantengyen.auto_pass", true));
   const [soundEnabled, setSoundEnabled] = useState(() => read("kantengyen.sound_enabled", true));
   const [speechEnabled, setSpeechEnabled] = useState(() => read("kantengyen.speech_enabled", true));
-  const [keepScreenOn, setKeepScreenOn] = useState(() => read("kantengyen.keep_screen_on", true));
   const [now, setNow] = useState(Date.now());
   const [rulesLoaded, setRulesLoaded] = useState(false);
   const notify = useCallback((text: string) => setToast(text), []);
@@ -266,7 +271,7 @@ function App() {
     }, 200);
     return () => { clearTimeout(timer); controller.abort(); };
   }, [dialog, roomInput, pwa.online]);
-  const screenWakeLock = useScreenWakeLock(keepScreenOn && !!room && !!table && table.phase !== "ended");
+  useScreenWakeLock(!!room && !!table && table.phase !== "ended");
   const voiceAllowed = !!table && !table.practice && table.phase !== "ended" && status === "online";
   const voice = useVoice(room, session?.token ?? "", voiceAllowed, notify);
   useEffect(() => { if (!voiceAllowed) setShowVoice(false); }, [voiceAllowed]);
@@ -279,13 +284,11 @@ function App() {
   }, [room]);
   useEffect(() => {
     if (!speechEnabled) { stopAnnouncement(); return; }
-    const hidden = () => { if (document.hidden) stopAnnouncement(); };
-    document.addEventListener("pointerdown", unlockSpeech);
-    document.addEventListener("keydown", unlockSpeech);
+    const hidden = () => { if (document.hidden) stopAnnouncement(); else unlockSpeech(); };
+    const removeActivation = listenForAudioActivation(unlockSpeech);
     document.addEventListener("visibilitychange", hidden);
     return () => {
-      document.removeEventListener("pointerdown", unlockSpeech);
-      document.removeEventListener("keydown", unlockSpeech);
+      removeActivation();
       document.removeEventListener("visibilitychange", hidden);
       stopAnnouncement();
     };
@@ -302,20 +305,40 @@ function App() {
     const pattern = table.last.pattern;
     const kind = (pattern.kind === "single" || pattern.kind === "pair") && pattern.rank === 15 ? "two" : pattern.kind;
     if (soundEnabled) playCardSound(table.phase === "finished" ? "win" : kind);
-    if (speechEnabled) announceCard(pattern);
     if (table.phase !== "playing") return;
     if (kind === "single") return;
     setPlayEffect({ key: playKey, kind, label: kind === "two" ? "2 · 强势接牌" : patternNames[pattern.kind] });
   }, [playKey, table?.phase, soundEnabled, speechEnabled, status]);
+  useGameAnnouncements(table, status, speechEnabled, room, now);
   useEffect(() => {
     if (!soundEnabled) return;
-    document.addEventListener("pointerdown", unlockAudio);
-    document.addEventListener("keydown", unlockAudio);
-    return () => {
-      document.removeEventListener("pointerdown", unlockAudio);
-      document.removeEventListener("keydown", unlockAudio);
-    };
+    return listenForAudioActivation(unlockAudio);
   }, [soundEnabled]);
+  const myId = table?.players[table.seat]?.id;
+  const settledWinner = table?.phase === "finished"
+    ? table.players[table.winner ?? -1]?.id
+    : table?.phase === "ended" && !table.abandoned_round
+      ? table.settlement?.entries[table.settlement.winner ?? -1]?.id
+      : undefined;
+  const settledParticipant = table?.phase === "finished"
+    ? !waitingNext
+    : table?.settlement?.entries.some(entry => entry.id === myId);
+  const musicTrack: MusicTrack | null = !room || !soundEnabled ? null
+    : table?.phase === "playing" ? "background"
+    : settledWinner && settledParticipant ? settledWinner === myId ? "winner" : "failed"
+    : null;
+  useEffect(() => {
+    const sync = () => {
+      if (musicTrack && !document.hidden) startBackgroundMusic(musicTrack);
+      else stopBackgroundMusic();
+    };
+    sync();
+    document.addEventListener("visibilitychange", sync);
+    return () => {
+      document.removeEventListener("visibilitychange", sync);
+      stopBackgroundMusic();
+    };
+  }, [musicTrack, room]);
   useEffect(() => {
     if (!playEffect) return;
     const timer = setTimeout(() => setPlayEffect(null), 1300);
@@ -480,14 +503,14 @@ function App() {
   }
   const myTurn = table?.phase === "playing" && table.turn === table.seat && !myManaged && !waitingNext;
   useEffect(() => {
-    if (!autoPass || !table?.auto_pass_available || status !== "online" || busy) return;
-    // Give human players one second to opt out before passing automatically.
+    if (!autoPass || !myTurn || !table?.auto_pass_available || status !== "online" || busy) return;
+    // Briefly vary the pause while leaving time to opt out.
     const timer = setTimeout(() => {
       send("auto_pass");
       notify("要不起，已自动过牌");
-    }, 1000);
+    }, 1000 + Math.floor(Math.random() * 1001));
     return () => clearTimeout(timer);
-  }, [autoPass, table?.version, table?.auto_pass_available, status, busy, send, notify]);
+  }, [autoPass, myTurn, table?.version, table?.auto_pass_available, status, busy, send, notify]);
   useEffect(() => {
     if (table?.phase === "ended") {
       write("kantengyen.room", "");
@@ -759,18 +782,7 @@ function App() {
                 {myManaged ? "取消托管" : "开启托管"}
               </button>
             </div>}
-            <button disabled={!screenWakeLock.supported}
-              aria-label={keepScreenOn ? "关闭屏幕常亮" : "开启屏幕常亮"}
-              aria-pressed={keepScreenOn}
-              title={!screenWakeLock.supported ? "当前浏览器不支持屏幕常亮" : screenWakeLock.active ? "屏幕常亮已生效，点击关闭" : keepScreenOn ? "已请求常亮，浏览器尚未允许；切回网页或点击后会重试" : "点击开启屏幕常亮"}
-              onClick={() => {
-                const enabled = !keepScreenOn;
-                setKeepScreenOn(enabled);
-                write("kantengyen.keep_screen_on", enabled);
-              }}>
-              {!screenWakeLock.supported ? "常亮不支持" : screenWakeLock.active ? "常亮开" : keepScreenOn ? "常亮待开启" : "常亮关"}
-            </button>
-            <button className="speech-entry" aria-label={speechEnabled ? "关闭出牌播报" : "开启出牌播报"} aria-pressed={speechEnabled} title="使用设备中文声音播报；无中文声音时保留普通音效" onClick={() => {
+            <button className="speech-entry" aria-label={speechEnabled ? "关闭出牌播报" : "开启出牌播报"} aria-pressed={speechEnabled} title="使用预先生成的统一配音播报出牌" onClick={() => {
               const enabled = !speechEnabled;
               setSpeechEnabled(enabled);
               write("kantengyen.speech_enabled", enabled);
@@ -870,7 +882,7 @@ function App() {
                 </>
               ) : (
                 <>
-                  <span className="lead-label">自由领出</span>
+                  <span className="lead-label">自由出牌</span>
                   <p>
                     {myTurn
                       ? "轮到你，选好牌就出吧"
@@ -944,7 +956,7 @@ function App() {
                       write("kantengyen.auto_pass", e.target.checked);
                     }}
                   />
-                  要不起过牌
+                  自动过牌
                 </label>
               </div>
             </div>
@@ -1144,11 +1156,12 @@ function App() {
                     <p className="muted">等房主开启下一局</p>
                   )}
                 <button
-                  className="text-button"
+                  className={table.phase === "ended" ? "primary" : "text-button"}
                   disabled={loading}
                   onClick={leave}
                 >
                   返回大厅
+                  {table.phase === "ended" && <ArrowRight size={17} />}
                 </button>
               </section>
             </div>

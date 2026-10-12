@@ -1,5 +1,19 @@
 import { test, expect } from "@playwright/test";
 
+test("nickname and avatar persist after tab session is cleared", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "我会玩了，直接去大厅" }).click();
+  await page.locator(".profile-button").click();
+  await page.getByLabel("你的名字").fill("固定昵称测试");
+  await page.getByRole("button", { name: "就用这个名字" }).click();
+  await expect(page.locator(".identity-summary")).toContainText("固定昵称测试");
+  const cached = await page.evaluate(() => JSON.parse(localStorage.getItem("kantengyen.profile")!));
+  await page.evaluate(() => sessionStorage.clear());
+  await page.reload();
+  await expect(page.locator(".identity-summary")).toContainText("固定昵称测试");
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("kantengyen.profile")!))).toEqual(cached);
+});
+
 test("ready retry keeps one request id and desired state; native share includes room details", async ({page}) => {
   await page.addInitScript(() => Object.defineProperty(navigator,"share", {value:async (data:ShareData) => {
     (window as any).sharedInvite=data;
@@ -165,7 +179,7 @@ test("creation options fit phones and submit fixed robots with winner order", as
   const request = page.waitForRequest(req => req.url().endsWith("/api/rooms") && req.method() === "POST");
   await page.getByRole("button", {name:"确认开桌"}).click();
   expect((await request).postDataJSON()).toMatchObject({bot_count:7,play_order:"winner",round_limit:8});
-  await page.getByRole("button", {name:"知道了，继续玩"}).click();
+  await expect(page.getByRole("button", {name:"知道了，继续玩"})).toHaveCount(0);
   await expect(page.locator(".waiting-center p").first()).toContainText("8 / 8 人");
   await expect(page.getByLabel("机器人数量")).toHaveCount(0);
   await expect(page.locator(".bot-control")).toHaveCount(0);

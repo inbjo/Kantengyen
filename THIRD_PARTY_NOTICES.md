@@ -8,6 +8,14 @@ The project's original code is licensed under MIT (see `LICENSE`). Third-party d
 
 React, React DOM, Vite, TypeScript, Lucide and Playwright retain their respective package licenses. Rust dependencies retain their respective crate licenses.
 
+Card announcement recordings in `web/src/assets/announcements/` were generated
+locally with [yovoice](https://github.com/leemysw/yovoice) and
+[IndexTTS 2.5](https://github.com/index-tts/index-tts), using the user's saved
+character `1111` male demo (`a2668620c00aa49383255473ec31e483.wav`)
+as the voice reference. The exact reference SHA-256 is recorded in the audio
+manifest. Model weights, the inference
+engine, and the reference recording are not distributed with the game.
+
 The bundled frontend's React, React DOM, Scheduler and Lucide license texts are included in `licenses/`. Build-only tools are not embedded in the runtime server. Retain all applicable dependency notices when redistributing modified builds.
 
 Multiavatar also embeds CryptoJS v3.1.2 by Jeff Mott (2009–2013). Its New BSD license is retained in `licenses/CryptoJS-3.1.2-LICENSE.txt`; this notice applies to that embedded version, independently of newer CryptoJS releases.

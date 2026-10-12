@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+test.use({ serviceWorkers: "block" });
 
 async function createRoom(page: Page) {
   await page.goto("/");
@@ -43,28 +44,26 @@ async function mockWakeLock(page: Page, deferred = false) {
   }, { deferred });
 }
 
-test("screen stays awake only at the table, restores on visibility and remembers the toggle", async ({ page }) => {
+test("screen stays awake automatically with no control, ignores old opt-out and restores on visibility", async ({ page }) => {
   await mockWakeLock(page);
+  await page.addInitScript(() => localStorage.setItem("kantengyen.keep_screen_on", "false"));
   await createRoom(page);
   const state = () => page.evaluate(() => {
     const w = window as typeof window & { wakeRequests: number; wakeReleases: number };
     return { requests: w.wakeRequests, releases: w.wakeReleases };
   });
-  await expect(page.getByRole("button", { name: "关闭屏幕常亮" })).toHaveText("常亮开");
-  expect(await state()).toEqual({ requests: 1, releases: 0 });
-  await page.getByRole("button", { name: "关闭屏幕常亮" }).click();
-  await expect.poll(state).toEqual({ requests: 1, releases: 1 });
+  await expect(page.getByRole("button", { name: /屏幕常亮/ })).toHaveCount(0);
+  await expect(page.getByText(/常亮/)).toHaveCount(0);
+  await expect.poll(state).toEqual({ requests: 1, releases: 0 });
   await page.reload();
-  await expect(page.getByRole("button", { name: "开启屏幕常亮" })).toHaveText("常亮关");
-  expect(await state()).toEqual({ requests: 0, releases: 0 });
-  await page.getByRole("button", { name: "开启屏幕常亮" }).click();
+  await expect(page.locator(".waiting-center h2")).toBeVisible();
   await expect.poll(state).toEqual({ requests: 1, releases: 0 });
   for (const visible of [false, true]) {
     await page.evaluate(value => (window as typeof window & { setPageVisible: (visible: boolean) => void }).setPageVisible(value), visible);
   }
   await expect.poll(state).toEqual({ requests: 2, releases: 1 });
   await page.evaluate(() => (window as typeof window & { revokeWakeLock: () => void }).revokeWakeLock());
-  await expect(page.getByRole("button", { name: "关闭屏幕常亮" })).toHaveText("常亮待开启");
+  await expect(page.getByRole("button", { name: /屏幕常亮/ })).toHaveCount(0);
   await page.locator(".waiting-center h2").click();
   await expect.poll(state).toEqual({ requests: 3, releases: 2 });
   await page.getByRole("button", { name: "结束游戏", exact: true }).click();
@@ -76,7 +75,7 @@ test("screen stays awake only at the table, restores on visibility and remembers
 test("a wake lock granted after the room ends is released immediately", async ({ page }) => {
   await mockWakeLock(page, true);
   await createRoom(page);
-  await expect(page.getByRole("button", { name: "关闭屏幕常亮" })).toHaveText("常亮待开启");
+  await expect(page.getByRole("button", { name: /屏幕常亮/ })).toHaveCount(0);
   await page.getByRole("button", { name: "结束游戏", exact: true }).click();
   await page.getByRole("button", { name: "确认结束游戏" }).click();
   await expect(page.getByRole("heading", { name: "总计分" })).toBeVisible();
@@ -87,8 +86,7 @@ test("a wake lock granted after the room ends is released immediately", async ({
 test("unsupported browsers can still create and end rooms", async ({ page }) => {
   await page.addInitScript(() => Object.defineProperty(navigator, "wakeLock", { value: undefined }));
   await createRoom(page);
-  await expect(page.getByRole("button", { name: "关闭屏幕常亮" })).toHaveText("常亮不支持");
-  await expect(page.getByRole("button", { name: "关闭屏幕常亮" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: /屏幕常亮/ })).toHaveCount(0);
   await page.getByRole("button", { name: "结束游戏", exact: true }).click();
   await page.getByRole("button", { name: "确认结束游戏" }).click();
   await expect(page.getByRole("heading", { name: "总计分" })).toBeVisible();
