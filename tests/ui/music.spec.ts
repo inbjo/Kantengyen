@@ -60,9 +60,9 @@ test("game and outcome music switch at sixty percent and respect mute and visibi
   await expect.poll(activeMusic).toEqual([{ track: "bg", loop: true, volume: .6, stopped: false }]);
   publish("finished");
   await expect(page.locator(".result-card")).toBeVisible();
-  await expect.poll(activeMusic).toEqual([{ track: "winner", loop: true, volume: .6, stopped: false }]);
+  await expect.poll(activeMusic).toEqual([{ track: "winner", loop: false, volume: .6, stopped: false }]);
   publish("finished", 1);
-  await expect.poll(activeMusic).toEqual([{ track: "failed", loop: true, volume: .6, stopped: false }]);
+  await expect.poll(activeMusic).toEqual([{ track: "failed", loop: false, volume: .6, stopped: false }]);
   publish("finished", -1);
   await expect.poll(activeMusic).toEqual([]);
   publish("playing");
@@ -83,7 +83,7 @@ test("game and outcome music switch at sixty percent and respect mute and visibi
   });
   await expect.poll(async () => (await music()).filter(m => !m.stopped).length).toBe(1);
   publish("ended");
-  await expect.poll(activeMusic).toEqual([{ track: "winner", loop: true, volume: .6, stopped: false }]);
+  await expect.poll(activeMusic).toEqual([{ track: "winner", loop: false, volume: .6, stopped: false }]);
   await page.getByRole("button", { name: "返回大厅", exact: true }).click();
   await expect.poll(async () => (await music()).every(m => m.stopped)).toBe(true);
 });

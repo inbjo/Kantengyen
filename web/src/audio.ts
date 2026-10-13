@@ -32,7 +32,7 @@ async function playBackgroundMusic() {
     const source = audio.createBufferSource();
     const gain = audio.createGain();
     source.buffer = buffer;
-    source.loop = true;
+    source.loop = track === "background";
     gain.gain.value = .6;
     source.connect(gain);
     gain.connect(audio.destination);
