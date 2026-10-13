@@ -162,7 +162,7 @@ test("all bundled recordings are served as audio and decode in a real browser", 
   }
 });
 
-test("confirmed passes, round cues and two private deadline reminders play without replay", async ({ page }) => {
+test("confirmed passes, round cues and a private five-second deadline reminder play without replay", async ({ page }) => {
   await page.addInitScript(() => {
     Math.random = () => (window as typeof window & { passVoiceRandom?: number }).passVoiceRandom ?? 0;
   });
@@ -217,7 +217,8 @@ test("confirmed passes, round cues and two private deadline reminders play witho
   publish({ phase: "playing", round: 2, last: null, winner: null, deadline_ms: deadline, auto_pass_available: false });
   await expect.poll(async () => (await spoken()).slice(-2)).toEqual(["again", "your_turn"]);
   await page.clock.runFor(20_100);
-  await expect.poll(async () => (await spoken()).at(-1)).toBe("hurry");
+  expect((await spoken()).at(-1)).toBe("your_turn");
+  expect(await spoken()).not.toContain("hurry");
   await page.clock.runFor(5_000);
   await expect.poll(async () => (await spoken()).at(-1)).toBe("time_warning");
   const count = (await spoken()).length;

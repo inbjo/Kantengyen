@@ -1,0 +1,34 @@
+{
+  "verified_at": "2026-10-13T00:55:54.193Z",
+  "base": "https://kantengyen.moyu.ge",
+  "health": true,
+  "assets": [
+    {
+      "path": "/assets/index-DbaDTKfR.js",
+      "sha256": "5231feba10af26b37ad5fc55eb040f011124abeaf07c4bd68ab6687c12467c5e"
+    },
+    {
+      "path": "/assets/index-CZsFfYJf.css",
+      "sha256": "5fc9d24a71112cfb5212720ec0cba9313b2eccf5abb3f07c981aeb55bc531df5"
+    },
+    {
+      "path": "/rules.wasm",
+      "sha256": "8190690d029ed6f6cbcc12b41845c65a1e04c593538439064a16255d9fde132b"
+    },
+    {
+      "path": "/sw.js",
+      "sha256": "fb5c4e0deb52663a017f9435e3ebee90832029ad098b71b2268d17e180e4a3c1"
+    }
+  ],
+  "removed_hurry_audio_status": 404,
+  "browser_page_errors": [],
+  "live_game": {
+    "completed_rounds": 1,
+    "zero_sum": true,
+    "managed_and_bot_played": true,
+    "observed_deadline_remaining_ms": [
+      913,
+      1915
+    ]
+  }
+}

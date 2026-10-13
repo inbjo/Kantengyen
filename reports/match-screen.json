@@ -1,0 +1,6009 @@
+{
+  "cells": [
+    {
+      "metrics": [
+        {
+          "champion_share": 5.0,
+          "closed": 29,
+          "decision_ns": 27118585,
+          "decisions": 9243,
+          "games": 800,
+          "losing_remaining": 873,
+          "losses": 387,
+          "max_decision_ns": 75863,
+          "score_gain": 153,
+          "score_gain_squared": 18981.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 5.0,
+          "closed": 29,
+          "decision_ns": 27500812,
+          "decisions": 9243,
+          "games": 800,
+          "losing_remaining": 873,
+          "losses": 387,
+          "max_decision_ns": 122872,
+          "score_gain": 153,
+          "score_gain_squared": 18981.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 5.0,
+          "closed": 29,
+          "decision_ns": 26196128,
+          "decisions": 9243,
+          "games": 800,
+          "losing_remaining": 873,
+          "losses": 387,
+          "max_decision_ns": 75994,
+          "score_gain": 149,
+          "score_gain_squared": 18517.0,
+          "tables": 100
+        }
+      ],
+      "players": 2,
+      "rounds": 8,
+      "starting_position": -1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 45.5,
+          "closed": 25,
+          "decision_ns": 28624535,
+          "decisions": 9685,
+          "games": 800,
+          "losing_remaining": 869,
+          "losses": 387,
+          "max_decision_ns": 106631,
+          "score_gain": 63,
+          "score_gain_squared": 14407.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 45.5,
+          "closed": 25,
+          "decision_ns": 27824554,
+          "decisions": 9685,
+          "games": 800,
+          "losing_remaining": 869,
+          "losses": 387,
+          "max_decision_ns": 134605,
+          "score_gain": 61,
+          "score_gain_squared": 14335.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 45.5,
+          "closed": 25,
+          "decision_ns": 27760807,
+          "decisions": 9681,
+          "games": 800,
+          "losing_remaining": 869,
+          "losses": 387,
+          "max_decision_ns": 78688,
+          "score_gain": 55,
+          "score_gain_squared": 14133.0,
+          "tables": 100
+        }
+      ],
+      "players": 2,
+      "rounds": 8,
+      "starting_position": 0,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 97.0,
+          "closed": 27,
+          "decision_ns": 27853450,
+          "decisions": 9893,
+          "games": 800,
+          "losing_remaining": 935,
+          "losses": 411,
+          "max_decision_ns": 79349,
+          "score_gain": 54,
+          "score_gain_squared": 23480.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 97.0,
+          "closed": 27,
+          "decision_ns": 27586672,
+          "decisions": 9909,
+          "games": 800,
+          "losing_remaining": 937,
+          "losses": 413,
+          "max_decision_ns": 98977,
+          "score_gain": 27,
+          "score_gain_squared": 21083.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 97.0,
+          "closed": 27,
+          "decision_ns": 27645788,
+          "decisions": 9910,
+          "games": 800,
+          "losing_remaining": 939,
+          "losses": 415,
+          "max_decision_ns": 96351,
+          "score_gain": -4,
+          "score_gain_squared": 20624.0,
+          "tables": 100
+        }
+      ],
+      "players": 2,
+      "rounds": 8,
+      "starting_position": 1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 5.0,
+          "closed": 36,
+          "decision_ns": 27124430,
+          "decisions": 9392,
+          "games": 800,
+          "losing_remaining": 978,
+          "losses": 413,
+          "max_decision_ns": 77136,
+          "score_gain": -160,
+          "score_gain_squared": 23426.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 5.0,
+          "closed": 36,
+          "decision_ns": 26495477,
+          "decisions": 9385,
+          "games": 800,
+          "losing_remaining": 978,
+          "losses": 413,
+          "max_decision_ns": 73719,
+          "score_gain": -143,
+          "score_gain_squared": 22899.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 5.0,
+          "closed": 36,
+          "decision_ns": 26202355,
+          "decisions": 9385,
+          "games": 800,
+          "losing_remaining": 978,
+          "losses": 413,
+          "max_decision_ns": 74020,
+          "score_gain": -143,
+          "score_gain_squared": 22899.0,
+          "tables": 100
+        }
+      ],
+      "players": 2,
+      "rounds": 8,
+      "starting_position": -1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 55.5,
+          "closed": 22,
+          "decision_ns": 27719762,
+          "decisions": 9571,
+          "games": 800,
+          "losing_remaining": 824,
+          "losses": 375,
+          "max_decision_ns": 83718,
+          "score_gain": 194,
+          "score_gain_squared": 15482.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 55.5,
+          "closed": 22,
+          "decision_ns": 27512292,
+          "decisions": 9571,
+          "games": 800,
+          "losing_remaining": 824,
+          "losses": 375,
+          "max_decision_ns": 73910,
+          "score_gain": 194,
+          "score_gain_squared": 15482.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 56.5,
+          "closed": 22,
+          "decision_ns": 26938755,
+          "decisions": 9576,
+          "games": 800,
+          "losing_remaining": 818,
+          "losses": 372,
+          "max_decision_ns": 73679,
+          "score_gain": 192,
+          "score_gain_squared": 15264.0,
+          "tables": 100
+        }
+      ],
+      "players": 2,
+      "rounds": 8,
+      "starting_position": 0,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 95.0,
+          "closed": 25,
+          "decision_ns": 27187987,
+          "decisions": 9627,
+          "games": 800,
+          "losing_remaining": 961,
+          "losses": 420,
+          "max_decision_ns": 78318,
+          "score_gain": -39,
+          "score_gain_squared": 21553.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 95.0,
+          "closed": 25,
+          "decision_ns": 26671898,
+          "decisions": 9640,
+          "games": 800,
+          "losing_remaining": 960,
+          "losses": 419,
+          "max_decision_ns": 78649,
+          "score_gain": -55,
+          "score_gain_squared": 21195.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 95.0,
+          "closed": 25,
+          "decision_ns": 26409356,
+          "decisions": 9641,
+          "games": 800,
+          "losing_remaining": 961,
+          "losses": 418,
+          "max_decision_ns": 77877,
+          "score_gain": -60,
+          "score_gain_squared": 20202.0,
+          "tables": 100
+        }
+      ],
+      "players": 2,
+      "rounds": 8,
+      "starting_position": 1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 6.0,
+          "closed": 67,
+          "decision_ns": 54245079,
+          "decisions": 18950,
+          "games": 1600,
+          "losing_remaining": 1856,
+          "losses": 797,
+          "max_decision_ns": 86714,
+          "score_gain": -276,
+          "score_gain_squared": 41440.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 6.0,
+          "closed": 67,
+          "decision_ns": 53908344,
+          "decisions": 18950,
+          "games": 1600,
+          "losing_remaining": 1856,
+          "losses": 797,
+          "max_decision_ns": 86163,
+          "score_gain": -276,
+          "score_gain_squared": 41440.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 6.0,
+          "closed": 67,
+          "decision_ns": 53368342,
+          "decisions": 18950,
+          "games": 1600,
+          "losing_remaining": 1856,
+          "losses": 797,
+          "max_decision_ns": 86474,
+          "score_gain": -276,
+          "score_gain_squared": 41440.0,
+          "tables": 100
+        }
+      ],
+      "players": 2,
+      "rounds": 16,
+      "starting_position": -1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 48.5,
+          "closed": 56,
+          "decision_ns": 54575943,
+          "decisions": 18946,
+          "games": 1600,
+          "losing_remaining": 1806,
+          "losses": 782,
+          "max_decision_ns": 127881,
+          "score_gain": 54,
+          "score_gain_squared": 35312.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 47.5,
+          "closed": 56,
+          "decision_ns": 53569473,
+          "decisions": 18936,
+          "games": 1600,
+          "losing_remaining": 1807,
+          "losses": 782,
+          "max_decision_ns": 76394,
+          "score_gain": 56,
+          "score_gain_squared": 35880.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 47.5,
+          "closed": 56,
+          "decision_ns": 53215962,
+          "decisions": 18934,
+          "games": 1600,
+          "losing_remaining": 1810,
+          "losses": 785,
+          "max_decision_ns": 78769,
+          "score_gain": 34,
+          "score_gain_squared": 34974.0,
+          "tables": 100
+        }
+      ],
+      "players": 2,
+      "rounds": 16,
+      "starting_position": 0,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 91.0,
+          "closed": 48,
+          "decision_ns": 58004070,
+          "decisions": 19137,
+          "games": 1600,
+          "losing_remaining": 1746,
+          "losses": 767,
+          "max_decision_ns": 629158,
+          "score_gain": 174,
+          "score_gain_squared": 35274.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 91.0,
+          "closed": 48,
+          "decision_ns": 58531528,
+          "decisions": 19123,
+          "games": 1600,
+          "losing_remaining": 1745,
+          "losses": 766,
+          "max_decision_ns": 430252,
+          "score_gain": 172,
+          "score_gain_squared": 35146.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 91.0,
+          "closed": 48,
+          "decision_ns": 56206985,
+          "decisions": 19091,
+          "games": 1600,
+          "losing_remaining": 1738,
+          "losses": 762,
+          "max_decision_ns": 121870,
+          "score_gain": 224,
+          "score_gain_squared": 35822.0,
+          "tables": 100
+        }
+      ],
+      "players": 2,
+      "rounds": 16,
+      "starting_position": 1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 12.0,
+          "closed": 50,
+          "decision_ns": 58565988,
+          "decisions": 19745,
+          "games": 1600,
+          "losing_remaining": 1704,
+          "losses": 778,
+          "max_decision_ns": 93877,
+          "score_gain": -45,
+          "score_gain_squared": 43043.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 12.0,
+          "closed": 50,
+          "decision_ns": 57753879,
+          "decisions": 19739,
+          "games": 1600,
+          "losing_remaining": 1704,
+          "losses": 778,
+          "max_decision_ns": 86123,
+          "score_gain": -43,
+          "score_gain_squared": 43155.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 12.0,
+          "closed": 50,
+          "decision_ns": 57386484,
+          "decisions": 19730,
+          "games": 1600,
+          "losing_remaining": 1704,
+          "losses": 778,
+          "max_decision_ns": 87695,
+          "score_gain": -44,
+          "score_gain_squared": 43112.0,
+          "tables": 100
+        }
+      ],
+      "players": 2,
+      "rounds": 16,
+      "starting_position": -1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 46.5,
+          "closed": 47,
+          "decision_ns": 56414649,
+          "decisions": 19888,
+          "games": 1600,
+          "losing_remaining": 1762,
+          "losses": 796,
+          "max_decision_ns": 79660,
+          "score_gain": -3,
+          "score_gain_squared": 40383.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 46.5,
+          "closed": 47,
+          "decision_ns": 55889975,
+          "decisions": 19888,
+          "games": 1600,
+          "losing_remaining": 1762,
+          "losses": 796,
+          "max_decision_ns": 77116,
+          "score_gain": -3,
+          "score_gain_squared": 40383.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 46.5,
+          "closed": 47,
+          "decision_ns": 55579265,
+          "decisions": 19851,
+          "games": 1600,
+          "losing_remaining": 1757,
+          "losses": 794,
+          "max_decision_ns": 84690,
+          "score_gain": 1,
+          "score_gain_squared": 40901.0,
+          "tables": 100
+        }
+      ],
+      "players": 2,
+      "rounds": 16,
+      "starting_position": 0,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 85.5,
+          "closed": 47,
+          "decision_ns": 55941959,
+          "decisions": 19396,
+          "games": 1600,
+          "losing_remaining": 1720,
+          "losses": 772,
+          "max_decision_ns": 92224,
+          "score_gain": 249,
+          "score_gain_squared": 51219.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 85.5,
+          "closed": 47,
+          "decision_ns": 55415594,
+          "decisions": 19371,
+          "games": 1600,
+          "losing_remaining": 1723,
+          "losses": 773,
+          "max_decision_ns": 103315,
+          "score_gain": 248,
+          "score_gain_squared": 53738.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 85.5,
+          "closed": 47,
+          "decision_ns": 55099698,
+          "decisions": 19393,
+          "games": 1600,
+          "losing_remaining": 1731,
+          "losses": 775,
+          "max_decision_ns": 80171,
+          "score_gain": 211,
+          "score_gain_squared": 52213.0,
+          "tables": 100
+        }
+      ],
+      "players": 2,
+      "rounds": 16,
+      "starting_position": 1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 17.0,
+          "closed": 97,
+          "decision_ns": 112436433,
+          "decisions": 38998,
+          "games": 3200,
+          "losing_remaining": 3550,
+          "losses": 1590,
+          "max_decision_ns": 85772,
+          "score_gain": -62,
+          "score_gain_squared": 75394.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 17.0,
+          "closed": 97,
+          "decision_ns": 112362323,
+          "decisions": 38998,
+          "games": 3200,
+          "losing_remaining": 3550,
+          "losses": 1590,
+          "max_decision_ns": 169540,
+          "score_gain": -66,
+          "score_gain_squared": 75018.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 17.0,
+          "closed": 97,
+          "decision_ns": 111960024,
+          "decisions": 38985,
+          "games": 3200,
+          "losing_remaining": 3549,
+          "losses": 1589,
+          "max_decision_ns": 78118,
+          "score_gain": -24,
+          "score_gain_squared": 73758.0,
+          "tables": 100
+        }
+      ],
+      "players": 2,
+      "rounds": 32,
+      "starting_position": -1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 42.0,
+          "closed": 105,
+          "decision_ns": 109739504,
+          "decisions": 38500,
+          "games": 3200,
+          "losing_remaining": 3723,
+          "losses": 1633,
+          "max_decision_ns": 88207,
+          "score_gain": -538,
+          "score_gain_squared": 98140.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 42.0,
+          "closed": 105,
+          "decision_ns": 112907166,
+          "decisions": 38504,
+          "games": 3200,
+          "losing_remaining": 3724,
+          "losses": 1634,
+          "max_decision_ns": 526263,
+          "score_gain": -549,
+          "score_gain_squared": 97807.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 42.0,
+          "closed": 105,
+          "decision_ns": 111354067,
+          "decisions": 38468,
+          "games": 3200,
+          "losing_remaining": 3722,
+          "losses": 1632,
+          "max_decision_ns": 97875,
+          "score_gain": -545,
+          "score_gain_squared": 97783.0,
+          "tables": 100
+        }
+      ],
+      "players": 2,
+      "rounds": 32,
+      "starting_position": 0,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 76.0,
+          "closed": 131,
+          "decision_ns": 113774517,
+          "decisions": 37771,
+          "games": 3200,
+          "losing_remaining": 3816,
+          "losses": 1615,
+          "max_decision_ns": 110068,
+          "score_gain": -548,
+          "score_gain_squared": 79652.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 77.0,
+          "closed": 131,
+          "decision_ns": 113833707,
+          "decisions": 37771,
+          "games": 3200,
+          "losing_remaining": 3814,
+          "losses": 1614,
+          "max_decision_ns": 101451,
+          "score_gain": -539,
+          "score_gain_squared": 79239.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 77.0,
+          "closed": 131,
+          "decision_ns": 113497697,
+          "decisions": 37754,
+          "games": 3200,
+          "losing_remaining": 3818,
+          "losses": 1615,
+          "max_decision_ns": 91363,
+          "score_gain": -569,
+          "score_gain_squared": 77235.0,
+          "tables": 100
+        }
+      ],
+      "players": 2,
+      "rounds": 32,
+      "starting_position": 1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 18.0,
+          "closed": 99,
+          "decision_ns": 112967355,
+          "decisions": 38794,
+          "games": 3200,
+          "losing_remaining": 3580,
+          "losses": 1602,
+          "max_decision_ns": 86413,
+          "score_gain": -129,
+          "score_gain_squared": 94481.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 18.0,
+          "closed": 99,
+          "decision_ns": 112636149,
+          "decisions": 38794,
+          "games": 3200,
+          "losing_remaining": 3580,
+          "losses": 1602,
+          "max_decision_ns": 88076,
+          "score_gain": -129,
+          "score_gain_squared": 94481.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 18.0,
+          "closed": 99,
+          "decision_ns": 112795382,
+          "decisions": 38799,
+          "games": 3200,
+          "losing_remaining": 3580,
+          "losses": 1602,
+          "max_decision_ns": 91322,
+          "score_gain": -125,
+          "score_gain_squared": 94801.0,
+          "tables": 100
+        }
+      ],
+      "players": 2,
+      "rounds": 32,
+      "starting_position": -1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 38.0,
+          "closed": 120,
+          "decision_ns": 115423662,
+          "decisions": 38921,
+          "games": 3200,
+          "losing_remaining": 3770,
+          "losses": 1668,
+          "max_decision_ns": 399334,
+          "score_gain": -686,
+          "score_gain_squared": 85574.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 38.0,
+          "closed": 120,
+          "decision_ns": 111665342,
+          "decisions": 38921,
+          "games": 3200,
+          "losing_remaining": 3770,
+          "losses": 1668,
+          "max_decision_ns": 213383,
+          "score_gain": -698,
+          "score_gain_squared": 84654.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 38.0,
+          "closed": 120,
+          "decision_ns": 111118076,
+          "decisions": 38928,
+          "games": 3200,
+          "losing_remaining": 3769,
+          "losses": 1668,
+          "max_decision_ns": 430283,
+          "score_gain": -710,
+          "score_gain_squared": 83988.0,
+          "tables": 100
+        }
+      ],
+      "players": 2,
+      "rounds": 32,
+      "starting_position": 0,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 79.0,
+          "closed": 99,
+          "decision_ns": 113245671,
+          "decisions": 38977,
+          "games": 3200,
+          "losing_remaining": 3558,
+          "losses": 1589,
+          "max_decision_ns": 129374,
+          "score_gain": -60,
+          "score_gain_squared": 89864.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 79.0,
+          "closed": 99,
+          "decision_ns": 114318571,
+          "decisions": 38977,
+          "games": 3200,
+          "losing_remaining": 3558,
+          "losses": 1589,
+          "max_decision_ns": 720270,
+          "score_gain": -60,
+          "score_gain_squared": 89864.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 79.0,
+          "closed": 99,
+          "decision_ns": 112397154,
+          "decisions": 39004,
+          "games": 3200,
+          "losing_remaining": 3559,
+          "losses": 1589,
+          "max_decision_ns": 89479,
+          "score_gain": -69,
+          "score_gain_squared": 87539.0,
+          "tables": 100
+        }
+      ],
+      "players": 2,
+      "rounds": 32,
+      "starting_position": 1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 8.0,
+          "closed": 55,
+          "decision_ns": 26612517,
+          "decisions": 10124,
+          "games": 800,
+          "losing_remaining": 1358,
+          "losses": 556,
+          "max_decision_ns": 95040,
+          "score_gain": -287,
+          "score_gain_squared": 74629.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 8.0,
+          "closed": 55,
+          "decision_ns": 26320230,
+          "decisions": 10124,
+          "games": 800,
+          "losing_remaining": 1358,
+          "losses": 556,
+          "max_decision_ns": 96683,
+          "score_gain": -287,
+          "score_gain_squared": 74629.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 8.0,
+          "closed": 55,
+          "decision_ns": 26587889,
+          "decisions": 10139,
+          "games": 800,
+          "losing_remaining": 1360,
+          "losses": 557,
+          "max_decision_ns": 218743,
+          "score_gain": -315,
+          "score_gain_squared": 74293.0,
+          "tables": 100
+        }
+      ],
+      "players": 3,
+      "rounds": 8,
+      "starting_position": -1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 35.5,
+          "closed": 47,
+          "decision_ns": 26474933,
+          "decisions": 9914,
+          "games": 800,
+          "losing_remaining": 1222,
+          "losses": 536,
+          "max_decision_ns": 82085,
+          "score_gain": 15,
+          "score_gain_squared": 39985.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 35.5,
+          "closed": 47,
+          "decision_ns": 26526863,
+          "decisions": 9914,
+          "games": 800,
+          "losing_remaining": 1222,
+          "losses": 536,
+          "max_decision_ns": 123614,
+          "score_gain": 15,
+          "score_gain_squared": 39985.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 35.5,
+          "closed": 47,
+          "decision_ns": 27177626,
+          "decisions": 9915,
+          "games": 800,
+          "losing_remaining": 1221,
+          "losses": 536,
+          "max_decision_ns": 154882,
+          "score_gain": 19,
+          "score_gain_squared": 40113.0,
+          "tables": 100
+        }
+      ],
+      "players": 3,
+      "rounds": 8,
+      "starting_position": 0,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 71.0,
+          "closed": 52,
+          "decision_ns": 25747984,
+          "decisions": 9677,
+          "games": 800,
+          "losing_remaining": 1259,
+          "losses": 515,
+          "max_decision_ns": 86544,
+          "score_gain": 159,
+          "score_gain_squared": 44415.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 71.0,
+          "closed": 52,
+          "decision_ns": 26136448,
+          "decisions": 9677,
+          "games": 800,
+          "losing_remaining": 1259,
+          "losses": 515,
+          "max_decision_ns": 121610,
+          "score_gain": 145,
+          "score_gain_squared": 43883.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 71.0,
+          "closed": 52,
+          "decision_ns": 25298101,
+          "decisions": 9673,
+          "games": 800,
+          "losing_remaining": 1259,
+          "losses": 515,
+          "max_decision_ns": 88477,
+          "score_gain": 140,
+          "score_gain_squared": 43170.0,
+          "tables": 100
+        }
+      ],
+      "players": 3,
+      "rounds": 8,
+      "starting_position": 1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 4.0,
+          "closed": 48,
+          "decision_ns": 26696751,
+          "decisions": 9877,
+          "games": 800,
+          "losing_remaining": 1298,
+          "losses": 541,
+          "max_decision_ns": 121629,
+          "score_gain": -372,
+          "score_gain_squared": 56800.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 4.0,
+          "closed": 48,
+          "decision_ns": 25548675,
+          "decisions": 9877,
+          "games": 800,
+          "losing_remaining": 1298,
+          "losses": 541,
+          "max_decision_ns": 88827,
+          "score_gain": -372,
+          "score_gain_squared": 56800.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 4.0,
+          "closed": 48,
+          "decision_ns": 26178904,
+          "decisions": 9877,
+          "games": 800,
+          "losing_remaining": 1298,
+          "losses": 541,
+          "max_decision_ns": 193896,
+          "score_gain": -372,
+          "score_gain_squared": 56800.0,
+          "tables": 100
+        }
+      ],
+      "players": 3,
+      "rounds": 8,
+      "starting_position": -1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 33.5,
+          "closed": 47,
+          "decision_ns": 27595309,
+          "decisions": 10187,
+          "games": 800,
+          "losing_remaining": 1209,
+          "losses": 530,
+          "max_decision_ns": 308964,
+          "score_gain": 109,
+          "score_gain_squared": 56855.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 33.5,
+          "closed": 47,
+          "decision_ns": 26576754,
+          "decisions": 10187,
+          "games": 800,
+          "losing_remaining": 1209,
+          "losses": 530,
+          "max_decision_ns": 91943,
+          "score_gain": 109,
+          "score_gain_squared": 56855.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 33.5,
+          "closed": 47,
+          "decision_ns": 26370274,
+          "decisions": 10192,
+          "games": 800,
+          "losing_remaining": 1208,
+          "losses": 530,
+          "max_decision_ns": 90601,
+          "score_gain": 83,
+          "score_gain_squared": 53351.0,
+          "tables": 100
+        }
+      ],
+      "players": 3,
+      "rounds": 8,
+      "starting_position": 0,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 70.5,
+          "closed": 47,
+          "decision_ns": 26826619,
+          "decisions": 9575,
+          "games": 800,
+          "losing_remaining": 1261,
+          "losses": 530,
+          "max_decision_ns": 122391,
+          "score_gain": 31,
+          "score_gain_squared": 44771.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 70.5,
+          "closed": 47,
+          "decision_ns": 26109299,
+          "decisions": 9575,
+          "games": 800,
+          "losing_remaining": 1261,
+          "losses": 530,
+          "max_decision_ns": 437196,
+          "score_gain": 32,
+          "score_gain_squared": 44760.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 70.5,
+          "closed": 47,
+          "decision_ns": 26186851,
+          "decisions": 9580,
+          "games": 800,
+          "losing_remaining": 1260,
+          "losses": 530,
+          "max_decision_ns": 122711,
+          "score_gain": 59,
+          "score_gain_squared": 48017.0,
+          "tables": 100
+        }
+      ],
+      "players": 3,
+      "rounds": 8,
+      "starting_position": 1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 13.0,
+          "closed": 111,
+          "decision_ns": 52599828,
+          "decisions": 19702,
+          "games": 1600,
+          "losing_remaining": 2540,
+          "losses": 1071,
+          "max_decision_ns": 110519,
+          "score_gain": -329,
+          "score_gain_squared": 88289.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 13.0,
+          "closed": 111,
+          "decision_ns": 52371664,
+          "decisions": 19702,
+          "games": 1600,
+          "losing_remaining": 2540,
+          "losses": 1071,
+          "max_decision_ns": 131349,
+          "score_gain": -329,
+          "score_gain_squared": 88289.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 13.0,
+          "closed": 111,
+          "decision_ns": 52109093,
+          "decisions": 19702,
+          "games": 1600,
+          "losing_remaining": 2540,
+          "losses": 1071,
+          "max_decision_ns": 92835,
+          "score_gain": -329,
+          "score_gain_squared": 88289.0,
+          "tables": 100
+        }
+      ],
+      "players": 3,
+      "rounds": 16,
+      "starting_position": -1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 33.5,
+          "closed": 118,
+          "decision_ns": 52596623,
+          "decisions": 19351,
+          "games": 1600,
+          "losing_remaining": 2536,
+          "losses": 1054,
+          "max_decision_ns": 97905,
+          "score_gain": 34,
+          "score_gain_squared": 104090.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 33.5,
+          "closed": 118,
+          "decision_ns": 52364724,
+          "decisions": 19351,
+          "games": 1600,
+          "losing_remaining": 2536,
+          "losses": 1054,
+          "max_decision_ns": 95390,
+          "score_gain": 34,
+          "score_gain_squared": 104090.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 33.5,
+          "closed": 118,
+          "decision_ns": 52395376,
+          "decisions": 19363,
+          "games": 1600,
+          "losing_remaining": 2536,
+          "losses": 1054,
+          "max_decision_ns": 95320,
+          "score_gain": 54,
+          "score_gain_squared": 107186.0,
+          "tables": 100
+        }
+      ],
+      "players": 3,
+      "rounds": 16,
+      "starting_position": 0,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 60.0,
+          "closed": 97,
+          "decision_ns": 75400154,
+          "decisions": 19812,
+          "games": 1600,
+          "losing_remaining": 2486,
+          "losses": 1045,
+          "max_decision_ns": 250443,
+          "score_gain": 142,
+          "score_gain_squared": 65532.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 60.0,
+          "closed": 97,
+          "decision_ns": 74554888,
+          "decisions": 19812,
+          "games": 1600,
+          "losing_remaining": 2486,
+          "losses": 1045,
+          "max_decision_ns": 175591,
+          "score_gain": 142,
+          "score_gain_squared": 65532.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 60.0,
+          "closed": 97,
+          "decision_ns": 76589393,
+          "decisions": 19796,
+          "games": 1600,
+          "losing_remaining": 2484,
+          "losses": 1044,
+          "max_decision_ns": 1060122,
+          "score_gain": 143,
+          "score_gain_squared": 65317.0,
+          "tables": 100
+        }
+      ],
+      "players": 3,
+      "rounds": 16,
+      "starting_position": 1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 15.5,
+          "closed": 93,
+          "decision_ns": 112802865,
+          "decisions": 19691,
+          "games": 1600,
+          "losing_remaining": 2565,
+          "losses": 1086,
+          "max_decision_ns": 1372232,
+          "score_gain": 151,
+          "score_gain_squared": 93829.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 15.5,
+          "closed": 93,
+          "decision_ns": 111722374,
+          "decisions": 19691,
+          "games": 1600,
+          "losing_remaining": 2565,
+          "losses": 1086,
+          "max_decision_ns": 2031796,
+          "score_gain": 151,
+          "score_gain_squared": 93829.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 15.5,
+          "closed": 93,
+          "decision_ns": 115959332,
+          "decisions": 19691,
+          "games": 1600,
+          "losing_remaining": 2565,
+          "losses": 1086,
+          "max_decision_ns": 3037226,
+          "score_gain": 151,
+          "score_gain_squared": 93829.0,
+          "tables": 100
+        }
+      ],
+      "players": 3,
+      "rounds": 16,
+      "starting_position": -1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 29.0,
+          "closed": 108,
+          "decision_ns": 98187737,
+          "decisions": 19451,
+          "games": 1600,
+          "losing_remaining": 2619,
+          "losses": 1096,
+          "max_decision_ns": 175932,
+          "score_gain": -479,
+          "score_gain_squared": 132191.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 29.0,
+          "closed": 108,
+          "decision_ns": 99660915,
+          "decisions": 19451,
+          "games": 1600,
+          "losing_remaining": 2619,
+          "losses": 1096,
+          "max_decision_ns": 176653,
+          "score_gain": -479,
+          "score_gain_squared": 132191.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 28.0,
+          "closed": 108,
+          "decision_ns": 99341845,
+          "decisions": 19448,
+          "games": 1600,
+          "losing_remaining": 2619,
+          "losses": 1095,
+          "max_decision_ns": 205548,
+          "score_gain": -456,
+          "score_gain_squared": 134534.0,
+          "tables": 100
+        }
+      ],
+      "players": 3,
+      "rounds": 16,
+      "starting_position": 0,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 57.0,
+          "closed": 115,
+          "decision_ns": 85390345,
+          "decisions": 19419,
+          "games": 1600,
+          "losing_remaining": 2541,
+          "losses": 1063,
+          "max_decision_ns": 188116,
+          "score_gain": 111,
+          "score_gain_squared": 129481.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 57.0,
+          "closed": 115,
+          "decision_ns": 84752160,
+          "decisions": 19432,
+          "games": 1600,
+          "losing_remaining": 2541,
+          "losses": 1063,
+          "max_decision_ns": 192493,
+          "score_gain": 99,
+          "score_gain_squared": 130033.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 57.0,
+          "closed": 115,
+          "decision_ns": 84624838,
+          "decisions": 19425,
+          "games": 1600,
+          "losing_remaining": 2536,
+          "losses": 1060,
+          "max_decision_ns": 296871,
+          "score_gain": 159,
+          "score_gain_squared": 133145.0,
+          "tables": 100
+        }
+      ],
+      "players": 3,
+      "rounds": 16,
+      "starting_position": 1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 15.0,
+          "closed": 193,
+          "decision_ns": 115752021,
+          "decisions": 39404,
+          "games": 3200,
+          "losing_remaining": 5154,
+          "losses": 2185,
+          "max_decision_ns": 106371,
+          "score_gain": -312,
+          "score_gain_squared": 172182.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 15.0,
+          "closed": 193,
+          "decision_ns": 114495620,
+          "decisions": 39404,
+          "games": 3200,
+          "losing_remaining": 5154,
+          "losses": 2185,
+          "max_decision_ns": 104588,
+          "score_gain": -312,
+          "score_gain_squared": 172182.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 15.0,
+          "closed": 193,
+          "decision_ns": 115887979,
+          "decisions": 39399,
+          "games": 3200,
+          "losing_remaining": 5154,
+          "losses": 2185,
+          "max_decision_ns": 132931,
+          "score_gain": -306,
+          "score_gain_squared": 172998.0,
+          "tables": 100
+        }
+      ],
+      "players": 3,
+      "rounds": 32,
+      "starting_position": -1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 29.0,
+          "closed": 221,
+          "decision_ns": 106811166,
+          "decisions": 39149,
+          "games": 3200,
+          "losing_remaining": 5124,
+          "losses": 2145,
+          "max_decision_ns": 99027,
+          "score_gain": -54,
+          "score_gain_squared": 206018.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 29.0,
+          "closed": 221,
+          "decision_ns": 106165964,
+          "decisions": 39149,
+          "games": 3200,
+          "losing_remaining": 5124,
+          "losses": 2145,
+          "max_decision_ns": 85863,
+          "score_gain": -54,
+          "score_gain_squared": 206018.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 29.0,
+          "closed": 221,
+          "decision_ns": 105748674,
+          "decisions": 39145,
+          "games": 3200,
+          "losing_remaining": 5124,
+          "losses": 2145,
+          "max_decision_ns": 85872,
+          "score_gain": -81,
+          "score_gain_squared": 199355.0,
+          "tables": 100
+        }
+      ],
+      "players": 3,
+      "rounds": 32,
+      "starting_position": 0,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 51.5,
+          "closed": 200,
+          "decision_ns": 107292849,
+          "decisions": 38822,
+          "games": 3200,
+          "losing_remaining": 5034,
+          "losses": 2130,
+          "max_decision_ns": 141918,
+          "score_gain": 234,
+          "score_gain_squared": 164858.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 51.5,
+          "closed": 200,
+          "decision_ns": 106102302,
+          "decisions": 38822,
+          "games": 3200,
+          "losing_remaining": 5034,
+          "losses": 2130,
+          "max_decision_ns": 107543,
+          "score_gain": 234,
+          "score_gain_squared": 164858.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 51.5,
+          "closed": 200,
+          "decision_ns": 106039473,
+          "decisions": 38832,
+          "games": 3200,
+          "losing_remaining": 5035,
+          "losses": 2131,
+          "max_decision_ns": 92254,
+          "score_gain": 211,
+          "score_gain_squared": 162933.0,
+          "tables": 100
+        }
+      ],
+      "players": 3,
+      "rounds": 32,
+      "starting_position": 1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 16.0,
+          "closed": 214,
+          "decision_ns": 106539067,
+          "decisions": 39011,
+          "games": 3200,
+          "losing_remaining": 5090,
+          "losses": 2127,
+          "max_decision_ns": 98936,
+          "score_gain": -110,
+          "score_gain_squared": 168492.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 16.0,
+          "closed": 214,
+          "decision_ns": 106034420,
+          "decisions": 39011,
+          "games": 3200,
+          "losing_remaining": 5090,
+          "losses": 2127,
+          "max_decision_ns": 97935,
+          "score_gain": -110,
+          "score_gain_squared": 168492.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 16.0,
+          "closed": 214,
+          "decision_ns": 106025900,
+          "decisions": 39011,
+          "games": 3200,
+          "losing_remaining": 5090,
+          "losses": 2127,
+          "max_decision_ns": 165813,
+          "score_gain": -110,
+          "score_gain_squared": 168492.0,
+          "tables": 100
+        }
+      ],
+      "players": 3,
+      "rounds": 32,
+      "starting_position": -1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 35.0,
+          "closed": 220,
+          "decision_ns": 106969176,
+          "decisions": 38948,
+          "games": 3200,
+          "losing_remaining": 5070,
+          "losses": 2120,
+          "max_decision_ns": 218272,
+          "score_gain": 216,
+          "score_gain_squared": 245790.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 35.0,
+          "closed": 220,
+          "decision_ns": 107418905,
+          "decisions": 38948,
+          "games": 3200,
+          "losing_remaining": 5070,
+          "losses": 2120,
+          "max_decision_ns": 740809,
+          "score_gain": 216,
+          "score_gain_squared": 245790.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 35.0,
+          "closed": 220,
+          "decision_ns": 104846228,
+          "decisions": 38948,
+          "games": 3200,
+          "losing_remaining": 5070,
+          "losses": 2120,
+          "max_decision_ns": 94609,
+          "score_gain": 201,
+          "score_gain_squared": 244755.0,
+          "tables": 100
+        }
+      ],
+      "players": 3,
+      "rounds": 32,
+      "starting_position": 0,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 44.5,
+          "closed": 242,
+          "decision_ns": 105098360,
+          "decisions": 39192,
+          "games": 3200,
+          "losing_remaining": 5237,
+          "losses": 2159,
+          "max_decision_ns": 183236,
+          "score_gain": -592,
+          "score_gain_squared": 259296.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 44.5,
+          "closed": 242,
+          "decision_ns": 105982136,
+          "decisions": 39192,
+          "games": 3200,
+          "losing_remaining": 5237,
+          "losses": 2159,
+          "max_decision_ns": 144693,
+          "score_gain": -592,
+          "score_gain_squared": 259296.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 44.5,
+          "closed": 242,
+          "decision_ns": 106040054,
+          "decisions": 39192,
+          "games": 3200,
+          "losing_remaining": 5236,
+          "losses": 2158,
+          "max_decision_ns": 181011,
+          "score_gain": -598,
+          "score_gain_squared": 258836.0,
+          "tables": 100
+        }
+      ],
+      "players": 3,
+      "rounds": 32,
+      "starting_position": 1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 13.0,
+          "closed": 48,
+          "decision_ns": 26276722,
+          "decisions": 9936,
+          "games": 800,
+          "losing_remaining": 1387,
+          "losses": 589,
+          "max_decision_ns": 147418,
+          "score_gain": 487,
+          "score_gain_squared": 100573.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 13.0,
+          "closed": 48,
+          "decision_ns": 26540413,
+          "decisions": 9936,
+          "games": 800,
+          "losing_remaining": 1387,
+          "losses": 589,
+          "max_decision_ns": 103185,
+          "score_gain": 487,
+          "score_gain_squared": 100573.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 13.0,
+          "closed": 48,
+          "decision_ns": 25979750,
+          "decisions": 9936,
+          "games": 800,
+          "losing_remaining": 1387,
+          "losses": 589,
+          "max_decision_ns": 102343,
+          "score_gain": 487,
+          "score_gain_squared": 100573.0,
+          "tables": 100
+        }
+      ],
+      "players": 4,
+      "rounds": 8,
+      "starting_position": -1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 26.0,
+          "closed": 64,
+          "decision_ns": 26288181,
+          "decisions": 9537,
+          "games": 800,
+          "losing_remaining": 1430,
+          "losses": 585,
+          "max_decision_ns": 102935,
+          "score_gain": 317,
+          "score_gain_squared": 101115.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 26.0,
+          "closed": 64,
+          "decision_ns": 25629433,
+          "decisions": 9537,
+          "games": 800,
+          "losing_remaining": 1430,
+          "losses": 585,
+          "max_decision_ns": 152418,
+          "score_gain": 317,
+          "score_gain_squared": 101115.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 26.0,
+          "closed": 64,
+          "decision_ns": 25278145,
+          "decisions": 9537,
+          "games": 800,
+          "losing_remaining": 1430,
+          "losses": 585,
+          "max_decision_ns": 101873,
+          "score_gain": 317,
+          "score_gain_squared": 101115.0,
+          "tables": 100
+        }
+      ],
+      "players": 4,
+      "rounds": 8,
+      "starting_position": 0,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 52.5,
+          "closed": 61,
+          "decision_ns": 25957726,
+          "decisions": 9628,
+          "games": 800,
+          "losing_remaining": 1480,
+          "losses": 589,
+          "max_decision_ns": 98636,
+          "score_gain": 52,
+          "score_gain_squared": 82978.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 52.5,
+          "closed": 61,
+          "decision_ns": 26298822,
+          "decisions": 9628,
+          "games": 800,
+          "losing_remaining": 1480,
+          "losses": 589,
+          "max_decision_ns": 95280,
+          "score_gain": 52,
+          "score_gain_squared": 82978.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 52.5,
+          "closed": 61,
+          "decision_ns": 26611454,
+          "decisions": 9628,
+          "games": 800,
+          "losing_remaining": 1480,
+          "losses": 589,
+          "max_decision_ns": 142089,
+          "score_gain": 52,
+          "score_gain_squared": 82978.0,
+          "tables": 100
+        }
+      ],
+      "players": 4,
+      "rounds": 8,
+      "starting_position": 1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 14.0,
+          "closed": 70,
+          "decision_ns": 25424327,
+          "decisions": 9520,
+          "games": 800,
+          "losing_remaining": 1484,
+          "losses": 592,
+          "max_decision_ns": 111691,
+          "score_gain": 302,
+          "score_gain_squared": 130116.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 14.0,
+          "closed": 70,
+          "decision_ns": 25693725,
+          "decisions": 9520,
+          "games": 800,
+          "losing_remaining": 1484,
+          "losses": 592,
+          "max_decision_ns": 218363,
+          "score_gain": 302,
+          "score_gain_squared": 130116.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 14.0,
+          "closed": 70,
+          "decision_ns": 25047337,
+          "decisions": 9536,
+          "games": 800,
+          "losing_remaining": 1485,
+          "losses": 593,
+          "max_decision_ns": 105819,
+          "score_gain": 272,
+          "score_gain_squared": 133896.0,
+          "tables": 100
+        }
+      ],
+      "players": 4,
+      "rounds": 8,
+      "starting_position": -1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 26.0,
+          "closed": 77,
+          "decision_ns": 24887987,
+          "decisions": 9718,
+          "games": 800,
+          "losing_remaining": 1528,
+          "losses": 598,
+          "max_decision_ns": 91032,
+          "score_gain": -147,
+          "score_gain_squared": 104055.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 26.0,
+          "closed": 77,
+          "decision_ns": 24619211,
+          "decisions": 9718,
+          "games": 800,
+          "losing_remaining": 1528,
+          "losses": 598,
+          "max_decision_ns": 88858,
+          "score_gain": -147,
+          "score_gain_squared": 104055.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 26.0,
+          "closed": 77,
+          "decision_ns": 24613490,
+          "decisions": 9716,
+          "games": 800,
+          "losing_remaining": 1528,
+          "losses": 598,
+          "max_decision_ns": 88988,
+          "score_gain": -189,
+          "score_gain_squared": 95319.0,
+          "tables": 100
+        }
+      ],
+      "players": 4,
+      "rounds": 8,
+      "starting_position": 0,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 48.0,
+          "closed": 73,
+          "decision_ns": 24820173,
+          "decisions": 9550,
+          "games": 800,
+          "losing_remaining": 1566,
+          "losses": 610,
+          "max_decision_ns": 98717,
+          "score_gain": 91,
+          "score_gain_squared": 132501.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 48.0,
+          "closed": 73,
+          "decision_ns": 24685443,
+          "decisions": 9550,
+          "games": 800,
+          "losing_remaining": 1566,
+          "losses": 610,
+          "max_decision_ns": 97845,
+          "score_gain": 91,
+          "score_gain_squared": 132501.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 48.0,
+          "closed": 73,
+          "decision_ns": 24508545,
+          "decisions": 9542,
+          "games": 800,
+          "losing_remaining": 1565,
+          "losses": 609,
+          "max_decision_ns": 101402,
+          "score_gain": 77,
+          "score_gain_squared": 132173.0,
+          "tables": 100
+        }
+      ],
+      "players": 4,
+      "rounds": 8,
+      "starting_position": 1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 8.5,
+          "closed": 134,
+          "decision_ns": 50669204,
+          "decisions": 19823,
+          "games": 1600,
+          "losing_remaining": 2962,
+          "losses": 1195,
+          "max_decision_ns": 100650,
+          "score_gain": -183,
+          "score_gain_squared": 166711.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 8.5,
+          "closed": 134,
+          "decision_ns": 50448647,
+          "decisions": 19823,
+          "games": 1600,
+          "losing_remaining": 2962,
+          "losses": 1195,
+          "max_decision_ns": 147308,
+          "score_gain": -183,
+          "score_gain_squared": 166711.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 8.5,
+          "closed": 134,
+          "decision_ns": 50143999,
+          "decisions": 19823,
+          "games": 1600,
+          "losing_remaining": 2962,
+          "losses": 1195,
+          "max_decision_ns": 212492,
+          "score_gain": -183,
+          "score_gain_squared": 166711.0,
+          "tables": 100
+        }
+      ],
+      "players": 4,
+      "rounds": 16,
+      "starting_position": -1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 19.0,
+          "closed": 141,
+          "decision_ns": 52626687,
+          "decisions": 19376,
+          "games": 1600,
+          "losing_remaining": 3008,
+          "losses": 1197,
+          "max_decision_ns": 166274,
+          "score_gain": -123,
+          "score_gain_squared": 156141.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 19.0,
+          "closed": 141,
+          "decision_ns": 51762600,
+          "decisions": 19376,
+          "games": 1600,
+          "losing_remaining": 3008,
+          "losses": 1197,
+          "max_decision_ns": 299946,
+          "score_gain": -123,
+          "score_gain_squared": 156141.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 19.0,
+          "closed": 141,
+          "decision_ns": 50801133,
+          "decisions": 19395,
+          "games": 1600,
+          "losing_remaining": 3007,
+          "losses": 1198,
+          "max_decision_ns": 93166,
+          "score_gain": -155,
+          "score_gain_squared": 159561.0,
+          "tables": 100
+        }
+      ],
+      "players": 4,
+      "rounds": 16,
+      "starting_position": 0,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 38.0,
+          "closed": 127,
+          "decision_ns": 50982151,
+          "decisions": 19830,
+          "games": 1600,
+          "losing_remaining": 2981,
+          "losses": 1202,
+          "max_decision_ns": 110889,
+          "score_gain": -504,
+          "score_gain_squared": 176812.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 38.0,
+          "closed": 127,
+          "decision_ns": 51270118,
+          "decisions": 19830,
+          "games": 1600,
+          "losing_remaining": 2981,
+          "losses": 1202,
+          "max_decision_ns": 185731,
+          "score_gain": -504,
+          "score_gain_squared": 176812.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 38.0,
+          "closed": 127,
+          "decision_ns": 51925820,
+          "decisions": 19814,
+          "games": 1600,
+          "losing_remaining": 2981,
+          "losses": 1203,
+          "max_decision_ns": 732264,
+          "score_gain": -503,
+          "score_gain_squared": 177185.0,
+          "tables": 100
+        }
+      ],
+      "players": 4,
+      "rounds": 16,
+      "starting_position": 1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 12.0,
+          "closed": 138,
+          "decision_ns": 50322172,
+          "decisions": 19440,
+          "games": 1600,
+          "losing_remaining": 3047,
+          "losses": 1219,
+          "max_decision_ns": 107112,
+          "score_gain": -247,
+          "score_gain_squared": 205861.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 12.0,
+          "closed": 138,
+          "decision_ns": 50261972,
+          "decisions": 19440,
+          "games": 1600,
+          "losing_remaining": 3047,
+          "losses": 1219,
+          "max_decision_ns": 102153,
+          "score_gain": -247,
+          "score_gain_squared": 205861.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 12.0,
+          "closed": 138,
+          "decision_ns": 50083972,
+          "decisions": 19431,
+          "games": 1600,
+          "losing_remaining": 3046,
+          "losses": 1218,
+          "max_decision_ns": 102724,
+          "score_gain": -214,
+          "score_gain_squared": 212758.0,
+          "tables": 100
+        }
+      ],
+      "players": 4,
+      "rounds": 16,
+      "starting_position": -1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 29.5,
+          "closed": 139,
+          "decision_ns": 51677175,
+          "decisions": 19659,
+          "games": 1600,
+          "losing_remaining": 2945,
+          "losses": 1169,
+          "max_decision_ns": 94248,
+          "score_gain": 614,
+          "score_gain_squared": 194356.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 29.5,
+          "closed": 139,
+          "decision_ns": 53051173,
+          "decisions": 19659,
+          "games": 1600,
+          "losing_remaining": 2945,
+          "losses": 1169,
+          "max_decision_ns": 565598,
+          "score_gain": 614,
+          "score_gain_squared": 194356.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 29.5,
+          "closed": 139,
+          "decision_ns": 51669641,
+          "decisions": 19654,
+          "games": 1600,
+          "losing_remaining": 2947,
+          "losses": 1170,
+          "max_decision_ns": 95981,
+          "score_gain": 604,
+          "score_gain_squared": 192336.0,
+          "tables": 100
+        }
+      ],
+      "players": 4,
+      "rounds": 16,
+      "starting_position": 0,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 40.0,
+          "closed": 137,
+          "decision_ns": 52067645,
+          "decisions": 19699,
+          "games": 1600,
+          "losing_remaining": 2974,
+          "losses": 1206,
+          "max_decision_ns": 106390,
+          "score_gain": 275,
+          "score_gain_squared": 264791.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 40.0,
+          "closed": 137,
+          "decision_ns": 52042740,
+          "decisions": 19699,
+          "games": 1600,
+          "losing_remaining": 2974,
+          "losses": 1206,
+          "max_decision_ns": 103796,
+          "score_gain": 275,
+          "score_gain_squared": 264791.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 40.0,
+          "closed": 137,
+          "decision_ns": 52508793,
+          "decisions": 19692,
+          "games": 1600,
+          "losing_remaining": 2973,
+          "losses": 1206,
+          "max_decision_ns": 520363,
+          "score_gain": 399,
+          "score_gain_squared": 301959.0,
+          "tables": 100
+        }
+      ],
+      "players": 4,
+      "rounds": 16,
+      "starting_position": 1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 20.0,
+          "closed": 266,
+          "decision_ns": 103008637,
+          "decisions": 39105,
+          "games": 3200,
+          "losing_remaining": 5908,
+          "losses": 2353,
+          "max_decision_ns": 103575,
+          "score_gain": 333,
+          "score_gain_squared": 353543.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 20.0,
+          "closed": 266,
+          "decision_ns": 103669372,
+          "decisions": 39105,
+          "games": 3200,
+          "losing_remaining": 5908,
+          "losses": 2353,
+          "max_decision_ns": 154292,
+          "score_gain": 333,
+          "score_gain_squared": 353543.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 20.0,
+          "closed": 266,
+          "decision_ns": 102882384,
+          "decisions": 39105,
+          "games": 3200,
+          "losing_remaining": 5908,
+          "losses": 2353,
+          "max_decision_ns": 113394,
+          "score_gain": 333,
+          "score_gain_squared": 353543.0,
+          "tables": 100
+        }
+      ],
+      "players": 4,
+      "rounds": 32,
+      "starting_position": -1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 28.0,
+          "closed": 277,
+          "decision_ns": 102866487,
+          "decisions": 38953,
+          "games": 3200,
+          "losing_remaining": 5973,
+          "losses": 2363,
+          "max_decision_ns": 192544,
+          "score_gain": 496,
+          "score_gain_squared": 515748.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 28.0,
+          "closed": 277,
+          "decision_ns": 101925317,
+          "decisions": 38953,
+          "games": 3200,
+          "losing_remaining": 5973,
+          "losses": 2363,
+          "max_decision_ns": 105009,
+          "score_gain": 496,
+          "score_gain_squared": 515748.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 28.0,
+          "closed": 277,
+          "decision_ns": 103565791,
+          "decisions": 38953,
+          "games": 3200,
+          "losing_remaining": 5973,
+          "losses": 2363,
+          "max_decision_ns": 550028,
+          "score_gain": 496,
+          "score_gain_squared": 515748.0,
+          "tables": 100
+        }
+      ],
+      "players": 4,
+      "rounds": 32,
+      "starting_position": 0,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 36.0,
+          "closed": 254,
+          "decision_ns": 102153565,
+          "decisions": 39146,
+          "games": 3200,
+          "losing_remaining": 5966,
+          "losses": 2398,
+          "max_decision_ns": 111601,
+          "score_gain": -223,
+          "score_gain_squared": 362813.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 36.0,
+          "closed": 254,
+          "decision_ns": 102852546,
+          "decisions": 39146,
+          "games": 3200,
+          "losing_remaining": 5966,
+          "losses": 2398,
+          "max_decision_ns": 148922,
+          "score_gain": -223,
+          "score_gain_squared": 362813.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 36.0,
+          "closed": 254,
+          "decision_ns": 102789563,
+          "decisions": 39174,
+          "games": 3200,
+          "losing_remaining": 5965,
+          "losses": 2398,
+          "max_decision_ns": 102815,
+          "score_gain": -202,
+          "score_gain_squared": 363428.0,
+          "tables": 100
+        }
+      ],
+      "players": 4,
+      "rounds": 32,
+      "starting_position": 1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 15.0,
+          "closed": 268,
+          "decision_ns": 102916498,
+          "decisions": 39081,
+          "games": 3200,
+          "losing_remaining": 5924,
+          "losses": 2396,
+          "max_decision_ns": 115288,
+          "score_gain": -243,
+          "score_gain_squared": 445997.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 15.0,
+          "closed": 268,
+          "decision_ns": 102892714,
+          "decisions": 39081,
+          "games": 3200,
+          "losing_remaining": 5924,
+          "losses": 2396,
+          "max_decision_ns": 114597,
+          "score_gain": -243,
+          "score_gain_squared": 445997.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 15.0,
+          "closed": 268,
+          "decision_ns": 102778523,
+          "decisions": 39081,
+          "games": 3200,
+          "losing_remaining": 5924,
+          "losses": 2396,
+          "max_decision_ns": 123633,
+          "score_gain": -243,
+          "score_gain_squared": 445997.0,
+          "tables": 100
+        }
+      ],
+      "players": 4,
+      "rounds": 32,
+      "starting_position": -1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 23.0,
+          "closed": 252,
+          "decision_ns": 101861980,
+          "decisions": 39058,
+          "games": 3200,
+          "losing_remaining": 5992,
+          "losses": 2400,
+          "max_decision_ns": 571350,
+          "score_gain": -297,
+          "score_gain_squared": 391787.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 23.0,
+          "closed": 252,
+          "decision_ns": 103199435,
+          "decisions": 39058,
+          "games": 3200,
+          "losing_remaining": 5992,
+          "losses": 2400,
+          "max_decision_ns": 258999,
+          "score_gain": -297,
+          "score_gain_squared": 391787.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 23.0,
+          "closed": 252,
+          "decision_ns": 101076439,
+          "decisions": 39049,
+          "games": 3200,
+          "losing_remaining": 5992,
+          "losses": 2399,
+          "max_decision_ns": 103074,
+          "score_gain": -255,
+          "score_gain_squared": 398927.0,
+          "tables": 100
+        }
+      ],
+      "players": 4,
+      "rounds": 32,
+      "starting_position": 0,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 30.0,
+          "closed": 272,
+          "decision_ns": 102514192,
+          "decisions": 39178,
+          "games": 3200,
+          "losing_remaining": 5951,
+          "losses": 2403,
+          "max_decision_ns": 105809,
+          "score_gain": -386,
+          "score_gain_squared": 470850.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 30.0,
+          "closed": 272,
+          "decision_ns": 102702255,
+          "decisions": 39178,
+          "games": 3200,
+          "losing_remaining": 5951,
+          "losses": 2403,
+          "max_decision_ns": 120899,
+          "score_gain": -386,
+          "score_gain_squared": 470850.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 30.0,
+          "closed": 272,
+          "decision_ns": 101322581,
+          "decisions": 39153,
+          "games": 3200,
+          "losing_remaining": 5952,
+          "losses": 2403,
+          "max_decision_ns": 100660,
+          "score_gain": -385,
+          "score_gain_squared": 470931.0,
+          "tables": 100
+        }
+      ],
+      "players": 4,
+      "rounds": 32,
+      "starting_position": 1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 16.0,
+          "closed": 82,
+          "decision_ns": 32466629,
+          "decisions": 8631,
+          "games": 800,
+          "losing_remaining": 1745,
+          "losses": 657,
+          "max_decision_ns": 164060,
+          "score_gain": -282,
+          "score_gain_squared": 200912.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 16.0,
+          "closed": 82,
+          "decision_ns": 32412748,
+          "decisions": 8626,
+          "games": 800,
+          "losing_remaining": 1744,
+          "losses": 656,
+          "max_decision_ns": 163168,
+          "score_gain": -186,
+          "score_gain_squared": 231248.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 15.0,
+          "closed": 82,
+          "decision_ns": 32606432,
+          "decisions": 8640,
+          "games": 800,
+          "losing_remaining": 1742,
+          "losses": 656,
+          "max_decision_ns": 166915,
+          "score_gain": -290,
+          "score_gain_squared": 216144.0,
+          "tables": 100
+        }
+      ],
+      "players": 5,
+      "rounds": 8,
+      "starting_position": -1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 19.0,
+          "closed": 81,
+          "decision_ns": 34158794,
+          "decisions": 9152,
+          "games": 800,
+          "losing_remaining": 1658,
+          "losses": 648,
+          "max_decision_ns": 162567,
+          "score_gain": -308,
+          "score_gain_squared": 150574.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 19.0,
+          "closed": 81,
+          "decision_ns": 34279027,
+          "decisions": 9156,
+          "games": 800,
+          "losing_remaining": 1658,
+          "losses": 648,
+          "max_decision_ns": 161866,
+          "score_gain": -311,
+          "score_gain_squared": 150727.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 19.0,
+          "closed": 81,
+          "decision_ns": 33838700,
+          "decisions": 9142,
+          "games": 800,
+          "losing_remaining": 1660,
+          "losses": 648,
+          "max_decision_ns": 186423,
+          "score_gain": -307,
+          "score_gain_squared": 151067.0,
+          "tables": 100
+        }
+      ],
+      "players": 5,
+      "rounds": 8,
+      "starting_position": 0,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 42.5,
+          "closed": 73,
+          "decision_ns": 34766510,
+          "decisions": 9105,
+          "games": 800,
+          "losing_remaining": 1624,
+          "losses": 631,
+          "max_decision_ns": 629529,
+          "score_gain": 555,
+          "score_gain_squared": 155609.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 42.5,
+          "closed": 73,
+          "decision_ns": 33389118,
+          "decisions": 9110,
+          "games": 800,
+          "losing_remaining": 1622,
+          "losses": 631,
+          "max_decision_ns": 157498,
+          "score_gain": 547,
+          "score_gain_squared": 154273.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 42.5,
+          "closed": 73,
+          "decision_ns": 34031826,
+          "decisions": 9123,
+          "games": 800,
+          "losing_remaining": 1617,
+          "losses": 630,
+          "max_decision_ns": 146557,
+          "score_gain": 576,
+          "score_gain_squared": 157766.0,
+          "tables": 100
+        }
+      ],
+      "players": 5,
+      "rounds": 8,
+      "starting_position": 1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 11.0,
+          "closed": 71,
+          "decision_ns": 34501259,
+          "decisions": 8884,
+          "games": 800,
+          "losing_remaining": 1658,
+          "losses": 642,
+          "max_decision_ns": 169660,
+          "score_gain": -360,
+          "score_gain_squared": 142454.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 11.0,
+          "closed": 70,
+          "decision_ns": 34292213,
+          "decisions": 8883,
+          "games": 800,
+          "losing_remaining": 1658,
+          "losses": 643,
+          "max_decision_ns": 174360,
+          "score_gain": -296,
+          "score_gain_squared": 155686.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 11.0,
+          "closed": 70,
+          "decision_ns": 34517862,
+          "decisions": 8883,
+          "games": 800,
+          "losing_remaining": 1658,
+          "losses": 643,
+          "max_decision_ns": 166214,
+          "score_gain": -296,
+          "score_gain_squared": 155686.0,
+          "tables": 100
+        }
+      ],
+      "players": 5,
+      "rounds": 8,
+      "starting_position": -1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 13.0,
+          "closed": 91,
+          "decision_ns": 32386729,
+          "decisions": 8947,
+          "games": 800,
+          "losing_remaining": 1718,
+          "losses": 643,
+          "max_decision_ns": 143030,
+          "score_gain": -646,
+          "score_gain_squared": 147798.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 13.0,
+          "closed": 91,
+          "decision_ns": 32226151,
+          "decisions": 8940,
+          "games": 800,
+          "losing_remaining": 1718,
+          "losses": 643,
+          "max_decision_ns": 137189,
+          "score_gain": -619,
+          "score_gain_squared": 151767.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 13.0,
+          "closed": 91,
+          "decision_ns": 32273225,
+          "decisions": 8936,
+          "games": 800,
+          "losing_remaining": 1718,
+          "losses": 643,
+          "max_decision_ns": 170963,
+          "score_gain": -613,
+          "score_gain_squared": 152355.0,
+          "tables": 100
+        }
+      ],
+      "players": 5,
+      "rounds": 8,
+      "starting_position": 0,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 31.0,
+          "closed": 89,
+          "decision_ns": 32133516,
+          "decisions": 8778,
+          "games": 800,
+          "losing_remaining": 1714,
+          "losses": 644,
+          "max_decision_ns": 170272,
+          "score_gain": -102,
+          "score_gain_squared": 253882.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 31.0,
+          "closed": 89,
+          "decision_ns": 32268302,
+          "decisions": 8775,
+          "games": 800,
+          "losing_remaining": 1718,
+          "losses": 644,
+          "max_decision_ns": 164972,
+          "score_gain": -85,
+          "score_gain_squared": 264687.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 31.0,
+          "closed": 89,
+          "decision_ns": 32095004,
+          "decisions": 8772,
+          "games": 800,
+          "losing_remaining": 1719,
+          "losses": 644,
+          "max_decision_ns": 167497,
+          "score_gain": -66,
+          "score_gain_squared": 270862.0,
+          "tables": 100
+        }
+      ],
+      "players": 5,
+      "rounds": 8,
+      "starting_position": 1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 7.0,
+          "closed": 188,
+          "decision_ns": 65876764,
+          "decisions": 17717,
+          "games": 1600,
+          "losing_remaining": 3413,
+          "losses": 1297,
+          "max_decision_ns": 336435,
+          "score_gain": -1397,
+          "score_gain_squared": 378193.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 7.0,
+          "closed": 188,
+          "decision_ns": 65439317,
+          "decisions": 17721,
+          "games": 1600,
+          "losing_remaining": 3411,
+          "losses": 1296,
+          "max_decision_ns": 166355,
+          "score_gain": -1360,
+          "score_gain_squared": 373722.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 7.0,
+          "closed": 188,
+          "decision_ns": 65300387,
+          "decisions": 17721,
+          "games": 1600,
+          "losing_remaining": 3411,
+          "losses": 1296,
+          "max_decision_ns": 161806,
+          "score_gain": -1360,
+          "score_gain_squared": 373722.0,
+          "tables": 100
+        }
+      ],
+      "players": 5,
+      "rounds": 16,
+      "starting_position": -1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 15.0,
+          "closed": 163,
+          "decision_ns": 67595919,
+          "decisions": 18235,
+          "games": 1600,
+          "losing_remaining": 3421,
+          "losses": 1316,
+          "max_decision_ns": 711415,
+          "score_gain": -975,
+          "score_gain_squared": 232549.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 15.0,
+          "closed": 163,
+          "decision_ns": 67047483,
+          "decisions": 18241,
+          "games": 1600,
+          "losing_remaining": 3421,
+          "losses": 1315,
+          "max_decision_ns": 160313,
+          "score_gain": -943,
+          "score_gain_squared": 230437.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 16.0,
+          "closed": 163,
+          "decision_ns": 67238208,
+          "decisions": 18238,
+          "games": 1600,
+          "losing_remaining": 3419,
+          "losses": 1314,
+          "max_decision_ns": 203905,
+          "score_gain": -572,
+          "score_gain_squared": 366760.0,
+          "tables": 100
+        }
+      ],
+      "players": 5,
+      "rounds": 16,
+      "starting_position": 0,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 34.0,
+          "closed": 154,
+          "decision_ns": 66275230,
+          "decisions": 18304,
+          "games": 1600,
+          "losing_remaining": 3321,
+          "losses": 1295,
+          "max_decision_ns": 163750,
+          "score_gain": -561,
+          "score_gain_squared": 253063.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 34.0,
+          "closed": 154,
+          "decision_ns": 66460080,
+          "decisions": 18299,
+          "games": 1600,
+          "losing_remaining": 3319,
+          "losses": 1295,
+          "max_decision_ns": 164100,
+          "score_gain": -562,
+          "score_gain_squared": 253144.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 34.0,
+          "closed": 154,
+          "decision_ns": 66268669,
+          "decisions": 18292,
+          "games": 1600,
+          "losing_remaining": 3318,
+          "losses": 1295,
+          "max_decision_ns": 164150,
+          "score_gain": -576,
+          "score_gain_squared": 248942.0,
+          "tables": 100
+        }
+      ],
+      "players": 5,
+      "rounds": 16,
+      "starting_position": 1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 5.0,
+          "closed": 180,
+          "decision_ns": 65477142,
+          "decisions": 17741,
+          "games": 1600,
+          "losing_remaining": 3455,
+          "losses": 1317,
+          "max_decision_ns": 170232,
+          "score_gain": -1258,
+          "score_gain_squared": 264854.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 6.0,
+          "closed": 179,
+          "decision_ns": 65579859,
+          "decisions": 17746,
+          "games": 1600,
+          "losing_remaining": 3456,
+          "losses": 1315,
+          "max_decision_ns": 164130,
+          "score_gain": -1221,
+          "score_gain_squared": 270279.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 6.0,
+          "closed": 179,
+          "decision_ns": 65532783,
+          "decisions": 17746,
+          "games": 1600,
+          "losing_remaining": 3456,
+          "losses": 1315,
+          "max_decision_ns": 169801,
+          "score_gain": -1221,
+          "score_gain_squared": 270279.0,
+          "tables": 100
+        }
+      ],
+      "players": 5,
+      "rounds": 16,
+      "starting_position": -1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 15.0,
+          "closed": 139,
+          "decision_ns": 66479559,
+          "decisions": 17810,
+          "games": 1600,
+          "losing_remaining": 3292,
+          "losses": 1279,
+          "max_decision_ns": 172667,
+          "score_gain": -368,
+          "score_gain_squared": 285968.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 15.0,
+          "closed": 139,
+          "decision_ns": 66897022,
+          "decisions": 17809,
+          "games": 1600,
+          "losing_remaining": 3292,
+          "losses": 1279,
+          "max_decision_ns": 181142,
+          "score_gain": -369,
+          "score_gain_squared": 285895.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 16.0,
+          "closed": 137,
+          "decision_ns": 67163003,
+          "decisions": 17812,
+          "games": 1600,
+          "losing_remaining": 3287,
+          "losses": 1279,
+          "max_decision_ns": 365651,
+          "score_gain": -337,
+          "score_gain_squared": 287751.0,
+          "tables": 100
+        }
+      ],
+      "players": 5,
+      "rounds": 16,
+      "starting_position": 0,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 26.5,
+          "closed": 172,
+          "decision_ns": 66077295,
+          "decisions": 17693,
+          "games": 1600,
+          "losing_remaining": 3381,
+          "losses": 1281,
+          "max_decision_ns": 443308,
+          "score_gain": -260,
+          "score_gain_squared": 383412.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 27.5,
+          "closed": 173,
+          "decision_ns": 65638873,
+          "decisions": 17689,
+          "games": 1600,
+          "losing_remaining": 3378,
+          "losses": 1282,
+          "max_decision_ns": 161686,
+          "score_gain": -327,
+          "score_gain_squared": 394519.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 27.5,
+          "closed": 172,
+          "decision_ns": 66058272,
+          "decisions": 17672,
+          "games": 1600,
+          "losing_remaining": 3373,
+          "losses": 1281,
+          "max_decision_ns": 166104,
+          "score_gain": -338,
+          "score_gain_squared": 384850.0,
+          "tables": 100
+        }
+      ],
+      "players": 5,
+      "rounds": 16,
+      "starting_position": 1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 12.0,
+          "closed": 313,
+          "decision_ns": 143484261,
+          "decisions": 35662,
+          "games": 3200,
+          "losing_remaining": 6646,
+          "losses": 2548,
+          "max_decision_ns": 189378,
+          "score_gain": 610,
+          "score_gain_squared": 489398.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 12.0,
+          "closed": 313,
+          "decision_ns": 144357371,
+          "decisions": 35637,
+          "games": 3200,
+          "losing_remaining": 6646,
+          "losses": 2548,
+          "max_decision_ns": 405536,
+          "score_gain": 616,
+          "score_gain_squared": 491280.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 12.0,
+          "closed": 313,
+          "decision_ns": 143740503,
+          "decisions": 35648,
+          "games": 3200,
+          "losing_remaining": 6647,
+          "losses": 2550,
+          "max_decision_ns": 208735,
+          "score_gain": 516,
+          "score_gain_squared": 453892.0,
+          "tables": 100
+        }
+      ],
+      "players": 5,
+      "rounds": 32,
+      "starting_position": -1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 23.5,
+          "closed": 308,
+          "decision_ns": 138018518,
+          "decisions": 35846,
+          "games": 3200,
+          "losing_remaining": 6546,
+          "losses": 2537,
+          "max_decision_ns": 183216,
+          "score_gain": 989,
+          "score_gain_squared": 636787.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 23.5,
+          "closed": 308,
+          "decision_ns": 139000375,
+          "decisions": 35877,
+          "games": 3200,
+          "losing_remaining": 6546,
+          "losses": 2537,
+          "max_decision_ns": 263168,
+          "score_gain": 989,
+          "score_gain_squared": 637913.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 23.5,
+          "closed": 308,
+          "decision_ns": 137880911,
+          "decisions": 35900,
+          "games": 3200,
+          "losing_remaining": 6545,
+          "losses": 2538,
+          "max_decision_ns": 167306,
+          "score_gain": 983,
+          "score_gain_squared": 642327.0,
+          "tables": 100
+        }
+      ],
+      "players": 5,
+      "rounds": 32,
+      "starting_position": 0,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 22.0,
+          "closed": 343,
+          "decision_ns": 137161644,
+          "decisions": 35384,
+          "games": 3200,
+          "losing_remaining": 6868,
+          "losses": 2592,
+          "max_decision_ns": 296350,
+          "score_gain": -1566,
+          "score_gain_squared": 610092.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 22.0,
+          "closed": 343,
+          "decision_ns": 137108262,
+          "decisions": 35386,
+          "games": 3200,
+          "losing_remaining": 6869,
+          "losses": 2593,
+          "max_decision_ns": 924177,
+          "score_gain": -1593,
+          "score_gain_squared": 607635.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 22.0,
+          "closed": 343,
+          "decision_ns": 135016216,
+          "decisions": 35387,
+          "games": 3200,
+          "losing_remaining": 6870,
+          "losses": 2595,
+          "max_decision_ns": 184198,
+          "score_gain": -1631,
+          "score_gain_squared": 611817.0,
+          "tables": 100
+        }
+      ],
+      "players": 5,
+      "rounds": 32,
+      "starting_position": 1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 16.5,
+          "closed": 335,
+          "decision_ns": 135080358,
+          "decisions": 35873,
+          "games": 3200,
+          "losing_remaining": 6638,
+          "losses": 2556,
+          "max_decision_ns": 181363,
+          "score_gain": -65,
+          "score_gain_squared": 791721.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 15.5,
+          "closed": 335,
+          "decision_ns": 135617301,
+          "decisions": 35892,
+          "games": 3200,
+          "losing_remaining": 6633,
+          "losses": 2556,
+          "max_decision_ns": 194889,
+          "score_gain": -85,
+          "score_gain_squared": 789869.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 15.5,
+          "closed": 335,
+          "decision_ns": 135125622,
+          "decisions": 35888,
+          "games": 3200,
+          "losing_remaining": 6634,
+          "losses": 2556,
+          "max_decision_ns": 186172,
+          "score_gain": -158,
+          "score_gain_squared": 785130.0,
+          "tables": 100
+        }
+      ],
+      "players": 5,
+      "rounds": 32,
+      "starting_position": -1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 22.0,
+          "closed": 311,
+          "decision_ns": 135808214,
+          "decisions": 35689,
+          "games": 3200,
+          "losing_remaining": 6701,
+          "losses": 2563,
+          "max_decision_ns": 174400,
+          "score_gain": -476,
+          "score_gain_squared": 602138.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 23.0,
+          "closed": 310,
+          "decision_ns": 137605977,
+          "decisions": 35681,
+          "games": 3200,
+          "losing_remaining": 6701,
+          "losses": 2563,
+          "max_decision_ns": 325526,
+          "score_gain": -472,
+          "score_gain_squared": 606106.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 23.0,
+          "closed": 309,
+          "decision_ns": 136286201,
+          "decisions": 35648,
+          "games": 3200,
+          "losing_remaining": 6703,
+          "losses": 2564,
+          "max_decision_ns": 300247,
+          "score_gain": -320,
+          "score_gain_squared": 667190.0,
+          "tables": 100
+        }
+      ],
+      "players": 5,
+      "rounds": 32,
+      "starting_position": 0,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 25.5,
+          "closed": 326,
+          "decision_ns": 135287330,
+          "decisions": 35762,
+          "games": 3200,
+          "losing_remaining": 6648,
+          "losses": 2542,
+          "max_decision_ns": 172316,
+          "score_gain": -336,
+          "score_gain_squared": 586332.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 25.5,
+          "closed": 327,
+          "decision_ns": 134947364,
+          "decisions": 35740,
+          "games": 3200,
+          "losing_remaining": 6652,
+          "losses": 2542,
+          "max_decision_ns": 172005,
+          "score_gain": -355,
+          "score_gain_squared": 600833.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 26.5,
+          "closed": 331,
+          "decision_ns": 134743375,
+          "decisions": 35712,
+          "games": 3200,
+          "losing_remaining": 6661,
+          "losses": 2541,
+          "max_decision_ns": 170222,
+          "score_gain": -207,
+          "score_gain_squared": 612679.0,
+          "tables": 100
+        }
+      ],
+      "players": 5,
+      "rounds": 32,
+      "starting_position": 1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 4.0,
+          "closed": 97,
+          "decision_ns": 33816697,
+          "decisions": 8780,
+          "games": 800,
+          "losing_remaining": 1807,
+          "losses": 669,
+          "max_decision_ns": 196782,
+          "score_gain": -439,
+          "score_gain_squared": 225073.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 4.0,
+          "closed": 97,
+          "decision_ns": 33248197,
+          "decisions": 8779,
+          "games": 800,
+          "losing_remaining": 1807,
+          "losses": 669,
+          "max_decision_ns": 200409,
+          "score_gain": -440,
+          "score_gain_squared": 225126.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 4.0,
+          "closed": 97,
+          "decision_ns": 33254294,
+          "decisions": 8775,
+          "games": 800,
+          "losing_remaining": 1807,
+          "losses": 669,
+          "max_decision_ns": 198656,
+          "score_gain": -474,
+          "score_gain_squared": 204998.0,
+          "tables": 100
+        }
+      ],
+      "players": 6,
+      "rounds": 8,
+      "starting_position": -1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 9.0,
+          "closed": 85,
+          "decision_ns": 35763177,
+          "decisions": 8890,
+          "games": 800,
+          "losing_remaining": 1812,
+          "losses": 674,
+          "max_decision_ns": 207182,
+          "score_gain": -394,
+          "score_gain_squared": 166172.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 9.0,
+          "closed": 85,
+          "decision_ns": 35442698,
+          "decisions": 8890,
+          "games": 800,
+          "losing_remaining": 1812,
+          "losses": 674,
+          "max_decision_ns": 178176,
+          "score_gain": -394,
+          "score_gain_squared": 166172.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 10.0,
+          "closed": 85,
+          "decision_ns": 35153831,
+          "decisions": 8890,
+          "games": 800,
+          "losing_remaining": 1812,
+          "losses": 674,
+          "max_decision_ns": 176864,
+          "score_gain": -393,
+          "score_gain_squared": 166293.0,
+          "tables": 100
+        }
+      ],
+      "players": 6,
+      "rounds": 8,
+      "starting_position": 0,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 25.0,
+          "closed": 80,
+          "decision_ns": 35015208,
+          "decisions": 8918,
+          "games": 800,
+          "losing_remaining": 1781,
+          "losses": 666,
+          "max_decision_ns": 173478,
+          "score_gain": -141,
+          "score_gain_squared": 193939.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 25.0,
+          "closed": 80,
+          "decision_ns": 34948521,
+          "decisions": 8906,
+          "games": 800,
+          "losing_remaining": 1780,
+          "losses": 665,
+          "max_decision_ns": 175421,
+          "score_gain": -56,
+          "score_gain_squared": 219216.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 26.0,
+          "closed": 80,
+          "decision_ns": 34801312,
+          "decisions": 8912,
+          "games": 800,
+          "losing_remaining": 1779,
+          "losses": 665,
+          "max_decision_ns": 171744,
+          "score_gain": 10,
+          "score_gain_squared": 223180.0,
+          "tables": 100
+        }
+      ],
+      "players": 6,
+      "rounds": 8,
+      "starting_position": 1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 6.0,
+          "closed": 104,
+          "decision_ns": 33377772,
+          "decisions": 8604,
+          "games": 800,
+          "losing_remaining": 1860,
+          "losses": 676,
+          "max_decision_ns": 160874,
+          "score_gain": -599,
+          "score_gain_squared": 296237.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 6.0,
+          "closed": 104,
+          "decision_ns": 33212092,
+          "decisions": 8610,
+          "games": 800,
+          "losing_remaining": 1862,
+          "losses": 678,
+          "max_decision_ns": 161025,
+          "score_gain": -651,
+          "score_gain_squared": 296341.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 7.0,
+          "closed": 102,
+          "decision_ns": 33509301,
+          "decisions": 8630,
+          "games": 800,
+          "losing_remaining": 1846,
+          "losses": 673,
+          "max_decision_ns": 159231,
+          "score_gain": -505,
+          "score_gain_squared": 334129.0,
+          "tables": 100
+        }
+      ],
+      "players": 6,
+      "rounds": 8,
+      "starting_position": -1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 19.0,
+          "closed": 77,
+          "decision_ns": 35011072,
+          "decisions": 8930,
+          "games": 800,
+          "losing_remaining": 1730,
+          "losses": 658,
+          "max_decision_ns": 183356,
+          "score_gain": 803,
+          "score_gain_squared": 355541.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 19.0,
+          "closed": 76,
+          "decision_ns": 34910408,
+          "decisions": 8919,
+          "games": 800,
+          "losing_remaining": 1732,
+          "losses": 660,
+          "max_decision_ns": 184820,
+          "score_gain": 776,
+          "score_gain_squared": 353824.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 18.0,
+          "closed": 76,
+          "decision_ns": 34676993,
+          "decisions": 8926,
+          "games": 800,
+          "losing_remaining": 1736,
+          "losses": 661,
+          "max_decision_ns": 186753,
+          "score_gain": 563,
+          "score_gain_squared": 335701.0,
+          "tables": 100
+        }
+      ],
+      "players": 6,
+      "rounds": 8,
+      "starting_position": 0,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 26.0,
+          "closed": 96,
+          "decision_ns": 33546359,
+          "decisions": 9128,
+          "games": 800,
+          "losing_remaining": 1796,
+          "losses": 667,
+          "max_decision_ns": 141447,
+          "score_gain": 365,
+          "score_gain_squared": 265217.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 26.0,
+          "closed": 94,
+          "decision_ns": 34352749,
+          "decisions": 9136,
+          "games": 800,
+          "losing_remaining": 1788,
+          "losses": 667,
+          "max_decision_ns": 168188,
+          "score_gain": 420,
+          "score_gain_squared": 288638.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 26.0,
+          "closed": 94,
+          "decision_ns": 33487710,
+          "decisions": 9136,
+          "games": 800,
+          "losing_remaining": 1788,
+          "losses": 667,
+          "max_decision_ns": 140485,
+          "score_gain": 420,
+          "score_gain_squared": 288638.0,
+          "tables": 100
+        }
+      ],
+      "players": 6,
+      "rounds": 8,
+      "starting_position": 1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 12.0,
+          "closed": 182,
+          "decision_ns": 72728014,
+          "decisions": 17429,
+          "games": 1600,
+          "losing_remaining": 3602,
+          "losses": 1337,
+          "max_decision_ns": 211610,
+          "score_gain": -346,
+          "score_gain_squared": 454428.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 12.0,
+          "closed": 182,
+          "decision_ns": 72221819,
+          "decisions": 17439,
+          "games": 1600,
+          "losing_remaining": 3606,
+          "losses": 1338,
+          "max_decision_ns": 196421,
+          "score_gain": -399,
+          "score_gain_squared": 460349.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 13.0,
+          "closed": 182,
+          "decision_ns": 72581293,
+          "decisions": 17435,
+          "games": 1600,
+          "losing_remaining": 3606,
+          "losses": 1338,
+          "max_decision_ns": 195009,
+          "score_gain": -383,
+          "score_gain_squared": 465053.0,
+          "tables": 100
+        }
+      ],
+      "players": 6,
+      "rounds": 16,
+      "starting_position": -1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 16.0,
+          "closed": 175,
+          "decision_ns": 68475839,
+          "decisions": 17620,
+          "games": 1600,
+          "losing_remaining": 3557,
+          "losses": 1327,
+          "max_decision_ns": 189187,
+          "score_gain": 844,
+          "score_gain_squared": 541658.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 16.0,
+          "closed": 175,
+          "decision_ns": 68458243,
+          "decisions": 17617,
+          "games": 1600,
+          "losing_remaining": 3560,
+          "losses": 1329,
+          "max_decision_ns": 189699,
+          "score_gain": 711,
+          "score_gain_squared": 498087.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 16.0,
+          "closed": 175,
+          "decision_ns": 69389976,
+          "decisions": 17640,
+          "games": 1600,
+          "losing_remaining": 3561,
+          "losses": 1330,
+          "max_decision_ns": 280390,
+          "score_gain": 678,
+          "score_gain_squared": 488692.0,
+          "tables": 100
+        }
+      ],
+      "players": 6,
+      "rounds": 16,
+      "starting_position": 0,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 24.0,
+          "closed": 176,
+          "decision_ns": 68849989,
+          "decisions": 17708,
+          "games": 1600,
+          "losing_remaining": 3630,
+          "losses": 1338,
+          "max_decision_ns": 196822,
+          "score_gain": 477,
+          "score_gain_squared": 591503.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 24.0,
+          "closed": 176,
+          "decision_ns": 68921568,
+          "decisions": 17708,
+          "games": 1600,
+          "losing_remaining": 3630,
+          "losses": 1338,
+          "max_decision_ns": 196000,
+          "score_gain": 477,
+          "score_gain_squared": 591503.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 24.0,
+          "closed": 176,
+          "decision_ns": 68805089,
+          "decisions": 17704,
+          "games": 1600,
+          "losing_remaining": 3629,
+          "losses": 1337,
+          "max_decision_ns": 200199,
+          "score_gain": 657,
+          "score_gain_squared": 658823.0,
+          "tables": 100
+        }
+      ],
+      "players": 6,
+      "rounds": 16,
+      "starting_position": 1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 14.0,
+          "closed": 190,
+          "decision_ns": 71228345,
+          "decisions": 17570,
+          "games": 1600,
+          "losing_remaining": 3560,
+          "losses": 1313,
+          "max_decision_ns": 430464,
+          "score_gain": 659,
+          "score_gain_squared": 653251.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 14.0,
+          "closed": 191,
+          "decision_ns": 70131309,
+          "decisions": 17559,
+          "games": 1600,
+          "losing_remaining": 3567,
+          "losses": 1315,
+          "max_decision_ns": 369268,
+          "score_gain": 648,
+          "score_gain_squared": 641880.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 14.0,
+          "closed": 191,
+          "decision_ns": 70565411,
+          "decisions": 17559,
+          "games": 1600,
+          "losing_remaining": 3567,
+          "losses": 1315,
+          "max_decision_ns": 204126,
+          "score_gain": 648,
+          "score_gain_squared": 641880.0,
+          "tables": 100
+        }
+      ],
+      "players": 6,
+      "rounds": 16,
+      "starting_position": -1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 13.5,
+          "closed": 191,
+          "decision_ns": 70972731,
+          "decisions": 17413,
+          "games": 1600,
+          "losing_remaining": 3598,
+          "losses": 1329,
+          "max_decision_ns": 208565,
+          "score_gain": -472,
+          "score_gain_squared": 455438.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 13.5,
+          "closed": 192,
+          "decision_ns": 70439846,
+          "decisions": 17442,
+          "games": 1600,
+          "losing_remaining": 3604,
+          "losses": 1331,
+          "max_decision_ns": 212622,
+          "score_gain": -586,
+          "score_gain_squared": 447470.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 13.5,
+          "closed": 193,
+          "decision_ns": 70325165,
+          "decisions": 17459,
+          "games": 1600,
+          "losing_remaining": 3605,
+          "losses": 1331,
+          "max_decision_ns": 211770,
+          "score_gain": -607,
+          "score_gain_squared": 449213.0,
+          "tables": 100
+        }
+      ],
+      "players": 6,
+      "rounds": 16,
+      "starting_position": 0,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 16.0,
+          "closed": 182,
+          "decision_ns": 71251301,
+          "decisions": 17907,
+          "games": 1600,
+          "losing_remaining": 3519,
+          "losses": 1330,
+          "max_decision_ns": 218323,
+          "score_gain": 15,
+          "score_gain_squared": 487785.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 17.0,
+          "closed": 179,
+          "decision_ns": 71882286,
+          "decisions": 17935,
+          "games": 1600,
+          "losing_remaining": 3508,
+          "losses": 1329,
+          "max_decision_ns": 251877,
+          "score_gain": 186,
+          "score_gain_squared": 522304.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 17.0,
+          "closed": 180,
+          "decision_ns": 71314379,
+          "decisions": 17922,
+          "games": 1600,
+          "losing_remaining": 3514,
+          "losses": 1329,
+          "max_decision_ns": 195290,
+          "score_gain": 241,
+          "score_gain_squared": 551075.0,
+          "tables": 100
+        }
+      ],
+      "players": 6,
+      "rounds": 16,
+      "starting_position": 1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 11.5,
+          "closed": 332,
+          "decision_ns": 143423203,
+          "decisions": 35862,
+          "games": 3200,
+          "losing_remaining": 7026,
+          "losses": 2643,
+          "max_decision_ns": 201341,
+          "score_gain": 861,
+          "score_gain_squared": 1041013.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 11.5,
+          "closed": 332,
+          "decision_ns": 142768968,
+          "decisions": 35860,
+          "games": 3200,
+          "losing_remaining": 7025,
+          "losses": 2642,
+          "max_decision_ns": 198866,
+          "score_gain": 886,
+          "score_gain_squared": 1038938.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 11.0,
+          "closed": 332,
+          "decision_ns": 142646146,
+          "decisions": 35858,
+          "games": 3200,
+          "losing_remaining": 7025,
+          "losses": 2642,
+          "max_decision_ns": 202593,
+          "score_gain": 908,
+          "score_gain_squared": 1050354.0,
+          "tables": 100
+        }
+      ],
+      "players": 6,
+      "rounds": 32,
+      "starting_position": -1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 13.0,
+          "closed": 376,
+          "decision_ns": 137080457,
+          "decisions": 35245,
+          "games": 3200,
+          "losing_remaining": 7215,
+          "losses": 2686,
+          "max_decision_ns": 190340,
+          "score_gain": -822,
+          "score_gain_squared": 963628.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 13.0,
+          "closed": 376,
+          "decision_ns": 136280436,
+          "decisions": 35248,
+          "games": 3200,
+          "losing_remaining": 7215,
+          "losses": 2686,
+          "max_decision_ns": 186733,
+          "score_gain": -830,
+          "score_gain_squared": 961356.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 13.0,
+          "closed": 376,
+          "decision_ns": 137463560,
+          "decisions": 35244,
+          "games": 3200,
+          "losing_remaining": 7216,
+          "losses": 2687,
+          "max_decision_ns": 186923,
+          "score_gain": -881,
+          "score_gain_squared": 945597.0,
+          "tables": 100
+        }
+      ],
+      "players": 6,
+      "rounds": 32,
+      "starting_position": 0,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 19.0,
+          "closed": 358,
+          "decision_ns": 141633868,
+          "decisions": 35786,
+          "games": 3200,
+          "losing_remaining": 7064,
+          "losses": 2694,
+          "max_decision_ns": 449079,
+          "score_gain": -1378,
+          "score_gain_squared": 1032464.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 18.0,
+          "closed": 358,
+          "decision_ns": 141095653,
+          "decisions": 35791,
+          "games": 3200,
+          "losing_remaining": 7066,
+          "losses": 2696,
+          "max_decision_ns": 314053,
+          "score_gain": -1566,
+          "score_gain_squared": 982416.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 17.0,
+          "closed": 358,
+          "decision_ns": 139137073,
+          "decisions": 35776,
+          "games": 3200,
+          "losing_remaining": 7067,
+          "losses": 2696,
+          "max_decision_ns": 191542,
+          "score_gain": -1564,
+          "score_gain_squared": 957768.0,
+          "tables": 100
+        }
+      ],
+      "players": 6,
+      "rounds": 32,
+      "starting_position": 1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 12.0,
+          "closed": 374,
+          "decision_ns": 143648954,
+          "decisions": 35849,
+          "games": 3200,
+          "losing_remaining": 6986,
+          "losses": 2637,
+          "max_decision_ns": 196261,
+          "score_gain": 541,
+          "score_gain_squared": 1020409.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 12.0,
+          "closed": 374,
+          "decision_ns": 144255098,
+          "decisions": 35852,
+          "games": 3200,
+          "losing_remaining": 6986,
+          "losses": 2637,
+          "max_decision_ns": 224324,
+          "score_gain": 543,
+          "score_gain_squared": 1022669.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 12.0,
+          "closed": 371,
+          "decision_ns": 143866176,
+          "decisions": 35859,
+          "games": 3200,
+          "losing_remaining": 6977,
+          "losses": 2634,
+          "max_decision_ns": 352727,
+          "score_gain": 651,
+          "score_gain_squared": 1020783.0,
+          "tables": 100
+        }
+      ],
+      "players": 6,
+      "rounds": 32,
+      "starting_position": -1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 17.0,
+          "closed": 383,
+          "decision_ns": 140283198,
+          "decisions": 35589,
+          "games": 3200,
+          "losing_remaining": 7166,
+          "losses": 2656,
+          "max_decision_ns": 197453,
+          "score_gain": -620,
+          "score_gain_squared": 1342556.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 16.0,
+          "closed": 383,
+          "decision_ns": 141368338,
+          "decisions": 35589,
+          "games": 3200,
+          "losing_remaining": 7175,
+          "losses": 2658,
+          "max_decision_ns": 406779,
+          "score_gain": -884,
+          "score_gain_squared": 1349420.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 16.0,
+          "closed": 382,
+          "decision_ns": 140472972,
+          "decisions": 35586,
+          "games": 3200,
+          "losing_remaining": 7165,
+          "losses": 2653,
+          "max_decision_ns": 399295,
+          "score_gain": -615,
+          "score_gain_squared": 1439573.0,
+          "tables": 100
+        }
+      ],
+      "players": 6,
+      "rounds": 32,
+      "starting_position": 0,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 23.0,
+          "closed": 385,
+          "decision_ns": 138451208,
+          "decisions": 35049,
+          "games": 3200,
+          "losing_remaining": 7180,
+          "losses": 2649,
+          "max_decision_ns": 314184,
+          "score_gain": 765,
+          "score_gain_squared": 1175225.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 24.0,
+          "closed": 384,
+          "decision_ns": 138046054,
+          "decisions": 35028,
+          "games": 3200,
+          "losing_remaining": 7171,
+          "losses": 2646,
+          "max_decision_ns": 201641,
+          "score_gain": 764,
+          "score_gain_squared": 1161812.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 24.0,
+          "closed": 384,
+          "decision_ns": 138537311,
+          "decisions": 35007,
+          "games": 3200,
+          "losing_remaining": 7176,
+          "losses": 2651,
+          "max_decision_ns": 276092,
+          "score_gain": 624,
+          "score_gain_squared": 1151452.0,
+          "tables": 100
+        }
+      ],
+      "players": 6,
+      "rounds": 32,
+      "starting_position": 1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 10.0,
+          "closed": 95,
+          "decision_ns": 33325154,
+          "decisions": 8945,
+          "games": 800,
+          "losing_remaining": 1863,
+          "losses": 690,
+          "max_decision_ns": 205067,
+          "score_gain": 70,
+          "score_gain_squared": 299286.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 10.0,
+          "closed": 95,
+          "decision_ns": 33248663,
+          "decisions": 8945,
+          "games": 800,
+          "losing_remaining": 1863,
+          "losses": 690,
+          "max_decision_ns": 205168,
+          "score_gain": 70,
+          "score_gain_squared": 299286.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 10.0,
+          "closed": 95,
+          "decision_ns": 33205566,
+          "decisions": 8945,
+          "games": 800,
+          "losing_remaining": 1863,
+          "losses": 690,
+          "max_decision_ns": 204367,
+          "score_gain": 70,
+          "score_gain_squared": 299286.0,
+          "tables": 100
+        }
+      ],
+      "players": 7,
+      "rounds": 8,
+      "starting_position": -1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 12.0,
+          "closed": 98,
+          "decision_ns": 35830946,
+          "decisions": 8866,
+          "games": 800,
+          "losing_remaining": 1855,
+          "losses": 687,
+          "max_decision_ns": 246957,
+          "score_gain": -176,
+          "score_gain_squared": 417214.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 12.0,
+          "closed": 98,
+          "decision_ns": 35430670,
+          "decisions": 8854,
+          "games": 800,
+          "losing_remaining": 1854,
+          "losses": 686,
+          "max_decision_ns": 341375,
+          "score_gain": -37,
+          "score_gain_squared": 464763.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 12.0,
+          "closed": 98,
+          "decision_ns": 35744548,
+          "decisions": 8854,
+          "games": 800,
+          "losing_remaining": 1854,
+          "losses": 686,
+          "max_decision_ns": 305899,
+          "score_gain": -37,
+          "score_gain_squared": 464763.0,
+          "tables": 100
+        }
+      ],
+      "players": 7,
+      "rounds": 8,
+      "starting_position": 0,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 23.0,
+          "closed": 113,
+          "decision_ns": 35530813,
+          "decisions": 8613,
+          "games": 800,
+          "losing_remaining": 1933,
+          "losses": 695,
+          "max_decision_ns": 215387,
+          "score_gain": -76,
+          "score_gain_squared": 460984.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 23.0,
+          "closed": 113,
+          "decision_ns": 34815805,
+          "decisions": 8605,
+          "games": 800,
+          "losing_remaining": 1932,
+          "losses": 695,
+          "max_decision_ns": 214776,
+          "score_gain": -70,
+          "score_gain_squared": 460516.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 23.0,
+          "closed": 113,
+          "decision_ns": 35129667,
+          "decisions": 8599,
+          "games": 800,
+          "losing_remaining": 1931,
+          "losses": 694,
+          "max_decision_ns": 213844,
+          "score_gain": -73,
+          "score_gain_squared": 457291.0,
+          "tables": 100
+        }
+      ],
+      "players": 7,
+      "rounds": 8,
+      "starting_position": 1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 18.0,
+          "closed": 107,
+          "decision_ns": 34654714,
+          "decisions": 8818,
+          "games": 800,
+          "losing_remaining": 1898,
+          "losses": 681,
+          "max_decision_ns": 192023,
+          "score_gain": 237,
+          "score_gain_squared": 442723.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 18.0,
+          "closed": 107,
+          "decision_ns": 34655972,
+          "decisions": 8818,
+          "games": 800,
+          "losing_remaining": 1898,
+          "losses": 681,
+          "max_decision_ns": 186342,
+          "score_gain": 237,
+          "score_gain_squared": 442723.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 17.0,
+          "closed": 106,
+          "decision_ns": 34550566,
+          "decisions": 8834,
+          "games": 800,
+          "losing_remaining": 1898,
+          "losses": 681,
+          "max_decision_ns": 285079,
+          "score_gain": 124,
+          "score_gain_squared": 427114.0,
+          "tables": 100
+        }
+      ],
+      "players": 7,
+      "rounds": 8,
+      "starting_position": -1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 12.0,
+          "closed": 98,
+          "decision_ns": 33466923,
+          "decisions": 8760,
+          "games": 800,
+          "losing_remaining": 1973,
+          "losses": 698,
+          "max_decision_ns": 246616,
+          "score_gain": -374,
+          "score_gain_squared": 543564.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 12.0,
+          "closed": 98,
+          "decision_ns": 32907563,
+          "decisions": 8760,
+          "games": 800,
+          "losing_remaining": 1973,
+          "losses": 698,
+          "max_decision_ns": 189237,
+          "score_gain": -374,
+          "score_gain_squared": 543564.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 13.0,
+          "closed": 98,
+          "decision_ns": 33027883,
+          "decisions": 8756,
+          "games": 800,
+          "losing_remaining": 1968,
+          "losses": 697,
+          "max_decision_ns": 393884,
+          "score_gain": -201,
+          "score_gain_squared": 578811.0,
+          "tables": 100
+        }
+      ],
+      "players": 7,
+      "rounds": 8,
+      "starting_position": 0,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 20.0,
+          "closed": 101,
+          "decision_ns": 34428890,
+          "decisions": 8981,
+          "games": 800,
+          "losing_remaining": 1855,
+          "losses": 682,
+          "max_decision_ns": 212863,
+          "score_gain": 556,
+          "score_gain_squared": 892948.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 19.0,
+          "closed": 101,
+          "decision_ns": 34382476,
+          "decisions": 8987,
+          "games": 800,
+          "losing_remaining": 1854,
+          "losses": 683,
+          "max_decision_ns": 212011,
+          "score_gain": 166,
+          "score_gain_squared": 780952.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 20.0,
+          "closed": 100,
+          "decision_ns": 34650053,
+          "decisions": 8997,
+          "games": 800,
+          "losing_remaining": 1845,
+          "losses": 681,
+          "max_decision_ns": 216780,
+          "score_gain": 197,
+          "score_gain_squared": 709531.0,
+          "tables": 100
+        }
+      ],
+      "players": 7,
+      "rounds": 8,
+      "starting_position": 1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 14.0,
+          "closed": 193,
+          "decision_ns": 71411860,
+          "decisions": 18034,
+          "games": 1600,
+          "losing_remaining": 3651,
+          "losses": 1357,
+          "max_decision_ns": 218844,
+          "score_gain": 81,
+          "score_gain_squared": 731547.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 14.0,
+          "closed": 193,
+          "decision_ns": 71868920,
+          "decisions": 18042,
+          "games": 1600,
+          "losing_remaining": 3651,
+          "losses": 1357,
+          "max_decision_ns": 254872,
+          "score_gain": 80,
+          "score_gain_squared": 731638.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 14.0,
+          "closed": 193,
+          "decision_ns": 72094454,
+          "decisions": 18042,
+          "games": 1600,
+          "losing_remaining": 3646,
+          "losses": 1355,
+          "max_decision_ns": 217772,
+          "score_gain": 285,
+          "score_gain_squared": 775393.0,
+          "tables": 100
+        }
+      ],
+      "players": 7,
+      "rounds": 16,
+      "starting_position": -1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 14.0,
+          "closed": 203,
+          "decision_ns": 70436662,
+          "decisions": 18102,
+          "games": 1600,
+          "losing_remaining": 3639,
+          "losses": 1354,
+          "max_decision_ns": 445823,
+          "score_gain": 479,
+          "score_gain_squared": 797213.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 14.0,
+          "closed": 203,
+          "decision_ns": 69661911,
+          "decisions": 18095,
+          "games": 1600,
+          "losing_remaining": 3638,
+          "losses": 1353,
+          "max_decision_ns": 193716,
+          "score_gain": 516,
+          "score_gain_squared": 796954.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 14.0,
+          "closed": 203,
+          "decision_ns": 70168668,
+          "decisions": 18103,
+          "games": 1600,
+          "losing_remaining": 3639,
+          "losses": 1354,
+          "max_decision_ns": 577893,
+          "score_gain": 448,
+          "score_gain_squared": 799946.0,
+          "tables": 100
+        }
+      ],
+      "players": 7,
+      "rounds": 16,
+      "starting_position": 0,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 19.0,
+          "closed": 191,
+          "decision_ns": 71068936,
+          "decisions": 17501,
+          "games": 1600,
+          "losing_remaining": 3825,
+          "losses": 1371,
+          "max_decision_ns": 206310,
+          "score_gain": 917,
+          "score_gain_squared": 691869.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 19.0,
+          "closed": 191,
+          "decision_ns": 71175072,
+          "decisions": 17499,
+          "games": 1600,
+          "losing_remaining": 3824,
+          "losses": 1370,
+          "max_decision_ns": 221439,
+          "score_gain": 995,
+          "score_gain_squared": 680013.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 19.0,
+          "closed": 191,
+          "decision_ns": 70943689,
+          "decisions": 17492,
+          "games": 1600,
+          "losing_remaining": 3827,
+          "losses": 1371,
+          "max_decision_ns": 203885,
+          "score_gain": 929,
+          "score_gain_squared": 630777.0,
+          "tables": 100
+        }
+      ],
+      "players": 7,
+      "rounds": 16,
+      "starting_position": 1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 7.0,
+          "closed": 219,
+          "decision_ns": 75084826,
+          "decisions": 17512,
+          "games": 1600,
+          "losing_remaining": 3819,
+          "losses": 1379,
+          "max_decision_ns": 333581,
+          "score_gain": -368,
+          "score_gain_squared": 678134.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 7.0,
+          "closed": 218,
+          "decision_ns": 74100182,
+          "decisions": 17522,
+          "games": 1600,
+          "losing_remaining": 3813,
+          "losses": 1378,
+          "max_decision_ns": 358798,
+          "score_gain": -300,
+          "score_gain_squared": 670366.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 8.0,
+          "closed": 218,
+          "decision_ns": 75664815,
+          "decisions": 17530,
+          "games": 1600,
+          "losing_remaining": 3812,
+          "losses": 1378,
+          "max_decision_ns": 479086,
+          "score_gain": -218,
+          "score_gain_squared": 697368.0,
+          "tables": 100
+        }
+      ],
+      "players": 7,
+      "rounds": 16,
+      "starting_position": -1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 14.0,
+          "closed": 208,
+          "decision_ns": 71909268,
+          "decisions": 17425,
+          "games": 1600,
+          "losing_remaining": 3738,
+          "losses": 1352,
+          "max_decision_ns": 411057,
+          "score_gain": 586,
+          "score_gain_squared": 790180.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 15.0,
+          "closed": 208,
+          "decision_ns": 70591081,
+          "decisions": 17420,
+          "games": 1600,
+          "losing_remaining": 3737,
+          "losses": 1352,
+          "max_decision_ns": 226037,
+          "score_gain": 588,
+          "score_gain_squared": 790504.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 15.0,
+          "closed": 208,
+          "decision_ns": 71661627,
+          "decisions": 17420,
+          "games": 1600,
+          "losing_remaining": 3737,
+          "losses": 1352,
+          "max_decision_ns": 479156,
+          "score_gain": 586,
+          "score_gain_squared": 790972.0,
+          "tables": 100
+        }
+      ],
+      "players": 7,
+      "rounds": 16,
+      "starting_position": 0,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 18.0,
+          "closed": 194,
+          "decision_ns": 68997541,
+          "decisions": 17802,
+          "games": 1600,
+          "losing_remaining": 3791,
+          "losses": 1372,
+          "max_decision_ns": 210068,
+          "score_gain": -119,
+          "score_gain_squared": 554045.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 18.0,
+          "closed": 194,
+          "decision_ns": 68948961,
+          "decisions": 17802,
+          "games": 1600,
+          "losing_remaining": 3791,
+          "losses": 1372,
+          "max_decision_ns": 205328,
+          "score_gain": -119,
+          "score_gain_squared": 554045.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 18.0,
+          "closed": 194,
+          "decision_ns": 68873030,
+          "decisions": 17802,
+          "games": 1600,
+          "losing_remaining": 3791,
+          "losses": 1372,
+          "max_decision_ns": 218593,
+          "score_gain": -119,
+          "score_gain_squared": 554045.0,
+          "tables": 100
+        }
+      ],
+      "players": 7,
+      "rounds": 16,
+      "starting_position": 1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 10.0,
+          "closed": 409,
+          "decision_ns": 139820203,
+          "decisions": 35772,
+          "games": 3200,
+          "losing_remaining": 7597,
+          "losses": 2768,
+          "max_decision_ns": 219766,
+          "score_gain": -890,
+          "score_gain_squared": 1447606.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 10.0,
+          "closed": 409,
+          "decision_ns": 139843925,
+          "decisions": 35756,
+          "games": 3200,
+          "losing_remaining": 7595,
+          "losses": 2768,
+          "max_decision_ns": 266544,
+          "score_gain": -763,
+          "score_gain_squared": 1447399.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 10.0,
+          "closed": 409,
+          "decision_ns": 139411687,
+          "decisions": 35758,
+          "games": 3200,
+          "losing_remaining": 7594,
+          "losses": 2767,
+          "max_decision_ns": 216499,
+          "score_gain": -676,
+          "score_gain_squared": 1449994.0,
+          "tables": 100
+        }
+      ],
+      "players": 7,
+      "rounds": 32,
+      "starting_position": -1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 18.0,
+          "closed": 410,
+          "decision_ns": 143115278,
+          "decisions": 35698,
+          "games": 3200,
+          "losing_remaining": 7372,
+          "losses": 2709,
+          "max_decision_ns": 724931,
+          "score_gain": 1641,
+          "score_gain_squared": 1712683.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 18.0,
+          "closed": 410,
+          "decision_ns": 145359387,
+          "decisions": 35702,
+          "games": 3200,
+          "losing_remaining": 7373,
+          "losses": 2709,
+          "max_decision_ns": 833476,
+          "score_gain": 1581,
+          "score_gain_squared": 1658739.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 18.0,
+          "closed": 410,
+          "decision_ns": 144799599,
+          "decisions": 35704,
+          "games": 3200,
+          "losing_remaining": 7373,
+          "losses": 2709,
+          "max_decision_ns": 617487,
+          "score_gain": 1549,
+          "score_gain_squared": 1633203.0,
+          "tables": 100
+        }
+      ],
+      "players": 7,
+      "rounds": 32,
+      "starting_position": 0,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 21.0,
+          "closed": 398,
+          "decision_ns": 143510806,
+          "decisions": 35448,
+          "games": 3200,
+          "losing_remaining": 7477,
+          "losses": 2721,
+          "max_decision_ns": 228593,
+          "score_gain": 1027,
+          "score_gain_squared": 1280655.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 20.0,
+          "closed": 398,
+          "decision_ns": 144180047,
+          "decisions": 35456,
+          "games": 3200,
+          "losing_remaining": 7479,
+          "losses": 2722,
+          "max_decision_ns": 607910,
+          "score_gain": 861,
+          "score_gain_squared": 1261827.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 20.0,
+          "closed": 398,
+          "decision_ns": 144698882,
+          "decisions": 35453,
+          "games": 3200,
+          "losing_remaining": 7479,
+          "losses": 2722,
+          "max_decision_ns": 550321,
+          "score_gain": 805,
+          "score_gain_squared": 1235931.0,
+          "tables": 100
+        }
+      ],
+      "players": 7,
+      "rounds": 32,
+      "starting_position": 1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 20.0,
+          "closed": 371,
+          "decision_ns": 142505789,
+          "decisions": 35650,
+          "games": 3200,
+          "losing_remaining": 7410,
+          "losses": 2723,
+          "max_decision_ns": 379518,
+          "score_gain": 1820,
+          "score_gain_squared": 2060116.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 21.0,
+          "closed": 370,
+          "decision_ns": 141845948,
+          "decisions": 35647,
+          "games": 3200,
+          "losing_remaining": 7414,
+          "losses": 2724,
+          "max_decision_ns": 440052,
+          "score_gain": 1736,
+          "score_gain_squared": 1976910.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 21.0,
+          "closed": 372,
+          "decision_ns": 142137794,
+          "decisions": 35648,
+          "games": 3200,
+          "losing_remaining": 7404,
+          "losses": 2720,
+          "max_decision_ns": 301410,
+          "score_gain": 1864,
+          "score_gain_squared": 1978242.0,
+          "tables": 100
+        }
+      ],
+      "players": 7,
+      "rounds": 32,
+      "starting_position": -1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 15.0,
+          "closed": 426,
+          "decision_ns": 137994731,
+          "decisions": 35561,
+          "games": 3200,
+          "losing_remaining": 7622,
+          "losses": 2767,
+          "max_decision_ns": 947793,
+          "score_gain": -858,
+          "score_gain_squared": 1807834.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 15.0,
+          "closed": 426,
+          "decision_ns": 137504970,
+          "decisions": 35561,
+          "games": 3200,
+          "losing_remaining": 7622,
+          "losses": 2767,
+          "max_decision_ns": 454831,
+          "score_gain": -858,
+          "score_gain_squared": 1807834.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 15.0,
+          "closed": 426,
+          "decision_ns": 138148518,
+          "decisions": 35566,
+          "games": 3200,
+          "losing_remaining": 7622,
+          "losses": 2767,
+          "max_decision_ns": 467635,
+          "score_gain": -939,
+          "score_gain_squared": 1717003.0,
+          "tables": 100
+        }
+      ],
+      "players": 7,
+      "rounds": 32,
+      "starting_position": 0,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 15.0,
+          "closed": 444,
+          "decision_ns": 140502256,
+          "decisions": 35611,
+          "games": 3200,
+          "losing_remaining": 7598,
+          "losses": 2753,
+          "max_decision_ns": 479667,
+          "score_gain": -902,
+          "score_gain_squared": 1949282.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 15.0,
+          "closed": 443,
+          "decision_ns": 141042141,
+          "decisions": 35616,
+          "games": 3200,
+          "losing_remaining": 7595,
+          "losses": 2752,
+          "max_decision_ns": 853905,
+          "score_gain": -883,
+          "score_gain_squared": 1956789.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 15.0,
+          "closed": 443,
+          "decision_ns": 141529857,
+          "decisions": 35617,
+          "games": 3200,
+          "losing_remaining": 7595,
+          "losses": 2752,
+          "max_decision_ns": 1253802,
+          "score_gain": -880,
+          "score_gain_squared": 1956984.0,
+          "tables": 100
+        }
+      ],
+      "players": 7,
+      "rounds": 32,
+      "starting_position": 1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 9.0,
+          "closed": 116,
+          "decision_ns": 36059940,
+          "decisions": 8839,
+          "games": 800,
+          "losing_remaining": 1976,
+          "losses": 712,
+          "max_decision_ns": 233752,
+          "score_gain": 997,
+          "score_gain_squared": 1126331.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 9.0,
+          "closed": 116,
+          "decision_ns": 35999662,
+          "decisions": 8839,
+          "games": 800,
+          "losing_remaining": 1976,
+          "losses": 712,
+          "max_decision_ns": 218504,
+          "score_gain": 997,
+          "score_gain_squared": 1126331.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 9.0,
+          "closed": 116,
+          "decision_ns": 36238665,
+          "decisions": 8845,
+          "games": 800,
+          "losing_remaining": 1978,
+          "losses": 713,
+          "max_decision_ns": 278547,
+          "score_gain": 951,
+          "score_gain_squared": 1116579.0,
+          "tables": 100
+        }
+      ],
+      "players": 8,
+      "rounds": 8,
+      "starting_position": -1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 11.0,
+          "closed": 125,
+          "decision_ns": 34749378,
+          "decisions": 8774,
+          "games": 800,
+          "losing_remaining": 2012,
+          "losses": 693,
+          "max_decision_ns": 518381,
+          "score_gain": -389,
+          "score_gain_squared": 402241.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 11.0,
+          "closed": 125,
+          "decision_ns": 34324006,
+          "decisions": 8776,
+          "games": 800,
+          "losing_remaining": 2010,
+          "losses": 693,
+          "max_decision_ns": 234424,
+          "score_gain": -383,
+          "score_gain_squared": 403969.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 11.0,
+          "closed": 125,
+          "decision_ns": 35316115,
+          "decisions": 8776,
+          "games": 800,
+          "losing_remaining": 2010,
+          "losses": 693,
+          "max_decision_ns": 661792,
+          "score_gain": -383,
+          "score_gain_squared": 403969.0,
+          "tables": 100
+        }
+      ],
+      "players": 8,
+      "rounds": 8,
+      "starting_position": 0,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 17.0,
+          "closed": 113,
+          "decision_ns": 34881945,
+          "decisions": 8617,
+          "games": 800,
+          "losing_remaining": 2002,
+          "losses": 695,
+          "max_decision_ns": 240245,
+          "score_gain": -208,
+          "score_gain_squared": 703326.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 17.0,
+          "closed": 113,
+          "decision_ns": 34286688,
+          "decisions": 8618,
+          "games": 800,
+          "losing_remaining": 2002,
+          "losses": 695,
+          "max_decision_ns": 243891,
+          "score_gain": -220,
+          "score_gain_squared": 704502.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 17.0,
+          "closed": 113,
+          "decision_ns": 34584718,
+          "decisions": 8611,
+          "games": 800,
+          "losing_remaining": 2004,
+          "losses": 695,
+          "max_decision_ns": 237950,
+          "score_gain": -221,
+          "score_gain_squared": 704489.0,
+          "tables": 100
+        }
+      ],
+      "players": 8,
+      "rounds": 8,
+      "starting_position": 1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 6.0,
+          "closed": 102,
+          "decision_ns": 33824151,
+          "decisions": 8620,
+          "games": 800,
+          "losing_remaining": 1972,
+          "losses": 709,
+          "max_decision_ns": 202933,
+          "score_gain": -801,
+          "score_gain_squared": 454591.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 6.0,
+          "closed": 102,
+          "decision_ns": 33915792,
+          "decisions": 8623,
+          "games": 800,
+          "losing_remaining": 1967,
+          "losses": 707,
+          "max_decision_ns": 201642,
+          "score_gain": -766,
+          "score_gain_squared": 462396.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 6.0,
+          "closed": 102,
+          "decision_ns": 33867829,
+          "decisions": 8623,
+          "games": 800,
+          "losing_remaining": 1967,
+          "losses": 707,
+          "max_decision_ns": 201762,
+          "score_gain": -766,
+          "score_gain_squared": 462396.0,
+          "tables": 100
+        }
+      ],
+      "players": 8,
+      "rounds": 8,
+      "starting_position": -1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 12.0,
+          "closed": 129,
+          "decision_ns": 33858540,
+          "decisions": 8731,
+          "games": 800,
+          "losing_remaining": 2026,
+          "losses": 714,
+          "max_decision_ns": 194889,
+          "score_gain": -814,
+          "score_gain_squared": 553144.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 12.0,
+          "closed": 129,
+          "decision_ns": 33641196,
+          "decisions": 8731,
+          "games": 800,
+          "losing_remaining": 2026,
+          "losses": 714,
+          "max_decision_ns": 193937,
+          "score_gain": -814,
+          "score_gain_squared": 553144.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 12.0,
+          "closed": 129,
+          "decision_ns": 33954267,
+          "decisions": 8731,
+          "games": 800,
+          "losing_remaining": 2026,
+          "losses": 714,
+          "max_decision_ns": 223993,
+          "score_gain": -814,
+          "score_gain_squared": 553144.0,
+          "tables": 100
+        }
+      ],
+      "players": 8,
+      "rounds": 8,
+      "starting_position": 0,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 18.0,
+          "closed": 112,
+          "decision_ns": 34057228,
+          "decisions": 8641,
+          "games": 800,
+          "losing_remaining": 1975,
+          "losses": 696,
+          "max_decision_ns": 222841,
+          "score_gain": 482,
+          "score_gain_squared": 725116.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 18.0,
+          "closed": 112,
+          "decision_ns": 33973889,
+          "decisions": 8640,
+          "games": 800,
+          "losing_remaining": 1975,
+          "losses": 696,
+          "max_decision_ns": 221349,
+          "score_gain": 535,
+          "score_gain_squared": 727925.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 18.0,
+          "closed": 112,
+          "decision_ns": 34029238,
+          "decisions": 8637,
+          "games": 800,
+          "losing_remaining": 1975,
+          "losses": 696,
+          "max_decision_ns": 216570,
+          "score_gain": 636,
+          "score_gain_squared": 775496.0,
+          "tables": 100
+        }
+      ],
+      "players": 8,
+      "rounds": 8,
+      "starting_position": 1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 9.0,
+          "closed": 244,
+          "decision_ns": 73152361,
+          "decisions": 17760,
+          "games": 1600,
+          "losing_remaining": 4038,
+          "losses": 1392,
+          "max_decision_ns": 256065,
+          "score_gain": 212,
+          "score_gain_squared": 1108128.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 9.0,
+          "closed": 244,
+          "decision_ns": 72755503,
+          "decisions": 17762,
+          "games": 1600,
+          "losing_remaining": 4040,
+          "losses": 1392,
+          "max_decision_ns": 245234,
+          "score_gain": 208,
+          "score_gain_squared": 1108964.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 9.0,
+          "closed": 244,
+          "decision_ns": 72873707,
+          "decisions": 17761,
+          "games": 1600,
+          "losing_remaining": 4040,
+          "losses": 1392,
+          "max_decision_ns": 246847,
+          "score_gain": 184,
+          "score_gain_squared": 1100516.0,
+          "tables": 100
+        }
+      ],
+      "players": 8,
+      "rounds": 16,
+      "starting_position": -1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 13.0,
+          "closed": 214,
+          "decision_ns": 76686371,
+          "decisions": 17794,
+          "games": 1600,
+          "losing_remaining": 3907,
+          "losses": 1395,
+          "max_decision_ns": 388334,
+          "score_gain": 855,
+          "score_gain_squared": 1566091.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 13.0,
+          "closed": 214,
+          "decision_ns": 76665599,
+          "decisions": 17794,
+          "games": 1600,
+          "losing_remaining": 3907,
+          "losses": 1395,
+          "max_decision_ns": 251677,
+          "score_gain": 855,
+          "score_gain_squared": 1566091.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 13.0,
+          "closed": 214,
+          "decision_ns": 76493950,
+          "decisions": 17784,
+          "games": 1600,
+          "losing_remaining": 3910,
+          "losses": 1396,
+          "max_decision_ns": 225847,
+          "score_gain": 951,
+          "score_gain_squared": 1557385.0,
+          "tables": 100
+        }
+      ],
+      "players": 8,
+      "rounds": 16,
+      "starting_position": 0,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 9.0,
+          "closed": 219,
+          "decision_ns": 68483840,
+          "decisions": 17654,
+          "games": 1600,
+          "losing_remaining": 3995,
+          "losses": 1412,
+          "max_decision_ns": 218373,
+          "score_gain": -2065,
+          "score_gain_squared": 707757.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 9.0,
+          "closed": 219,
+          "decision_ns": 68865357,
+          "decisions": 17654,
+          "games": 1600,
+          "losing_remaining": 3993,
+          "losses": 1412,
+          "max_decision_ns": 246767,
+          "score_gain": -2064,
+          "score_gain_squared": 707716.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 9.0,
+          "closed": 219,
+          "decision_ns": 68197499,
+          "decisions": 17639,
+          "games": 1600,
+          "losing_remaining": 3994,
+          "losses": 1412,
+          "max_decision_ns": 219315,
+          "score_gain": -2085,
+          "score_gain_squared": 703879.0,
+          "tables": 100
+        }
+      ],
+      "players": 8,
+      "rounds": 16,
+      "starting_position": 1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 2.0,
+          "closed": 229,
+          "decision_ns": 69850339,
+          "decisions": 17604,
+          "games": 1600,
+          "losing_remaining": 3974,
+          "losses": 1409,
+          "max_decision_ns": 200469,
+          "score_gain": -808,
+          "score_gain_squared": 840412.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 2.0,
+          "closed": 229,
+          "decision_ns": 71236189,
+          "decisions": 17604,
+          "games": 1600,
+          "losing_remaining": 3973,
+          "losses": 1409,
+          "max_decision_ns": 572373,
+          "score_gain": -812,
+          "score_gain_squared": 840428.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 2.0,
+          "closed": 229,
+          "decision_ns": 70332233,
+          "decisions": 17609,
+          "games": 1600,
+          "losing_remaining": 3973,
+          "losses": 1409,
+          "max_decision_ns": 205749,
+          "score_gain": -812,
+          "score_gain_squared": 840896.0,
+          "tables": 100
+        }
+      ],
+      "players": 8,
+      "rounds": 16,
+      "starting_position": -1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 10.0,
+          "closed": 219,
+          "decision_ns": 72358740,
+          "decisions": 17777,
+          "games": 1600,
+          "losing_remaining": 3909,
+          "losses": 1370,
+          "max_decision_ns": 346115,
+          "score_gain": 854,
+          "score_gain_squared": 926950.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 10.0,
+          "closed": 219,
+          "decision_ns": 74036905,
+          "decisions": 17781,
+          "games": 1600,
+          "losing_remaining": 3906,
+          "losses": 1369,
+          "max_decision_ns": 934388,
+          "score_gain": 946,
+          "score_gain_squared": 923822.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 10.0,
+          "closed": 220,
+          "decision_ns": 74252825,
+          "decisions": 17775,
+          "games": 1600,
+          "losing_remaining": 3900,
+          "losses": 1369,
+          "max_decision_ns": 532999,
+          "score_gain": 931,
+          "score_gain_squared": 921285.0,
+          "tables": 100
+        }
+      ],
+      "players": 8,
+      "rounds": 16,
+      "starting_position": 0,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 9.0,
+          "closed": 237,
+          "decision_ns": 70167489,
+          "decisions": 17641,
+          "games": 1600,
+          "losing_remaining": 3983,
+          "losses": 1407,
+          "max_decision_ns": 239543,
+          "score_gain": -768,
+          "score_gain_squared": 1326708.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 9.0,
+          "closed": 238,
+          "decision_ns": 71156557,
+          "decisions": 17647,
+          "games": 1600,
+          "losing_remaining": 3990,
+          "losses": 1409,
+          "max_decision_ns": 482754,
+          "score_gain": -878,
+          "score_gain_squared": 1222666.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 9.0,
+          "closed": 238,
+          "decision_ns": 69772382,
+          "decisions": 17647,
+          "games": 1600,
+          "losing_remaining": 3990,
+          "losses": 1409,
+          "max_decision_ns": 242038,
+          "score_gain": -878,
+          "score_gain_squared": 1222666.0,
+          "tables": 100
+        }
+      ],
+      "players": 8,
+      "rounds": 16,
+      "starting_position": 1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 5.0,
+          "closed": 404,
+          "decision_ns": 144561018,
+          "decisions": 35588,
+          "games": 3200,
+          "losing_remaining": 7821,
+          "losses": 2803,
+          "max_decision_ns": 371623,
+          "score_gain": 43,
+          "score_gain_squared": 1987925.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 5.0,
+          "closed": 404,
+          "decision_ns": 143142853,
+          "decisions": 35587,
+          "games": 3200,
+          "losing_remaining": 7821,
+          "losses": 2803,
+          "max_decision_ns": 293746,
+          "score_gain": 36,
+          "score_gain_squared": 1987616.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 5.0,
+          "closed": 404,
+          "decision_ns": 142766720,
+          "decisions": 35581,
+          "games": 3200,
+          "losing_remaining": 7821,
+          "losses": 2803,
+          "max_decision_ns": 704943,
+          "score_gain": 84,
+          "score_gain_squared": 1981760.0,
+          "tables": 100
+        }
+      ],
+      "players": 8,
+      "rounds": 32,
+      "starting_position": -1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 13.0,
+          "closed": 444,
+          "decision_ns": 142190948,
+          "decisions": 35288,
+          "games": 3200,
+          "losing_remaining": 7858,
+          "losses": 2776,
+          "max_decision_ns": 253069,
+          "score_gain": 1853,
+          "score_gain_squared": 2703027.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 13.0,
+          "closed": 444,
+          "decision_ns": 141812447,
+          "decisions": 35291,
+          "games": 3200,
+          "losing_remaining": 7855,
+          "losses": 2776,
+          "max_decision_ns": 422088,
+          "score_gain": 1853,
+          "score_gain_squared": 2703027.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 14.0,
+          "closed": 444,
+          "decision_ns": 143388992,
+          "decisions": 35297,
+          "games": 3200,
+          "losing_remaining": 7851,
+          "losses": 2774,
+          "max_decision_ns": 735000,
+          "score_gain": 1926,
+          "score_gain_squared": 2730100.0,
+          "tables": 100
+        }
+      ],
+      "players": 8,
+      "rounds": 32,
+      "starting_position": 0,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 11.0,
+          "closed": 449,
+          "decision_ns": 140854842,
+          "decisions": 35053,
+          "games": 3200,
+          "losing_remaining": 8081,
+          "losses": 2823,
+          "max_decision_ns": 570529,
+          "score_gain": -1665,
+          "score_gain_squared": 2234765.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 11.0,
+          "closed": 449,
+          "decision_ns": 139616985,
+          "decisions": 35057,
+          "games": 3200,
+          "losing_remaining": 8082,
+          "losses": 2824,
+          "max_decision_ns": 239673,
+          "score_gain": -1887,
+          "score_gain_squared": 2107337.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 10.0,
+          "closed": 449,
+          "decision_ns": 142909482,
+          "decisions": 35077,
+          "games": 3200,
+          "losing_remaining": 8086,
+          "losses": 2826,
+          "max_decision_ns": 1040199,
+          "score_gain": -2200,
+          "score_gain_squared": 2066182.0,
+          "tables": 100
+        }
+      ],
+      "players": 8,
+      "rounds": 32,
+      "starting_position": 1,
+      "winner_order": false
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 14.0,
+          "closed": 408,
+          "decision_ns": 145796949,
+          "decisions": 35703,
+          "games": 3200,
+          "losing_remaining": 7862,
+          "losses": 2797,
+          "max_decision_ns": 242579,
+          "score_gain": 1418,
+          "score_gain_squared": 2633806.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 14.0,
+          "closed": 408,
+          "decision_ns": 145273538,
+          "decisions": 35721,
+          "games": 3200,
+          "losing_remaining": 7874,
+          "losses": 2799,
+          "max_decision_ns": 260604,
+          "score_gain": 1298,
+          "score_gain_squared": 2629126.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 14.0,
+          "closed": 409,
+          "decision_ns": 146428097,
+          "decisions": 35717,
+          "games": 3200,
+          "losing_remaining": 7874,
+          "losses": 2798,
+          "max_decision_ns": 261024,
+          "score_gain": 1336,
+          "score_gain_squared": 2656790.0,
+          "tables": 100
+        }
+      ],
+      "players": 8,
+      "rounds": 32,
+      "starting_position": -1,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 18.0,
+          "closed": 453,
+          "decision_ns": 168531617,
+          "decisions": 35267,
+          "games": 3200,
+          "losing_remaining": 7951,
+          "losses": 2791,
+          "max_decision_ns": 977179,
+          "score_gain": 2652,
+          "score_gain_squared": 2882958.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 18.0,
+          "closed": 454,
+          "decision_ns": 168371846,
+          "decisions": 35277,
+          "games": 3200,
+          "losing_remaining": 7954,
+          "losses": 2792,
+          "max_decision_ns": 539811,
+          "score_gain": 2611,
+          "score_gain_squared": 2877587.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 18.0,
+          "closed": 454,
+          "decision_ns": 167184547,
+          "decisions": 35268,
+          "games": 3200,
+          "losing_remaining": 7952,
+          "losses": 2792,
+          "max_decision_ns": 378536,
+          "score_gain": 2686,
+          "score_gain_squared": 2952650.0,
+          "tables": 100
+        }
+      ],
+      "players": 8,
+      "rounds": 32,
+      "starting_position": 0,
+      "winner_order": true
+    },
+    {
+      "metrics": [
+        {
+          "champion_share": 16.0,
+          "closed": 438,
+          "decision_ns": 142901506,
+          "decisions": 35536,
+          "games": 3200,
+          "losing_remaining": 7867,
+          "losses": 2797,
+          "max_decision_ns": 370261,
+          "score_gain": 232,
+          "score_gain_squared": 2313844.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 16.0,
+          "closed": 438,
+          "decision_ns": 142926786,
+          "decisions": 35535,
+          "games": 3200,
+          "losing_remaining": 7866,
+          "losses": 2797,
+          "max_decision_ns": 576972,
+          "score_gain": 235,
+          "score_gain_squared": 2315257.0,
+          "tables": 100
+        },
+        {
+          "champion_share": 16.0,
+          "closed": 438,
+          "decision_ns": 143909487,
+          "decisions": 35535,
+          "games": 3200,
+          "losing_remaining": 7866,
+          "losses": 2797,
+          "max_decision_ns": 406048,
+          "score_gain": 235,
+          "score_gain_squared": 2315257.0,
+          "tables": 100
+        }
+      ],
+      "players": 8,
+      "rounds": 32,
+      "starting_position": 1,
+      "winner_order": true
+    }
+  ],
+  "completed_games": 705600,
+  "elapsed_seconds": 150.749940122,
+  "names": [
+    "single_round_only",
+    "match_mild",
+    "match_strong"
+  ],
+  "opponents": "adaptive with mild public-scoreboard risk adjustment",
+  "paired_tables": 12600,
+  "repetitions_per_cell": 100,
+  "seed": 2026101501,
+  "starting_positions": "own +24 / 0 / -24 with opposite score on next seat; total zero; tied champions share one win",
+  "summaries": [
+    {
+      "champion_rate": 0.24452380952380953,
+      "mean_score_gain": -0.26031746031746034,
+      "metrics": {
+        "champion_share": 3081.0,
+        "closed": 22351,
+        "decision_ns": 9447835253,
+        "decisions": 2718453,
+        "games": 235200,
+        "losing_remaining": 461601,
+        "losses": 177422,
+        "max_decision_ns": 1372232,
+        "score_gain": -3280,
+        "score_gain_squared": 67973632.0,
+        "tables": 12600
+      },
+      "name": "single_round_only",
+      "paired_champion_difference": 0.0,
+      "paired_champion_standard_error": 0.0,
+      "paired_score_difference": 0.0,
+      "paired_score_standard_error": 0.0,
+      "risk_weight": 0.0
+    },
+    {
+      "champion_rate": 0.2446825396825397,
+      "mean_score_gain": -0.33690476190476193,
+      "metrics": {
+        "champion_share": 3083.0,
+        "closed": 22344,
+        "decision_ns": 9434890651,
+        "decisions": 2718501,
+        "games": 235200,
+        "losing_remaining": 461602,
+        "losses": 177431,
+        "max_decision_ns": 2031796,
+        "score_gain": -4245,
+        "score_gain_squared": 67559307.0,
+        "tables": 12600
+      },
+      "name": "match_mild",
+      "paired_champion_difference": 0.00015873015873015873,
+      "paired_champion_standard_error": 0.00029696535315372035,
+      "paired_score_difference": -0.07658730158730159,
+      "paired_score_standard_error": 0.05802805990365295,
+      "risk_weight": 0.5
+    },
+    {
+      "champion_rate": 0.24511904761904763,
+      "mean_score_gain": -0.2465079365079365,
+      "metrics": {
+        "champion_share": 3088.5,
+        "closed": 22342,
+        "decision_ns": 9424774362,
+        "decisions": 2718381,
+        "games": 235200,
+        "losing_remaining": 461540,
+        "losses": 177411,
+        "max_decision_ns": 3037226,
+        "score_gain": -3106,
+        "score_gain_squared": 67830270.0,
+        "tables": 12600
+      },
+      "name": "match_strong",
+      "paired_champion_difference": 0.0005952380952380953,
+      "paired_champion_standard_error": 0.00045069370040301857,
+      "paired_score_difference": 0.01380952380952381,
+      "paired_score_standard_error": 0.08745736361439944,
+      "risk_weight": 1.5
+    }
+  ]
+}

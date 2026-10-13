@@ -1,0 +1,1141 @@
+{
+  "completed_games": 500000,
+  "elapsed_seconds": 67.175122268,
+  "opponents": "blocks of legacy/shape/control/score/adaptive; identical deck, focal seat, dealer and opponent policy for every candidate",
+  "paired_comparisons": [
+    [
+      {
+        "a": "legacy",
+        "b": "legacy",
+        "mean_difference": 0.0,
+        "standard_error": 0.0
+      },
+      {
+        "a": "legacy",
+        "b": "shape",
+        "mean_difference": -0.91314,
+        "standard_error": 0.03384268320739457
+      },
+      {
+        "a": "legacy",
+        "b": "control",
+        "mean_difference": -0.83222,
+        "standard_error": 0.03535314126300478
+      },
+      {
+        "a": "legacy",
+        "b": "score",
+        "mean_difference": -0.85186,
+        "standard_error": 0.03570113571183571
+      },
+      {
+        "a": "legacy",
+        "b": "adaptive",
+        "mean_difference": -0.94359,
+        "standard_error": 0.03600844963620972
+      }
+    ],
+    [
+      {
+        "a": "shape",
+        "b": "legacy",
+        "mean_difference": 0.91314,
+        "standard_error": 0.03384268320739457
+      },
+      {
+        "a": "shape",
+        "b": "shape",
+        "mean_difference": 0.0,
+        "standard_error": 0.0
+      },
+      {
+        "a": "shape",
+        "b": "control",
+        "mean_difference": 0.08092,
+        "standard_error": 0.02520994396956783
+      },
+      {
+        "a": "shape",
+        "b": "score",
+        "mean_difference": 0.06128,
+        "standard_error": 0.02665305144758316
+      },
+      {
+        "a": "shape",
+        "b": "adaptive",
+        "mean_difference": -0.03045,
+        "standard_error": 0.017404253993077972
+      }
+    ],
+    [
+      {
+        "a": "control",
+        "b": "legacy",
+        "mean_difference": 0.83222,
+        "standard_error": 0.03535314126300478
+      },
+      {
+        "a": "control",
+        "b": "shape",
+        "mean_difference": -0.08092,
+        "standard_error": 0.02520994396956783
+      },
+      {
+        "a": "control",
+        "b": "control",
+        "mean_difference": 0.0,
+        "standard_error": 0.0
+      },
+      {
+        "a": "control",
+        "b": "score",
+        "mean_difference": -0.01964,
+        "standard_error": 0.01223233579511248
+      },
+      {
+        "a": "control",
+        "b": "adaptive",
+        "mean_difference": -0.11137,
+        "standard_error": 0.022161150204734047
+      }
+    ],
+    [
+      {
+        "a": "score",
+        "b": "legacy",
+        "mean_difference": 0.85186,
+        "standard_error": 0.03570113571183571
+      },
+      {
+        "a": "score",
+        "b": "shape",
+        "mean_difference": -0.06128,
+        "standard_error": 0.02665305144758316
+      },
+      {
+        "a": "score",
+        "b": "control",
+        "mean_difference": 0.01964,
+        "standard_error": 0.01223233579511248
+      },
+      {
+        "a": "score",
+        "b": "score",
+        "mean_difference": 0.0,
+        "standard_error": 0.0
+      },
+      {
+        "a": "score",
+        "b": "adaptive",
+        "mean_difference": -0.09173,
+        "standard_error": 0.024757562186932994
+      }
+    ],
+    [
+      {
+        "a": "adaptive",
+        "b": "legacy",
+        "mean_difference": 0.94359,
+        "standard_error": 0.03600844963620972
+      },
+      {
+        "a": "adaptive",
+        "b": "shape",
+        "mean_difference": 0.03045,
+        "standard_error": 0.017404253993077972
+      },
+      {
+        "a": "adaptive",
+        "b": "control",
+        "mean_difference": 0.11137,
+        "standard_error": 0.022161150204734047
+      },
+      {
+        "a": "adaptive",
+        "b": "score",
+        "mean_difference": 0.09173,
+        "standard_error": 0.024757562186932994
+      },
+      {
+        "a": "adaptive",
+        "b": "adaptive",
+        "mean_difference": 0.0,
+        "standard_error": 0.0
+      }
+    ]
+  ],
+  "paired_deals": 100000,
+  "rows": [
+    {
+      "mean_score": -0.63335,
+      "metrics": {
+        "closed": 9790,
+        "decision_ns": 1180408829,
+        "decisions": 1135975,
+        "draws": 2,
+        "games": 100000,
+        "losing_remaining": 211002,
+        "losses": 78444,
+        "max_decision_ns": 203744,
+        "score": -63335,
+        "score_squared": 25583039.0,
+        "turns": 5701801,
+        "wins": 21554
+      },
+      "paired_difference_standard_error": 0.0,
+      "paired_score_difference": 0.0,
+      "per_opponent": [
+        {
+          "closed": 2061,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 1,
+          "games": 20032,
+          "losing_remaining": 42266,
+          "losses": 15122,
+          "max_decision_ns": 0,
+          "score": -290,
+          "score_squared": 5967304.0,
+          "turns": 1148776,
+          "wins": 4909
+        },
+        {
+          "closed": 1954,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 19992,
+          "losing_remaining": 42171,
+          "losses": 15750,
+          "max_decision_ns": 0,
+          "score": -15102,
+          "score_squared": 5122444.0,
+          "turns": 1085612,
+          "wins": 4242
+        },
+        {
+          "closed": 1919,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 19992,
+          "losing_remaining": 41978,
+          "losses": 15784,
+          "max_decision_ns": 0,
+          "score": -15081,
+          "score_squared": 4821805.0,
+          "turns": 1180991,
+          "wins": 4208
+        },
+        {
+          "closed": 1983,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 1,
+          "games": 19992,
+          "losing_remaining": 42578,
+          "losses": 15916,
+          "max_decision_ns": 0,
+          "score": -17728,
+          "score_squared": 4897266.0,
+          "turns": 1165809,
+          "wins": 4075
+        },
+        {
+          "closed": 1873,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 19992,
+          "losing_remaining": 42009,
+          "losses": 15872,
+          "max_decision_ns": 0,
+          "score": -15134,
+          "score_squared": 4774220.0,
+          "turns": 1120613,
+          "wins": 4120
+        }
+      ],
+      "per_players": [
+        {
+          "closed": 500,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 14286,
+          "losing_remaining": 17965,
+          "losses": 7815,
+          "max_decision_ns": 0,
+          "score": -3214,
+          "score_squared": 284644.0,
+          "turns": 322458,
+          "wins": 6471
+        },
+        {
+          "closed": 977,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 14286,
+          "losing_remaining": 25348,
+          "losses": 10095,
+          "max_decision_ns": 0,
+          "score": -6424,
+          "score_squared": 806658.0,
+          "turns": 482811,
+          "wins": 4191
+        },
+        {
+          "closed": 1269,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 14286,
+          "losing_remaining": 29527,
+          "losses": 11222,
+          "max_decision_ns": 0,
+          "score": -8396,
+          "score_squared": 1575716.0,
+          "turns": 648233,
+          "wins": 3064
+        },
+        {
+          "closed": 1464,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 14286,
+          "losing_remaining": 32165,
+          "losses": 11895,
+          "max_decision_ns": 0,
+          "score": -11869,
+          "score_squared": 2601523.0,
+          "turns": 805781,
+          "wins": 2391
+        },
+        {
+          "closed": 1662,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 14286,
+          "losing_remaining": 33634,
+          "losses": 12164,
+          "max_decision_ns": 0,
+          "score": -8372,
+          "score_squared": 4380426.0,
+          "turns": 974652,
+          "wins": 2122
+        },
+        {
+          "closed": 1834,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 14285,
+          "losing_remaining": 35329,
+          "losses": 12530,
+          "max_decision_ns": 0,
+          "score": -10007,
+          "score_squared": 6766591.0,
+          "turns": 1155871,
+          "wins": 1755
+        },
+        {
+          "closed": 2084,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 2,
+          "games": 14285,
+          "losing_remaining": 37034,
+          "losses": 12723,
+          "max_decision_ns": 0,
+          "score": -15053,
+          "score_squared": 9167481.0,
+          "turns": 1311995,
+          "wins": 1560
+        }
+      ],
+      "policy": "legacy",
+      "score_standard_error": 0.0505402623752213,
+      "win_rate": 0.21554
+    },
+    {
+      "mean_score": 0.27979,
+      "metrics": {
+        "closed": 9790,
+        "decision_ns": 1984624643,
+        "decisions": 1138753,
+        "draws": 1,
+        "games": 100000,
+        "losing_remaining": 194677,
+        "losses": 74797,
+        "max_decision_ns": 290686,
+        "score": 27979,
+        "score_squared": 29132823.0,
+        "turns": 5685328,
+        "wins": 25202
+      },
+      "paired_difference_standard_error": 0.03384268320739457,
+      "paired_score_difference": 0.91314,
+      "per_opponent": [
+        {
+          "closed": 2061,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 20032,
+          "losing_remaining": 37836,
+          "losses": 14071,
+          "max_decision_ns": 0,
+          "score": 28302,
+          "score_squared": 7078026.0,
+          "turns": 1122792,
+          "wins": 5961
+        },
+        {
+          "closed": 1954,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 19992,
+          "losing_remaining": 39192,
+          "losses": 15112,
+          "max_decision_ns": 0,
+          "score": -820,
+          "score_squared": 5408416.0,
+          "turns": 1089722,
+          "wins": 4880
+        },
+        {
+          "closed": 1919,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 1,
+          "games": 19992,
+          "losing_remaining": 38852,
+          "losses": 15116,
+          "max_decision_ns": 0,
+          "score": 2490,
+          "score_squared": 5775898.0,
+          "turns": 1182379,
+          "wins": 4875
+        },
+        {
+          "closed": 1983,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 19992,
+          "losing_remaining": 39529,
+          "losses": 15236,
+          "max_decision_ns": 0,
+          "score": -362,
+          "score_squared": 5619282.0,
+          "turns": 1165785,
+          "wins": 4756
+        },
+        {
+          "closed": 1873,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 19992,
+          "losing_remaining": 39268,
+          "losses": 15262,
+          "max_decision_ns": 0,
+          "score": -1631,
+          "score_squared": 5251201.0,
+          "turns": 1124650,
+          "wins": 4730
+        }
+      ],
+      "per_players": [
+        {
+          "closed": 500,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 14286,
+          "losing_remaining": 16176,
+          "losses": 7374,
+          "max_decision_ns": 0,
+          "score": -336,
+          "score_squared": 280530.0,
+          "turns": 329409,
+          "wins": 6912
+        },
+        {
+          "closed": 977,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 14286,
+          "losing_remaining": 22884,
+          "losses": 9462,
+          "max_decision_ns": 0,
+          "score": 217,
+          "score_squared": 834537.0,
+          "turns": 486916,
+          "wins": 4824
+        },
+        {
+          "closed": 1269,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 14286,
+          "losing_remaining": 26753,
+          "losses": 10546,
+          "max_decision_ns": 0,
+          "score": 2181,
+          "score_squared": 1683177.0,
+          "turns": 651220,
+          "wins": 3740
+        },
+        {
+          "closed": 1464,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 14286,
+          "losing_remaining": 29491,
+          "losses": 11298,
+          "max_decision_ns": 0,
+          "score": 1128,
+          "score_squared": 2792882.0,
+          "turns": 806833,
+          "wins": 2988
+        },
+        {
+          "closed": 1662,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 14286,
+          "losing_remaining": 31224,
+          "losses": 11655,
+          "max_decision_ns": 0,
+          "score": 8681,
+          "score_squared": 5050031.0,
+          "turns": 965451,
+          "wins": 2631
+        },
+        {
+          "closed": 1834,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 1,
+          "games": 14285,
+          "losing_remaining": 33195,
+          "losses": 12111,
+          "max_decision_ns": 0,
+          "score": 7511,
+          "score_squared": 7395617.0,
+          "turns": 1144352,
+          "wins": 2173
+        },
+        {
+          "closed": 2084,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 14285,
+          "losing_remaining": 34954,
+          "losses": 12351,
+          "max_decision_ns": 0,
+          "score": 8597,
+          "score_squared": 11096049.0,
+          "turns": 1301147,
+          "wins": 1934
+        }
+      ],
+      "policy": "shape",
+      "score_standard_error": 0.05396784784336882,
+      "win_rate": 0.25202
+    },
+    {
+      "mean_score": 0.19887,
+      "metrics": {
+        "closed": 9790,
+        "decision_ns": 3096766881,
+        "decisions": 1165373,
+        "draws": 1,
+        "games": 100000,
+        "losing_remaining": 194932,
+        "losses": 74202,
+        "max_decision_ns": 785438,
+        "score": 19887,
+        "score_squared": 27430769.0,
+        "turns": 5799629,
+        "wins": 25797
+      },
+      "paired_difference_standard_error": 0.03535314126300478,
+      "paired_score_difference": 0.83222,
+      "per_opponent": [
+        {
+          "closed": 2061,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 20032,
+          "losing_remaining": 37950,
+          "losses": 14028,
+          "max_decision_ns": 0,
+          "score": 24698,
+          "score_squared": 6247514.0,
+          "turns": 1146140,
+          "wins": 6004
+        },
+        {
+          "closed": 1954,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 19992,
+          "losing_remaining": 39281,
+          "losses": 14984,
+          "max_decision_ns": 0,
+          "score": -1653,
+          "score_squared": 5322547.0,
+          "turns": 1107960,
+          "wins": 5008
+        },
+        {
+          "closed": 1919,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 1,
+          "games": 19992,
+          "losing_remaining": 38876,
+          "losses": 14990,
+          "max_decision_ns": 0,
+          "score": 452,
+          "score_squared": 5428468.0,
+          "turns": 1207294,
+          "wins": 5001
+        },
+        {
+          "closed": 1983,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 19992,
+          "losing_remaining": 39590,
+          "losses": 15091,
+          "max_decision_ns": 0,
+          "score": -332,
+          "score_squared": 5387858.0,
+          "turns": 1188580,
+          "wins": 4901
+        },
+        {
+          "closed": 1873,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 19992,
+          "losing_remaining": 39235,
+          "losses": 15109,
+          "max_decision_ns": 0,
+          "score": -3278,
+          "score_squared": 5044382.0,
+          "turns": 1149655,
+          "wins": 4883
+        }
+      ],
+      "per_players": [
+        {
+          "closed": 500,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 14286,
+          "losing_remaining": 15540,
+          "losses": 6673,
+          "max_decision_ns": 0,
+          "score": 1852,
+          "score_squared": 298456.0,
+          "turns": 338052,
+          "wins": 7613
+        },
+        {
+          "closed": 977,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 14286,
+          "losing_remaining": 22855,
+          "losses": 9310,
+          "max_decision_ns": 0,
+          "score": 1150,
+          "score_squared": 840832.0,
+          "turns": 505592,
+          "wins": 4976
+        },
+        {
+          "closed": 1269,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 14286,
+          "losing_remaining": 27107,
+          "losses": 10601,
+          "max_decision_ns": 0,
+          "score": 1389,
+          "score_squared": 1672403.0,
+          "turns": 671276,
+          "wins": 3685
+        },
+        {
+          "closed": 1464,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 14286,
+          "losing_remaining": 29628,
+          "losses": 11339,
+          "max_decision_ns": 0,
+          "score": 941,
+          "score_squared": 2809225.0,
+          "turns": 825606,
+          "wins": 2947
+        },
+        {
+          "closed": 1662,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 14286,
+          "losing_remaining": 31386,
+          "losses": 11734,
+          "max_decision_ns": 0,
+          "score": 6402,
+          "score_squared": 4903078.0,
+          "turns": 983090,
+          "wins": 2552
+        },
+        {
+          "closed": 1834,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 1,
+          "games": 14285,
+          "losing_remaining": 33373,
+          "losses": 12157,
+          "max_decision_ns": 0,
+          "score": 5081,
+          "score_squared": 7176999.0,
+          "turns": 1160826,
+          "wins": 2127
+        },
+        {
+          "closed": 2084,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 14285,
+          "losing_remaining": 35043,
+          "losses": 12388,
+          "max_decision_ns": 0,
+          "score": 3072,
+          "score_squared": 9729776.0,
+          "turns": 1315187,
+          "wins": 1897
+        }
+      ],
+      "policy": "control",
+      "score_standard_error": 0.0523708777310381,
+      "win_rate": 0.25797
+    },
+    {
+      "mean_score": 0.21851,
+      "metrics": {
+        "closed": 9790,
+        "decision_ns": 3039577908,
+        "decisions": 1165238,
+        "draws": 1,
+        "games": 100000,
+        "losing_remaining": 194888,
+        "losses": 74186,
+        "max_decision_ns": 529005,
+        "score": 21851,
+        "score_squared": 27673109.0,
+        "turns": 5798711,
+        "wins": 25813
+      },
+      "paired_difference_standard_error": 0.03570113571183571,
+      "paired_score_difference": 0.85186,
+      "per_opponent": [
+        {
+          "closed": 2061,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 20032,
+          "losing_remaining": 37944,
+          "losses": 14027,
+          "max_decision_ns": 0,
+          "score": 25505,
+          "score_squared": 6480545.0,
+          "turns": 1146313,
+          "wins": 6005
+        },
+        {
+          "closed": 1954,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 19992,
+          "losing_remaining": 39278,
+          "losses": 14982,
+          "max_decision_ns": 0,
+          "score": -1643,
+          "score_squared": 5295905.0,
+          "turns": 1107788,
+          "wins": 5010
+        },
+        {
+          "closed": 1919,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 1,
+          "games": 19992,
+          "losing_remaining": 38859,
+          "losses": 14985,
+          "max_decision_ns": 0,
+          "score": 774,
+          "score_squared": 5394394.0,
+          "turns": 1207422,
+          "wins": 5006
+        },
+        {
+          "closed": 1983,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 19992,
+          "losing_remaining": 39594,
+          "losses": 15093,
+          "max_decision_ns": 0,
+          "score": -564,
+          "score_squared": 5313808.0,
+          "turns": 1187887,
+          "wins": 4899
+        },
+        {
+          "closed": 1873,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 19992,
+          "losing_remaining": 39213,
+          "losses": 15099,
+          "max_decision_ns": 0,
+          "score": -2221,
+          "score_squared": 5188457.0,
+          "turns": 1149301,
+          "wins": 4893
+        }
+      ],
+      "per_players": [
+        {
+          "closed": 500,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 14286,
+          "losing_remaining": 15539,
+          "losses": 6672,
+          "max_decision_ns": 0,
+          "score": 1931,
+          "score_squared": 300451.0,
+          "turns": 338033,
+          "wins": 7614
+        },
+        {
+          "closed": 977,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 14286,
+          "losing_remaining": 22851,
+          "losses": 9307,
+          "max_decision_ns": 0,
+          "score": 1417,
+          "score_squared": 852037.0,
+          "turns": 505562,
+          "wins": 4979
+        },
+        {
+          "closed": 1269,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 14286,
+          "losing_remaining": 27096,
+          "losses": 10597,
+          "max_decision_ns": 0,
+          "score": 1839,
+          "score_squared": 1702241.0,
+          "turns": 670667,
+          "wins": 3689
+        },
+        {
+          "closed": 1464,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 14286,
+          "losing_remaining": 29611,
+          "losses": 11335,
+          "max_decision_ns": 0,
+          "score": 1081,
+          "score_squared": 2814915.0,
+          "turns": 826273,
+          "wins": 2951
+        },
+        {
+          "closed": 1662,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 14286,
+          "losing_remaining": 31390,
+          "losses": 11737,
+          "max_decision_ns": 0,
+          "score": 6623,
+          "score_squared": 4947221.0,
+          "turns": 983072,
+          "wins": 2549
+        },
+        {
+          "closed": 1834,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 1,
+          "games": 14285,
+          "losing_remaining": 33363,
+          "losses": 12153,
+          "max_decision_ns": 0,
+          "score": 5317,
+          "score_squared": 7183029.0,
+          "turns": 1161035,
+          "wins": 2131
+        },
+        {
+          "closed": 2084,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 14285,
+          "losing_remaining": 35038,
+          "losses": 12385,
+          "max_decision_ns": 0,
+          "score": 3643,
+          "score_squared": 9873215.0,
+          "turns": 1314069,
+          "wins": 1900
+        }
+      ],
+      "policy": "score",
+      "score_standard_error": 0.052600961040745485,
+      "win_rate": 0.25813
+    },
+    {
+      "mean_score": 0.31024,
+      "metrics": {
+        "closed": 9790,
+        "decision_ns": 3705910244,
+        "decisions": 1156466,
+        "draws": 1,
+        "games": 100000,
+        "losing_remaining": 194717,
+        "losses": 73925,
+        "max_decision_ns": 1056859,
+        "score": 31024,
+        "score_squared": 28578642.0,
+        "turns": 5742677,
+        "wins": 26074
+      },
+      "paired_difference_standard_error": 0.03600844963620972,
+      "paired_score_difference": 0.94359,
+      "per_opponent": [
+        {
+          "closed": 2061,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 20032,
+          "losing_remaining": 37857,
+          "losses": 13938,
+          "max_decision_ns": 0,
+          "score": 27515,
+          "score_squared": 6430271.0,
+          "turns": 1131097,
+          "wins": 6094
+        },
+        {
+          "closed": 1954,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 19992,
+          "losing_remaining": 39227,
+          "losses": 14927,
+          "max_decision_ns": 0,
+          "score": 690,
+          "score_squared": 5544598.0,
+          "turns": 1098987,
+          "wins": 5065
+        },
+        {
+          "closed": 1919,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 1,
+          "games": 19992,
+          "losing_remaining": 38823,
+          "losses": 14920,
+          "max_decision_ns": 0,
+          "score": 3119,
+          "score_squared": 5679821.0,
+          "turns": 1195908,
+          "wins": 5071
+        },
+        {
+          "closed": 1983,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 19992,
+          "losing_remaining": 39589,
+          "losses": 15073,
+          "max_decision_ns": 0,
+          "score": 755,
+          "score_squared": 5669227.0,
+          "turns": 1177234,
+          "wins": 4919
+        },
+        {
+          "closed": 1873,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 19992,
+          "losing_remaining": 39221,
+          "losses": 15067,
+          "max_decision_ns": 0,
+          "score": -1055,
+          "score_squared": 5254725.0,
+          "turns": 1139451,
+          "wins": 4925
+        }
+      ],
+      "per_players": [
+        {
+          "closed": 500,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 14286,
+          "losing_remaining": 15539,
+          "losses": 6672,
+          "max_decision_ns": 0,
+          "score": 1931,
+          "score_squared": 300451.0,
+          "turns": 338033,
+          "wins": 7614
+        },
+        {
+          "closed": 977,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 14286,
+          "losing_remaining": 22851,
+          "losses": 9307,
+          "max_decision_ns": 0,
+          "score": 1417,
+          "score_squared": 852037.0,
+          "turns": 505562,
+          "wins": 4979
+        },
+        {
+          "closed": 1269,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 14286,
+          "losing_remaining": 27096,
+          "losses": 10597,
+          "max_decision_ns": 0,
+          "score": 1839,
+          "score_squared": 1702241.0,
+          "turns": 670667,
+          "wins": 3689
+        },
+        {
+          "closed": 1464,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 14286,
+          "losing_remaining": 29548,
+          "losses": 11272,
+          "max_decision_ns": 0,
+          "score": 1257,
+          "score_squared": 2791721.0,
+          "turns": 812419,
+          "wins": 3014
+        },
+        {
+          "closed": 1662,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 14286,
+          "losing_remaining": 31331,
+          "losses": 11634,
+          "max_decision_ns": 0,
+          "score": 8534,
+          "score_squared": 4991594.0,
+          "turns": 968893,
+          "wins": 2652
+        },
+        {
+          "closed": 1834,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 1,
+          "games": 14285,
+          "losing_remaining": 33307,
+          "losses": 12111,
+          "max_decision_ns": 0,
+          "score": 7900,
+          "score_squared": 7427980.0,
+          "turns": 1146033,
+          "wins": 2173
+        },
+        {
+          "closed": 2084,
+          "decision_ns": 0,
+          "decisions": 0,
+          "draws": 0,
+          "games": 14285,
+          "losing_remaining": 35045,
+          "losses": 12332,
+          "max_decision_ns": 0,
+          "score": 8146,
+          "score_squared": 10512618.0,
+          "turns": 1301070,
+          "wins": 1953
+        }
+      ],
+      "policy": "adaptive",
+      "score_standard_error": 0.053450259875203666,
+      "win_rate": 0.26074
+    }
+  ],
+  "seed": 2026101409
+}

@@ -142,7 +142,7 @@ test("eight seats occupy distinct visible positions on desktop, tablet and phone
   }
 });
 
-test("automatic pass waits one to two seconds, can be disabled, and never skips a playable or leading turn", async ({ page }) => {
+test("automatic pass waits one second, can be disabled, and never skips a playable or leading turn", async ({ page }) => {
   let automatic = 0;
   let manual = 0;
   let publish: (available: boolean, leading?: boolean) => void = () => {};

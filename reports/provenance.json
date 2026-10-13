@@ -1,0 +1,24 @@
+{
+  "base_commit": "a880081da801d6045fd409debba0486e235b1e40",
+  "rustc": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+  "production_policy": "Adaptive",
+  "match_risk_weight": 1.5,
+  "source_sha256": {
+    "crates/game-core/src/lib.rs": "548e7694180a13039fdfe5bca849ebc577e8478b863f02056ad1b57b28b77bd5",
+    "crates/game-core/src/strategy.rs": "0f5af2de63365282fb545eef0a231ecbd89a664aa30808abfb2823e41a2ae3c0",
+    "crates/server/src/main.rs": "f1dd52d8be8b67563482715e21ea0dc1740915726ff018652a7bc5f40ab30d6c",
+    "crates/server/src/dealing.rs": "6b0d9c04e16cccd41632626b64ad66958a55ec509e6745a4874d22dcd75c3cee",
+    "crates/game-core/examples/strategy_arena.rs": "bcc9cf241c37463431564ab870da21ad6d954837eac08924fdf9be907ea0abdd",
+    "crates/game-core/examples/match_arena.rs": "1c3fb9721a27cde89d639a65b81a90ecd1853efc93318ebba18185ba8584fa98",
+    "crates/game-core/examples/deal_fairness.rs": "f7035f17e5cd436903e1f4c94bd9a6029333b60b94989dfde0d5de3d41d90e36",
+    "Cargo.lock": "2cdec5a096993eef3b5344ba598750a707ef2823dd6af47e8c6bfc0f3ea93006"
+  },
+  "report_sha256": {
+    "reports/strategy-screen-final.json": "4760da86e847bb702cd4e14aa5b9ff0406eafaee69ad8f59378a45cc4acebf29",
+    "reports/strategy-holdout.json": "dea187260e841336043f9b8a97b1894176bb44693eecacbcc58f84d9aa8e524c",
+    "reports/match-screen.json": "28dcfe35e8e1ff311de9008af0deb63f4a415b168cb1d7e5bc12eb07f6581e9e",
+    "reports/match-holdout.json": "52e7c060cd69f9a14b7211a561e20ecaa77b40778c857efb8d803ee96b2d605f",
+    "reports/deal-fairness.json": "96718b4bc4e39e53aee168e1c7693d542241690691e31a65f4871d1b06fcfb1e"
+  },
+  "note": "Source hashes identify the final working tree. Context-free choose is unchanged by the later match-context extension; exploratory v1-v4 reports describe earlier weights."
+}

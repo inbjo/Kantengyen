@@ -504,11 +504,11 @@ function App() {
   const myTurn = table?.phase === "playing" && table.turn === table.seat && !myManaged && !waitingNext;
   useEffect(() => {
     if (!autoPass || !myTurn || !table?.auto_pass_available || status !== "online" || busy) return;
-    // Briefly vary the pause while leaving time to opt out.
+    // Match the server's one-second forced-pass delay, leaving time to opt out.
     const timer = setTimeout(() => {
       send("auto_pass");
       notify("要不起，已自动过牌");
-    }, 1000 + Math.floor(Math.random() * 1001));
+    }, 1000);
     return () => clearTimeout(timer);
   }, [autoPass, myTurn, table?.version, table?.auto_pass_available, status, busy, send, notify]);
   useEffect(() => {

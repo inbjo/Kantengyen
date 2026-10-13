@@ -14,3 +14,6 @@ wasm = ["dep:wasm-bindgen"]
 serde.workspace = true
 serde_json.workspace = true
 wasm-bindgen = { version = "0.2", optional = true }
+
+[dev-dependencies]
+rand = "0.9"

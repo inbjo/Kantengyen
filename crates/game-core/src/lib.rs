@@ -1,4 +1,5 @@
 //! Deterministic rules shared by the native server and the browser WASM module.
+pub mod strategy;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 

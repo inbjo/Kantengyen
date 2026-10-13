@@ -9,8 +9,11 @@ use axum::{
     routing::{get, post},
 };
 use futures_util::{SinkExt, StreamExt};
-use kantengyen_core::{Card, DECK_SIZE, Game, Kind, legal_moves, resolve};
-use rand::{Rng, seq::SliceRandom};
+use kantengyen_core::{
+    Card, DECK_SIZE, Game, legal_moves,
+    strategy::{self, AUTOMATED_POLICY, MATCH_RISK_WEIGHT, MatchContext, Observation},
+};
+use rand::Rng;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use std::{
@@ -20,6 +23,7 @@ use std::{
 };
 use tokio::sync::{Mutex, RwLock, broadcast};
 mod assets;
+mod dealing;
 mod embedded_turn;
 mod persistence;
 mod voice;
@@ -118,58 +122,32 @@ struct Room {
     seen: HashSet<String>,
     history: Vec<String>,
 }
-// Keep strategy separate from legal move generation and manual hints.
-fn automated_move(game: &Game, moves: Vec<Vec<Card>>) -> Option<Vec<Card>> {
-    let hand = &game.hands[game.turn];
-    if let Some(cards) = moves.iter().find(|cards| cards.len() == hand.len()) {
-        return Some(cards.clone());
-    }
-    let opponent_single = game
-        .hands
-        .iter()
-        .enumerate()
-        .any(|(seat, cards)| seat != game.turn && cards.len() == 1);
-    let previous = game.last.as_ref().map(|play| &play.pattern);
-    // Prefer two natural cards plus a joker; avoid spending both jokers when
-    // one makes a legal bomb. Only candidates that beat the last play qualify.
-    let joker_bomb = moves
-        .iter()
-        .filter(|cards| {
-            cards.iter().filter(|&&card| card < 52).count() == 2
-                && cards.iter().any(|&card| card >= 52)
-                && matches!(
-                    resolve(cards, previous).unwrap().kind,
-                    Kind::Bomb | Kind::DeepBomb
-                )
-        })
-        .min_by_key(|cards| {
-            let pattern = resolve(cards, previous).unwrap();
-            (
-                cards.len(),
-                if opponent_single {
-                    15 - pattern.rank
-                } else {
-                    pattern.rank
-                },
-            )
-        });
-    if let Some(cards) = joker_bomb {
-        return Some(cards.clone());
-    }
-    if opponent_single {
-        return moves.into_iter().max_by_key(|cards| {
-            let pattern = resolve(cards, previous).unwrap();
-            let strength = match pattern.kind {
-                Kind::DeepBomb => 2,
-                Kind::Bomb => 1,
-                _ => 0,
-            };
-            (strength, pattern.rank, pattern.len)
-        });
-    }
-    moves.into_iter().next()
+// Bots, managed players and disconnected players all cross the same visibility boundary.
+fn automated_move(game: &Game, context: Option<MatchContext>) -> Option<Vec<Card>> {
+    strategy::choose_in_match(
+        &Observation::from_game(game),
+        AUTOMATED_POLICY,
+        context,
+        MATCH_RISK_WEIGHT,
+    )
 }
-
+fn automated_delay_ms(game: &Game) -> u64 {
+    let obs = Observation::from_game(game);
+    let moves = legal_moves(obs.hand, obs.last.map(|p| &p.pattern));
+    if moves.is_empty() || moves.iter().any(|c| c.len() == obs.hand.len()) {
+        1_000
+    } else if moves.len() >= 6
+        || obs
+            .counts
+            .iter()
+            .enumerate()
+            .any(|(s, &n)| s != obs.turn && n <= 2)
+    {
+        2_000
+    } else {
+        1_500
+    }
+}
 impl Room {
     fn apply_bots(&mut self) {
         let humans = self.players.iter().filter(|p| !p.bot).count();
@@ -217,16 +195,7 @@ impl Room {
         // Preserve the settlement deadline when players change connection or management.
         if !self.game.as_ref().is_some_and(|g| g.winner.is_some()) {
             let millis = match self.game.as_ref() {
-                Some(g) if self.is_automated(g.turn) => {
-                    if g.last.is_some()
-                        && legal_moves(&g.hands[g.turn], g.last.as_ref().map(|p| &p.pattern))
-                            .is_empty()
-                    {
-                        rand::rng().random_range(1_000..=2_000)
-                    } else {
-                        2_000
-                    }
-                }
+                Some(g) if self.is_automated(g.turn) => automated_delay_ms(g),
                 _ => 30_000,
             };
             self.deadline = Instant::now() + Duration::from_millis(millis);
@@ -273,8 +242,8 @@ impl Room {
             player.pending = false;
         }
         self.round += 1;
-        let dealer = if self.practice {
-            0
+        let preferred_dealer = if self.practice {
+            Some(0)
         } else {
             let previous_winner = previous_winner.and_then(|id| {
                 self.players
@@ -282,13 +251,11 @@ impl Room {
                     .position(|player| player.profile.id == id)
             });
             match (self.play_order, previous_winner) {
-                (PlayOrder::Winner, Some(seat)) => seat,
-                _ => rand::rng().random_range(0..self.players.len()),
+                (PlayOrder::Winner, Some(seat)) => Some(seat),
+                _ => None,
             }
         };
-        let mut deck: Vec<Card> = (0..DECK_SIZE).collect();
-        deck.shuffle(&mut rand::rng());
-        let mut game = Game::deal(deck, self.players.len(), dealer);
+        let mut game = dealing::random_game(self.players.len(), preferred_dealer);
         if self.practice {
             // Three reproducible lessons; bots use the same legal-move generator as normal play.
             let hands = match (self.round - 1) % 3 {
@@ -370,6 +337,23 @@ impl Room {
             self.history.remove(0);
         }
     }
+    fn match_context(&self, seat: usize) -> MatchContext {
+        MatchContext {
+            own_score: self.players[seat].score,
+            best_other_score: self
+                .players
+                .iter()
+                .enumerate()
+                .filter(|(s, _)| *s != seat)
+                .map(|(_, p)| p.score)
+                .chain(self.retired_players.iter().map(|p| p.score))
+                .max()
+                .unwrap_or(0),
+            rounds_remaining: self
+                .round_limit
+                .map(|limit| limit.saturating_sub(self.completed_rounds)),
+        }
+    }
     fn advance_timeout(&mut self) {
         let Some(game) = &self.game else {
             return;
@@ -397,7 +381,8 @@ impl Room {
         let has_last = game.last.is_some();
         let cannot_play = has_last && moves.is_empty();
         let bot = self.is_automated(seat);
-        let chosen = automated_move(game, moves);
+        let context = self.match_context(seat);
+        let chosen = automated_move(game, Some(context));
         let game = self.game.as_mut().unwrap();
         let action = if !bot && has_last {
             game.pass(seat)
@@ -409,7 +394,7 @@ impl Room {
             while game.hands[seat].iter().all(|&c| c >= 52) && !game.deck.is_empty() {
                 game.hands[seat].push(game.deck.pop().unwrap());
             }
-            if let Some(cards) = automated_move(game, legal_moves(&game.hands[seat], None)) {
+            if let Some(cards) = automated_move(game, Some(context)) {
                 game.play(seat, cards)
             } else {
                 game.draw();
@@ -1690,7 +1675,7 @@ mod tests {
         );
     }
     #[test]
-    fn automated_strategy_uses_largest_legal_card_when_an_opponent_has_one() {
+    fn bots_and_managed_players_use_identical_public_information_policy() {
         for managed in [false, true] {
             let mut room = test_room();
             room.practice = false;
@@ -1698,58 +1683,59 @@ mod tests {
             room.players[0].bot = !managed;
             room.players[0].managed = managed;
             room.game.as_mut().unwrap().hands = vec![vec![0, 8, 12], vec![6]];
+            let expected = strategy::choose(
+                &Observation::from_game(room.game.as_ref().unwrap()),
+                AUTOMATED_POLICY,
+            )
+            .unwrap();
             room.advance_timeout();
             assert_eq!(
                 room.game.as_ref().unwrap().last.as_ref().unwrap().cards,
-                vec![12]
+                expected
             );
         }
-        let mut room = test_room();
-        let game = room.game.as_mut().unwrap();
-        game.hands = vec![vec![0, 10], vec![1, 12, 8]];
-        game.play(0, vec![0]).unwrap();
-        let moves = legal_moves(&game.hands[1], game.last.as_ref().map(|p| &p.pattern));
-        assert_eq!(automated_move(game, moves), Some(vec![12]));
-        // Without an opponent reporting one card, keep the normal low response.
-        game.hands = vec![vec![0, 10], vec![1, 12, 8]];
-        let moves = legal_moves(&game.hands[1], game.last.as_ref().map(|p| &p.pattern));
-        assert_eq!(automated_move(game, moves), Some(vec![1]));
     }
     #[test]
-    fn automated_strategy_prefers_joker_pair_bombs_and_direct_wins() {
-        for joker in [52, 53] {
-            let mut room = test_room();
-            let game = room.game.as_mut().unwrap();
-            game.hands = vec![vec![0, 13, joker, 8], vec![1, 7]];
-            let cards = automated_move(game, legal_moves(&game.hands[0], None)).unwrap();
-            assert_eq!(cards, vec![0, 13, joker]);
-            assert_eq!(resolve(&cards, None).unwrap().kind, Kind::Bomb);
-        }
+    fn automated_strategy_takes_direct_wins_and_cannot_beat_deep_bomb() {
         let mut room = test_room();
         let game = room.game.as_mut().unwrap();
-        game.hands = vec![vec![0, 13, 52, 53, 8], vec![1, 7]];
-        assert_eq!(
-            automated_move(game, legal_moves(&game.hands[0], None)),
-            Some(vec![0, 13, 52])
-        );
-        game.hands[0] = vec![0, 13, 52, 53];
-        assert_eq!(
-            automated_move(game, legal_moves(&game.hands[0], None)),
-            Some(vec![0, 13, 52, 53])
-        );
+        game.hands = vec![vec![0, 13, 52, 53], vec![1, 7]];
+        assert_eq!(automated_move(game, None), Some(vec![0, 13, 52, 53]));
         game.hands = vec![vec![0, 13, 52, 8], vec![1, 14, 27, 40, 7]];
         game.turn = 1;
         game.play(1, vec![1, 14, 27, 40]).unwrap();
-        assert_eq!(
-            automated_move(
-                game,
-                legal_moves(&game.hands[0], game.last.as_ref().map(|p| &p.pattern))
-            ),
-            None
-        );
+        assert_eq!(automated_move(game, None), None);
     }
     #[test]
-    fn automated_unplayable_turn_passes_after_one_to_two_seconds() {
+    fn match_context_uses_public_scores_and_counts_current_round() {
+        let mut room = test_room();
+        room.round_limit = Some(8);
+        room.completed_rounds = 6;
+        room.players[0].score = 12;
+        room.players[1].score = 20;
+        let ctx = room.match_context(0);
+        assert_eq!(ctx.own_score, 12);
+        assert_eq!(ctx.best_other_score, 20);
+        assert_eq!(ctx.rounds_remaining, Some(2));
+        let mut retired = test_room().players.remove(0);
+        retired.score = 40;
+        room.retired_players.push(retired);
+        assert_eq!(room.match_context(0).best_other_score, 40);
+        room.round_limit = None;
+        assert_eq!(room.match_context(0).rounds_remaining, None);
+    }
+    #[test]
+    fn automated_delay_accounts_for_forced_wins_and_complexity() {
+        let mut game = Game::deal((0..DECK_SIZE).collect(), 2, 0);
+        game.hands = vec![vec![0], vec![1, 4, 9]];
+        assert_eq!(automated_delay_ms(&game), 1000);
+        game.hands[0] = vec![0, 5, 9];
+        assert_eq!(automated_delay_ms(&game), 1500);
+        game.hands[1] = vec![1];
+        assert_eq!(automated_delay_ms(&game), 2000);
+    }
+    #[test]
+    fn automated_unplayable_turn_passes_after_one_second() {
         for managed in [false, true] {
             let mut room = test_room();
             room.practice = false;
@@ -1759,7 +1745,7 @@ mod tests {
             game.hands = vec![vec![0, 10], vec![2, 8]];
             game.play(0, vec![0]).unwrap();
             room.update();
-            assert!((900..=2000).contains(&room.deadline_ms.saturating_sub(now_ms())));
+            assert!((900..=1000).contains(&room.deadline_ms.saturating_sub(now_ms())));
             room.advance_timeout();
             assert_eq!(room.game.as_ref().unwrap().turn, 1);
             room.deadline = Instant::now();
@@ -1794,11 +1780,12 @@ mod tests {
         assert!(room.game.as_ref().unwrap().winner.is_none());
     }
     #[test]
-    fn automated_turn_waits_two_seconds() {
+    fn automated_turn_waits_for_its_announced_delay() {
         let mut room = test_room();
         room.players[0].bot = true;
         room.update();
-        assert!((1900..=2000).contains(&room.deadline_ms.saturating_sub(now_ms())));
+        let expected = automated_delay_ms(room.game.as_ref().unwrap());
+        assert!((expected - 100..=expected).contains(&room.deadline_ms.saturating_sub(now_ms())));
         let before = room.game.as_ref().unwrap().hands[0].clone();
         room.advance_timeout();
         assert_eq!(room.game.as_ref().unwrap().hands[0], before);

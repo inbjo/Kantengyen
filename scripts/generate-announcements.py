@@ -103,7 +103,7 @@ def main():
               ("game_start", "游戏开始"), ("your_turn", "轮到你了"),
               ("one_left", "只剩一张牌"), ("round_end", "本局结束"),
               ("you_win", "你赢了"), ("again", "再来一局"),
-              ("hurry", "快出牌吧"), ("time_warning", "时间快到了，请尽快出牌")]
+              ("time_warning", "时间快到了，请尽快出牌")]
     if args.keys:
         unknown = set(args.keys) - {key for key, _ in clips}
         if unknown:

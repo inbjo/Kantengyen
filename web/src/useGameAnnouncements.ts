@@ -69,12 +69,12 @@ export function useGameAnnouncements(table: Snapshot | null, status: string, ena
     const seconds = Math.ceil((table.deadline_ms - now) / 1000);
     if (reminder.current.turn !== turn) {
       // Reentry near the deadline does not immediately fire a stale reminder.
-      reminder.current = { turn, stage: seconds <= 5 ? 2 : seconds <= 10 ? 1 : 0 };
+      reminder.current = { turn, stage: seconds <= 5 ? 1 : 0 };
       return;
     }
-    const stage = seconds <= 5 ? 2 : seconds <= 10 ? 1 : 0;
+    const stage = seconds <= 5 ? 1 : 0;
     if (stage <= reminder.current.stage || seconds <= 0) return;
     reminder.current.stage = stage;
-    if (enabled && !table.auto_pass_available) announceSequence([stage === 2 ? "time_warning" : "hurry"]);
+    if (enabled && !table.auto_pass_available) announceSequence(["time_warning"]);
   }, [table, status, enabled, room, now]);
 }
